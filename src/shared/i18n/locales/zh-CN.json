@@ -44,7 +44,7 @@
   "feedback": {
     "proxySaved": "代理已保存",
     "proxyImported": "代理已导入",
-    "proxyEnabled": "代理已启用",
+    "proxyEnabled": "代理已启用，新打开的终端会自动生效",
     "proxyDisabled": "代理已关闭",
     "proxyUpdated": "代理已更新",
     "proxyDeleted": "代理已删除",

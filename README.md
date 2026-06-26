@@ -30,7 +30,9 @@ System network proxy settings are intentionally out of scope for the MVP. This a
 
 ## Verifying Terminal Proxy
 
-After enabling a proxy, make sure shell integration is enabled in Settings. Existing terminal sessions need to reload the profile before environment variables change:
+After enabling a proxy in the app, Term Proxy automatically installs the shell profile integration for the current platform and writes the managed script. Newly opened terminal sessions will load the proxy automatically.
+
+Existing terminal sessions cannot be updated by a desktop app after they have already started. To inspect the generated value in the same session during development:
 
 ```bash
 source ~/.zshrc

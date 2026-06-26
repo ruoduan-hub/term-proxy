@@ -44,7 +44,7 @@
   "feedback": {
     "proxySaved": "Proxy saved",
     "proxyImported": "Proxy imported",
-    "proxyEnabled": "Proxy enabled",
+    "proxyEnabled": "Proxy enabled. New terminals will use it automatically.",
     "proxyDisabled": "Proxy disabled",
     "proxyUpdated": "Proxy updated",
     "proxyDeleted": "Proxy deleted",

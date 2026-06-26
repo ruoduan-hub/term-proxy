@@ -406,6 +406,73 @@ describe("App", () => {
     expect(toast.success).toHaveBeenCalledWith("Proxy disabled");
   });
 
+  it("enables a proxy and tells the user new terminals are updated automatically", async () => {
+    const user = userEvent.setup();
+    const api = await import("./shared/tauri/api");
+    const { toast } = await import("sonner");
+    vi.mocked(api.getProxyStore).mockResolvedValueOnce({
+      proxies: [
+        {
+          id: "http-a",
+          name: "Local HTTP",
+          kind: "http_proxy",
+          scheme: "http",
+          host: "127.0.0.1",
+          port: 1099,
+          enabled: false,
+          createdAt: "2026-06-26T00:00:00Z",
+          updatedAt: "2026-06-26T00:00:00Z",
+        },
+      ],
+      settings: {
+        theme: "system",
+        language: "system",
+        autoLaunch: false,
+        noProxy: "localhost,127.0.0.1",
+        shellIntegration: {
+          zsh: false,
+          bash: false,
+          powershell: false,
+        },
+      },
+    });
+    vi.mocked(api.enableProxyConfig).mockResolvedValueOnce({
+      proxies: [
+        {
+          id: "http-a",
+          name: "Local HTTP",
+          kind: "http_proxy",
+          scheme: "http",
+          host: "127.0.0.1",
+          port: 1099,
+          enabled: true,
+          createdAt: "2026-06-26T00:00:00Z",
+          updatedAt: "2026-06-26T00:00:00Z",
+        },
+      ],
+      settings: {
+        theme: "system",
+        language: "system",
+        autoLaunch: false,
+        noProxy: "localhost,127.0.0.1",
+        shellIntegration: {
+          zsh: true,
+          bash: true,
+          powershell: false,
+        },
+      },
+    });
+
+    await renderApp();
+
+    await user.click(screen.getByRole("button", { name: "Enable Local HTTP" }));
+
+    expect(api.enableProxyConfig).toHaveBeenCalledWith("http-a");
+    expect(toast.success).toHaveBeenCalledWith(
+      "Proxy enabled. New terminals will use it automatically.",
+    );
+  });
+
   it("installs shell integration from settings", async () => {
     const user = userEvent.setup();
     const api = await import("./shared/tauri/api");

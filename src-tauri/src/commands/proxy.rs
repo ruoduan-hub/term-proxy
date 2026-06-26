@@ -4,14 +4,13 @@ use tauri::{AppHandle, Manager};
 
 use crate::{
     models::proxy::{ProxyImportCandidate, ProxyStore, ShellKind},
+    services::proxy::enable_proxy,
     shell::import_scanner::scan_proxy_import_candidates,
     shell::profile::{
         install_profile_marker_file, profile_path_from_home_dir, remove_profile_marker_file,
     },
     storage::managed_files::{managed_proxy_directory_from_home_dir, write_managed_proxy_files},
-    storage::proxy_store::{
-        disable_proxy_in_store, enable_proxy_in_store, load_proxy_store, save_proxy_store,
-    },
+    storage::proxy_store::{disable_proxy_in_store, load_proxy_store, save_proxy_store},
 };
 
 const STORE_FILE_NAME: &str = "proxy-store.json";
@@ -43,7 +42,18 @@ pub fn save_proxy_store_command(app: AppHandle, store: ProxyStore) -> Result<Pro
 #[tauri::command]
 pub fn enable_proxy_config(app: AppHandle, id: String) -> Result<ProxyStore, String> {
     let path = proxy_store_path(&app)?;
-    let store = enable_proxy_in_store(&path, &id).map_err(|error| error.to_string())?;
+    let mut store = load_proxy_store(&path).map_err(|error| error.to_string())?;
+    store.proxies = enable_proxy(store.proxies, &id).map_err(|error| error.to_string())?;
+    let home_dir = app
+        .path()
+        .home_dir()
+        .map_err(|error| format!("failed to resolve home directory: {error}"))?;
+    let store = install_shell_integrations_from_home_dir(
+        &home_dir,
+        store,
+        &default_auto_shell_integrations(),
+    )?;
+    save_proxy_store(&path, &store).map_err(|error| error.to_string())?;
     sync_managed_proxy_files(&app, &store)?;
     Ok(store)
 }
@@ -131,10 +141,38 @@ fn with_shell_integration_setting(
     store
 }
 
+fn default_auto_shell_integrations() -> Vec<ShellKind> {
+    #[cfg(windows)]
+    {
+        vec![ShellKind::PowerShell]
+    }
+
+    #[cfg(not(windows))]
+    {
+        vec![ShellKind::Zsh, ShellKind::Bash]
+    }
+}
+
+fn install_shell_integrations_from_home_dir(
+    home_dir: &Path,
+    mut store: ProxyStore,
+    shells: &[ShellKind],
+) -> Result<ProxyStore, String> {
+    for shell in shells {
+        let profile_path = profile_path_from_home_dir(home_dir, *shell);
+        install_profile_marker_file(&profile_path, *shell).map_err(|error| error.to_string())?;
+        store = with_shell_integration_setting(store, *shell, true);
+    }
+
+    Ok(store)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::models::proxy::ShellKind;
+    use std::fs;
+    use std::time::{SystemTime, UNIX_EPOCH};
 
     #[test]
     fn proxy_store_path_uses_app_config_directory() {
@@ -176,5 +214,48 @@ mod tests {
 
         assert!(!next.settings.shell_integration.zsh);
         assert!(next.settings.shell_integration.bash);
+    }
+
+    #[test]
+    fn default_auto_shell_integrations_match_current_platform() {
+        let shells = default_auto_shell_integrations();
+
+        #[cfg(windows)]
+        assert_eq!(shells, vec![ShellKind::PowerShell]);
+
+        #[cfg(not(windows))]
+        assert_eq!(shells, vec![ShellKind::Zsh, ShellKind::Bash]);
+    }
+
+    #[test]
+    fn auto_shell_integration_installs_markers_and_updates_settings() {
+        let home_dir = temp_home_dir("auto-shell");
+        let store = ProxyStore::default();
+
+        let next = install_shell_integrations_from_home_dir(
+            &home_dir,
+            store,
+            &[ShellKind::Zsh, ShellKind::Bash],
+        )
+        .expect("shell integrations should install");
+
+        let zshrc = fs::read_to_string(home_dir.join(".zshrc")).expect(".zshrc should exist");
+        let bashrc = fs::read_to_string(home_dir.join(".bashrc")).expect(".bashrc should exist");
+
+        assert!(zshrc.contains("# >>> term-proxy initialize >>>"));
+        assert!(bashrc.contains("# >>> term-proxy initialize >>>"));
+        assert!(next.settings.shell_integration.zsh);
+        assert!(next.settings.shell_integration.bash);
+        assert!(!next.settings.shell_integration.powershell);
+
+        let _ = fs::remove_dir_all(home_dir);
+    }
+
+    fn temp_home_dir(name: &str) -> PathBuf {
+        let suffix = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("system time should be valid")
+            .as_nanos();
+        std::env::temp_dir().join(format!("term-proxy-{name}-{suffix}"))
     }
 }

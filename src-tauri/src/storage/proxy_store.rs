@@ -2,7 +2,7 @@ use std::{error::Error, fmt};
 use std::{fs, io, path::Path};
 
 use crate::models::proxy::ProxyStore;
-use crate::services::proxy::{disable_proxy, enable_proxy, ProxyServiceError};
+use crate::services::proxy::{disable_proxy, ProxyServiceError};
 
 pub fn load_proxy_store(path: &Path) -> Result<ProxyStore, ProxyStorageError> {
     match fs::read_to_string(path) {
@@ -22,16 +22,6 @@ pub fn save_proxy_store(path: &Path, store: &ProxyStore) -> Result<(), ProxyStor
         .map_err(|error| ProxyStorageError::Json(error.to_string()))?;
 
     fs::write(path, content).map_err(|error| ProxyStorageError::Io(error.to_string()))
-}
-
-pub fn enable_proxy_in_store(
-    path: &Path,
-    target_id: &str,
-) -> Result<ProxyStore, ProxyStorageError> {
-    let mut store = load_proxy_store(path)?;
-    store.proxies = enable_proxy(store.proxies, target_id).map_err(ProxyStorageError::Service)?;
-    save_proxy_store(path, &store)?;
-    Ok(store)
 }
 
 pub fn disable_proxy_in_store(
@@ -121,49 +111,6 @@ mod tests {
         let loaded = load_proxy_store(&path).expect("saved store should load");
 
         assert_eq!(loaded, store);
-
-        let _ = fs::remove_dir_all(path.parent().unwrap());
-    }
-
-    #[test]
-    fn enabling_proxy_updates_store_file() {
-        let path = temp_store_path("enable");
-        let mut store = load_proxy_store(&path).expect("default store should load");
-        store.proxies = vec![
-            proxy("http-a", ProxyKind::HttpProxy, true),
-            proxy("http-b", ProxyKind::HttpProxy, false),
-            proxy("all-a", ProxyKind::AllProxy, true),
-        ];
-        save_proxy_store(&path, &store).expect("store should save before enabling");
-
-        let updated = enable_proxy_in_store(&path, "http-b").expect("proxy should enable");
-        let loaded = load_proxy_store(&path).expect("updated store should load");
-
-        assert_eq!(updated, loaded);
-        assert!(
-            !loaded
-                .proxies
-                .iter()
-                .find(|item| item.id == "http-a")
-                .unwrap()
-                .enabled
-        );
-        assert!(
-            loaded
-                .proxies
-                .iter()
-                .find(|item| item.id == "http-b")
-                .unwrap()
-                .enabled
-        );
-        assert!(
-            loaded
-                .proxies
-                .iter()
-                .find(|item| item.id == "all-a")
-                .unwrap()
-                .enabled
-        );
 
         let _ = fs::remove_dir_all(path.parent().unwrap());
     }

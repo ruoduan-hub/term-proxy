@@ -44,7 +44,7 @@
   "feedback": {
     "proxySaved": "代理已儲存",
     "proxyImported": "代理已匯入",
-    "proxyEnabled": "代理已啟用",
+    "proxyEnabled": "代理已啟用，新開啟的終端會自動生效",
     "proxyDisabled": "代理已關閉",
     "proxyUpdated": "代理已更新",
     "proxyDeleted": "代理已刪除",
