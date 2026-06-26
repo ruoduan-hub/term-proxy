@@ -42,7 +42,11 @@ export https_proxy=http://127.0.0.1:1087
 | Windows | `Term.Proxy_1.0.0_x64-setup.exe` 或 `Term.Proxy_1.0.0_x64_en-US.msi` |
 | Linux | `Term.Proxy_1.0.0_amd64.AppImage`、`.deb` 或 `.rpm` |
 
-macOS 版本暂未做代码签名。如果首次启动被系统拦截，可以在 Finder 里右键打开一次。
+macOS 版本暂未做代码签名。如果首次启动被系统拦截，可以在 Finder 里右键打开一次。如果应用仍然被拦截，可以移除 quarantine 属性：
+
+```bash
+xattr -dr com.apple.quarantine "/Applications/Term Proxy.app"
+```
 
 ## 为什么做这个
 
