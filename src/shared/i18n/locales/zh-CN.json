@@ -7,8 +7,21 @@
   "proxy": {
     "types": "代理类型",
     "add": "新增代理",
+    "enable": "启用",
+    "enabled": "已启用",
+    "enableNamed": "启用 {{name}}",
     "emptyTitle": "还没有代理配置",
     "emptyDescription": "添加代理配置后即可统一管理终端环境变量。",
+    "form": {
+      "name": "名称",
+      "type": "类型",
+      "scheme": "协议",
+      "host": "主机",
+      "port": "端口",
+      "username": "用户名",
+      "password": "密码",
+      "save": "保存代理"
+    },
     "kind": {
       "http": "http_proxy",
       "https": "https_proxy",

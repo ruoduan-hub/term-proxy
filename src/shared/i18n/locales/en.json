@@ -7,8 +7,21 @@
   "proxy": {
     "types": "Proxy types",
     "add": "Add proxy",
+    "enable": "Enable",
+    "enabled": "Enabled",
+    "enableNamed": "Enable {{name}}",
     "emptyTitle": "No proxies yet",
     "emptyDescription": "Add a proxy configuration to start managing terminal environment variables.",
+    "form": {
+      "name": "Name",
+      "type": "Type",
+      "scheme": "Scheme",
+      "host": "Host",
+      "port": "Port",
+      "username": "Username",
+      "password": "Password",
+      "save": "Save proxy"
+    },
     "kind": {
       "http": "http_proxy",
       "https": "https_proxy",

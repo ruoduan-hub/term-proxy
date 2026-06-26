@@ -16,6 +16,16 @@ export type ProxyConfig = {
   updatedAt: string;
 };
 
+export type NewProxyConfig = {
+  name: string;
+  kind: ProxyKind;
+  scheme: ProxyScheme;
+  host: string;
+  port: number;
+  username?: string;
+  password?: string;
+};
+
 export type ShellIntegrationSettings = {
   zsh: boolean;
   bash: boolean;

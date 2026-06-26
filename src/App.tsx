@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { ImportNotice } from "./features/import/ImportNotice";
@@ -5,9 +6,83 @@ import { ProxyDashboard } from "./features/proxies/ProxyDashboard";
 import { SettingsPanel } from "./features/settings/SettingsPanel";
 import "./shared/i18n";
 import { Badge } from "@/shared/ui/badge";
+import { enableProxyConfig, getProxyStore, saveProxyStore } from "@/shared/tauri/api";
+import type { NewProxyConfig, ProxyConfig, ProxyStore } from "@/shared/types/proxy";
+
+const defaultProxyStore: ProxyStore = {
+  proxies: [],
+  settings: {
+    theme: "system",
+    language: "system",
+    autoLaunch: false,
+    noProxy: "localhost,127.0.0.1",
+    shellIntegration: {
+      zsh: false,
+      bash: false,
+      powershell: false,
+    },
+  },
+};
 
 export function App() {
   const { t } = useTranslation();
+  const [store, setStore] = useState<ProxyStore>(defaultProxyStore);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    void getProxyStore()
+      .then((nextStore) => {
+        if (isMounted) {
+          setStore(nextStore);
+          setError(null);
+        }
+      })
+      .catch((unknownError: unknown) => {
+        if (isMounted) {
+          setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  async function handleAddProxy(proxy: NewProxyConfig) {
+    const now = new Date().toISOString();
+    const newProxy: ProxyConfig = {
+      ...proxy,
+      id: globalThis.crypto?.randomUUID?.() ?? `proxy-${Date.now()}`,
+      enabled: false,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    const nextStore = {
+      ...store,
+      proxies: [...store.proxies, newProxy],
+    };
+
+    try {
+      const savedStore = await saveProxyStore(nextStore);
+      setStore(savedStore);
+      setError(null);
+    } catch (unknownError) {
+      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
+    }
+  }
+
+  async function handleEnableProxy(id: string) {
+    try {
+      const nextStore = await enableProxyConfig(id);
+      setStore(nextStore);
+      setError(null);
+    } catch (unknownError) {
+      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
+    }
+  }
 
   return (
     <main className="min-h-dvh bg-gradient-to-b from-background to-muted px-5 py-6 text-foreground md:px-8 md:py-8">
@@ -23,7 +98,16 @@ export function App() {
 
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="grid gap-5">
-          <ProxyDashboard />
+          {error ? (
+            <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+              {error}
+            </div>
+          ) : null}
+          <ProxyDashboard
+            proxies={store.proxies}
+            onAddProxy={handleAddProxy}
+            onEnableProxy={handleEnableProxy}
+          />
           <ImportNotice />
         </div>
         <SettingsPanel />

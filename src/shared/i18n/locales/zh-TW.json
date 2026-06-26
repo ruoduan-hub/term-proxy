@@ -7,8 +7,21 @@
   "proxy": {
     "types": "代理類型",
     "add": "新增代理",
+    "enable": "啟用",
+    "enabled": "已啟用",
+    "enableNamed": "啟用 {{name}}",
     "emptyTitle": "尚無代理設定",
     "emptyDescription": "新增代理設定後即可統一管理終端環境變數。",
+    "form": {
+      "name": "名稱",
+      "type": "類型",
+      "scheme": "協議",
+      "host": "主機",
+      "port": "連接埠",
+      "username": "使用者名稱",
+      "password": "密碼",
+      "save": "儲存代理"
+    },
     "kind": {
       "http": "http_proxy",
       "https": "https_proxy",

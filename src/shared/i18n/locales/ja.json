@@ -7,8 +7,21 @@
   "proxy": {
     "types": "プロキシ種別",
     "add": "プロキシを追加",
+    "enable": "有効化",
+    "enabled": "有効",
+    "enableNamed": "{{name}} を有効化",
     "emptyTitle": "プロキシ設定はまだありません",
     "emptyDescription": "設定を追加すると、ターミナル環境変数を管理できます。",
+    "form": {
+      "name": "名前",
+      "type": "種別",
+      "scheme": "スキーム",
+      "host": "ホスト",
+      "port": "ポート",
+      "username": "ユーザー名",
+      "password": "パスワード",
+      "save": "プロキシを保存"
+    },
     "kind": {
       "http": "http_proxy",
       "https": "https_proxy",
