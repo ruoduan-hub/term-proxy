@@ -69,9 +69,25 @@ mod tests {
 
         let next = enable_proxy(configs, "http-b").expect("proxy should exist");
 
-        assert!(!next.iter().find(|item| item.id == "http-a").unwrap().enabled);
-        assert!(next.iter().find(|item| item.id == "http-b").unwrap().enabled);
-        assert!(next.iter().find(|item| item.id == "https-a").unwrap().enabled);
+        assert!(
+            !next
+                .iter()
+                .find(|item| item.id == "http-a")
+                .unwrap()
+                .enabled
+        );
+        assert!(
+            next.iter()
+                .find(|item| item.id == "http-b")
+                .unwrap()
+                .enabled
+        );
+        assert!(
+            next.iter()
+                .find(|item| item.id == "https-a")
+                .unwrap()
+                .enabled
+        );
     }
 
     #[test]

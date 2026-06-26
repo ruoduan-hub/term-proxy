@@ -1,5 +1,5 @@
-use std::{fs, io, path::Path};
 use std::{error::Error, fmt};
+use std::{fs, io, path::Path};
 
 use crate::models::proxy::ProxyStore;
 use crate::services::proxy::{enable_proxy, ProxyServiceError};
@@ -24,7 +24,10 @@ pub fn save_proxy_store(path: &Path, store: &ProxyStore) -> Result<(), ProxyStor
     fs::write(path, content).map_err(|error| ProxyStorageError::Io(error.to_string()))
 }
 
-pub fn enable_proxy_in_store(path: &Path, target_id: &str) -> Result<ProxyStore, ProxyStorageError> {
+pub fn enable_proxy_in_store(
+    path: &Path,
+    target_id: &str,
+) -> Result<ProxyStore, ProxyStorageError> {
     let mut store = load_proxy_store(path)?;
     store.proxies = enable_proxy(store.proxies, target_id).map_err(ProxyStorageError::Service)?;
     save_proxy_store(path, &store)?;
@@ -63,7 +66,9 @@ mod tests {
             .duration_since(UNIX_EPOCH)
             .expect("system time should be valid")
             .as_nanos();
-        std::env::temp_dir().join(format!("term-proxy-{name}-{suffix}.json"))
+        std::env::temp_dir()
+            .join(format!("term-proxy-{name}-{suffix}"))
+            .join("proxy-store.json")
     }
 
     fn proxy(id: &str, kind: ProxyKind, enabled: bool) -> ProxyConfig {
@@ -99,7 +104,9 @@ mod tests {
     fn saved_store_can_be_loaded_back() {
         let path = temp_store_path("roundtrip");
         let mut store = load_proxy_store(&path).expect("default store should load");
-        store.proxies.push(proxy("http-a", ProxyKind::HttpProxy, true));
+        store
+            .proxies
+            .push(proxy("http-a", ProxyKind::HttpProxy, true));
         store.settings.no_proxy = "localhost,127.0.0.1,*.local".to_string();
 
         save_proxy_store(&path, &store).expect("store should save");
@@ -107,7 +114,7 @@ mod tests {
 
         assert_eq!(loaded, store);
 
-        let _ = fs::remove_file(path);
+        let _ = fs::remove_dir_all(path.parent().unwrap());
     }
 
     #[test]
@@ -125,10 +132,31 @@ mod tests {
         let loaded = load_proxy_store(&path).expect("updated store should load");
 
         assert_eq!(updated, loaded);
-        assert!(!loaded.proxies.iter().find(|item| item.id == "http-a").unwrap().enabled);
-        assert!(loaded.proxies.iter().find(|item| item.id == "http-b").unwrap().enabled);
-        assert!(loaded.proxies.iter().find(|item| item.id == "all-a").unwrap().enabled);
+        assert!(
+            !loaded
+                .proxies
+                .iter()
+                .find(|item| item.id == "http-a")
+                .unwrap()
+                .enabled
+        );
+        assert!(
+            loaded
+                .proxies
+                .iter()
+                .find(|item| item.id == "http-b")
+                .unwrap()
+                .enabled
+        );
+        assert!(
+            loaded
+                .proxies
+                .iter()
+                .find(|item| item.id == "all-a")
+                .unwrap()
+                .enabled
+        );
 
-        let _ = fs::remove_file(path);
+        let _ = fs::remove_dir_all(path.parent().unwrap());
     }
 }

@@ -13,7 +13,10 @@ pub fn render_posix_proxy_script(store: &ProxyStore) -> String {
 
     let no_proxy = store.settings.no_proxy.trim();
     if !no_proxy.is_empty() {
-        lines.push(format!("export no_proxy=\"{}\"", shell_double_quote_value(no_proxy)));
+        lines.push(format!(
+            "export no_proxy=\"{}\"",
+            shell_double_quote_value(no_proxy)
+        ));
     }
 
     lines.push(String::new());
@@ -71,11 +74,17 @@ fn proxy_url(proxy: &ProxyConfig) -> String {
 }
 
 fn shell_double_quote_value(value: &str) -> String {
-    value.replace('\\', "\\\\").replace('"', "\\\"").replace('$', "\\$")
+    value
+        .replace('\\', "\\\\")
+        .replace('"', "\\\"")
+        .replace('$', "\\$")
 }
 
 fn powershell_double_quote_value(value: &str) -> String {
-    value.replace('`', "``").replace('"', "`\"").replace('$', "`$")
+    value
+        .replace('`', "``")
+        .replace('"', "`\"")
+        .replace('$', "`$")
 }
 
 #[cfg(test)]
