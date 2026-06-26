@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { App } from "./App";
-import "../shared/i18n";
+import "./shared/i18n";
 
 describe("App", () => {
   it("renders translated proxy management sections", () => {

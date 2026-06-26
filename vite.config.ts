@@ -1,13 +1,27 @@
-import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
-export default defineConfig({
+// @ts-expect-error process is a nodejs global
+const host = process.env.TAURI_DEV_HOST || "127.0.0.1";
+
+// https://vite.dev/config/
+export default defineConfig(async () => ({
   plugins: [react()],
+
+  // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`.
   clearScreen: false,
   server: {
-    host: "127.0.0.1",
     port: 1420,
     strictPort: true,
+    host,
+    hmr: {
+      protocol: "ws",
+      host,
+      port: 1421,
+    },
+    watch: {
+      ignored: ["**/src-tauri/**"],
+    },
   },
   envPrefix: ["VITE_", "TAURI_"],
   test: {
@@ -15,4 +29,4 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
   },
-});
+}));

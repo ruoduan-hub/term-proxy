@@ -1,10 +1,10 @@
 import { useTranslation } from "react-i18next";
 
-import { ImportNotice } from "../features/import/ImportNotice";
-import { ProxyDashboard } from "../features/proxies/ProxyDashboard";
-import { SettingsPanel } from "../features/settings/SettingsPanel";
-import "../shared/i18n";
-import "./styles.css";
+import { ImportNotice } from "./features/import/ImportNotice";
+import { ProxyDashboard } from "./features/proxies/ProxyDashboard";
+import { SettingsPanel } from "./features/settings/SettingsPanel";
+import "./shared/i18n";
+import "./App.css";
 
 export function App() {
   const { t } = useTranslation();

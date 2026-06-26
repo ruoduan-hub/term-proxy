@@ -55,31 +55,6 @@ button {
   font-size: 13px;
 }
 
-.proxy-tabs {
-  display: flex;
-  gap: 8px;
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 4px;
-  border: 1px solid oklch(0.88 0.008 130);
-  border-radius: 12px;
-  background: oklch(0.972 0.004 130);
-}
-
-.proxy-tabs button {
-  border: 0;
-  border-radius: 9px;
-  padding: 10px 14px;
-  background: transparent;
-  color: oklch(0.18 0.012 130);
-  cursor: pointer;
-}
-
-.proxy-tabs button:first-child {
-  background: oklch(1 0 0);
-  box-shadow: 0 1px 2px oklch(0 0 0 / 0.08);
-}
-
 .app-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 320px;

@@ -1,15 +1,6 @@
-mod commands;
-mod models;
-mod services;
-
-#[cfg_attr(mobile, tauri::mobile_entry_point)]
-pub fn run() {
-    tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![commands::app::get_app_info])
-        .run(tauri::generate_context!())
-        .expect("failed to run Term Proxy");
-}
+// Prevents additional console window on Windows in release, DO NOT REMOVE!!
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    run();
+    term_proxy_lib::run()
 }

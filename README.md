@@ -14,6 +14,8 @@ System-level proxy changes are intentionally out of scope for the first version.
 
 ## Stack
 
+Project structure follows the official `create-tauri-app` React TypeScript template.
+
 - Tauri 2
 - React
 - TypeScript
