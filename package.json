@@ -12,10 +12,12 @@
     "test:watch": "vitest",
     "lint": "tsc",
     "tauri": "tauri",
+    "tauri:icon": "tauri icon",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
     "cargo:fmt": "cargo fmt --manifest-path src-tauri/Cargo.toml --check",
-    "cargo:test": "cargo test --manifest-path src-tauri/Cargo.toml"
+    "cargo:test": "cargo test --manifest-path src-tauri/Cargo.toml",
+    "cargo:clean": "cargo clean --manifest-path src-tauri/Cargo.toml"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.10",
