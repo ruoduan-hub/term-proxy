@@ -179,7 +179,7 @@ export function App() {
         </header>
 
         {activeView === "settings" ? (
-          <div className="mx-auto w-full max-w-xl">
+          <div className="grid content-start gap-3">
             {error ? (
               <div className="mb-3 flex items-start gap-3 rounded-lg border border-destructive/25 bg-destructive/8 px-3 py-2.5 text-sm text-destructive">
                 <CircleAlert

@@ -83,6 +83,18 @@ describe("App", () => {
     expect(screen.queryByText("Shell integration")).not.toBeInTheDocument();
   });
 
+  it("keeps the settings view aligned to the app content width", async () => {
+    const user = userEvent.setup();
+    const api = await import("./shared/tauri/api");
+    const { container } = renderApp();
+
+    await waitFor(() => expect(api.getProxyStore).toHaveBeenCalled());
+    await user.click(screen.getByRole("button", { name: "Settings" }));
+
+    expect(container.querySelector(".max-w-xl")).not.toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Settings" })).toBeInTheDocument();
+  });
+
   it("saves a new proxy through the Tauri API", async () => {
     const user = userEvent.setup();
     const api = await import("./shared/tauri/api");

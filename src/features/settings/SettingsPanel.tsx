@@ -7,15 +7,9 @@ import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/ui/select";
 import { Separator } from "@/shared/ui/separator";
 import { Switch } from "@/shared/ui/switch";
+import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 
 type SettingsPanelProps = {
   settings: AppSettings;
@@ -27,6 +21,20 @@ const shellOptions: Array<{ kind: ShellKind; label: string }> = [
   { kind: "zsh", label: "zsh" },
   { kind: "bash", label: "bash" },
   { kind: "powershell", label: "PowerShell" },
+];
+
+const themeOptions: Array<{ value: AppSettings["theme"]; labelKey: string }> = [
+  { value: "system", labelKey: "settings.themeOptions.system" },
+  { value: "light", labelKey: "settings.themeOptions.light" },
+  { value: "dark", labelKey: "settings.themeOptions.dark" },
+];
+
+const languageOptions: Array<{ value: AppSettings["language"]; labelKey: string }> = [
+  { value: "system", labelKey: "settings.languageOptions.system" },
+  { value: "zh-CN", labelKey: "settings.languageOptions.zhCN" },
+  { value: "en", labelKey: "settings.languageOptions.en" },
+  { value: "ja", labelKey: "settings.languageOptions.ja" },
+  { value: "zh-TW", labelKey: "settings.languageOptions.zhTW" },
 ];
 
 export function SettingsPanel({
@@ -75,43 +83,48 @@ export function SettingsPanel({
       </CardHeader>
       <CardContent className="pt-4">
         <form className="grid gap-4" onSubmit={handleSubmit}>
-          <div className="grid gap-3">
-            <div className="grid gap-1">
-              <Label htmlFor="settings-theme">{t("settings.theme")}</Label>
-              <Select
+          <div className="grid gap-3 lg:grid-cols-2">
+            <div className="grid gap-2">
+              <div className="text-sm font-medium text-muted-foreground">
+                {t("settings.theme")}
+              </div>
+              <Tabs
                 value={selectedTheme}
                 onValueChange={(value) => handleThemeChange(value as AppSettings["theme"])}
               >
-                <SelectTrigger id="settings-theme">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="system">{t("settings.themeOptions.system")}</SelectItem>
-                  <SelectItem value="light">{t("settings.themeOptions.light")}</SelectItem>
-                  <SelectItem value="dark">{t("settings.themeOptions.dark")}</SelectItem>
-                </SelectContent>
-              </Select>
+                <TabsList aria-label={t("settings.theme")} className="grid w-full grid-cols-3">
+                  {themeOptions.map((option) => (
+                    <TabsTrigger key={option.value} value={option.value} className="min-w-0 px-2">
+                      {t(option.labelKey)}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
             </div>
-            <div className="grid gap-1">
-              <Label htmlFor="settings-language">{t("settings.language")}</Label>
-              <Select
+            <div className="grid gap-2">
+              <div className="text-sm font-medium text-muted-foreground">
+                {t("settings.language")}
+              </div>
+              <Tabs
                 value={selectedLanguage}
                 onValueChange={(value) =>
                   setSelectedLanguage(value as AppSettings["language"])
                 }
               >
-                <SelectTrigger id="settings-language">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="system">{t("settings.languageOptions.system")}</SelectItem>
-                  <SelectItem value="zh-CN">{t("settings.languageOptions.zhCN")}</SelectItem>
-                  <SelectItem value="en">{t("settings.languageOptions.en")}</SelectItem>
-                  <SelectItem value="ja">{t("settings.languageOptions.ja")}</SelectItem>
-                  <SelectItem value="zh-TW">{t("settings.languageOptions.zhTW")}</SelectItem>
-                </SelectContent>
-              </Select>
+                <TabsList
+                  aria-label={t("settings.language")}
+                  className="grid w-full grid-cols-2 sm:grid-cols-5"
+                >
+                  {languageOptions.map((option) => (
+                    <TabsTrigger key={option.value} value={option.value} className="min-w-0 px-2">
+                      {t(option.labelKey)}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
             </div>
+          </div>
+          <div className="grid gap-3">
             <div className="flex min-h-9 items-center justify-between gap-4 rounded-md border border-border/65 bg-muted/28 px-3 py-2">
               <span className="text-sm text-muted-foreground">{t("settings.autoLaunch")}</span>
               <span className="text-sm font-medium">
