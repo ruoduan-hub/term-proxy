@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
 import { vi } from "vitest";
@@ -45,13 +45,15 @@ describe("App", () => {
   afterEach(async () => {
     document.documentElement.classList.remove("dark");
     localStorage.clear();
-    await i18n.changeLanguage("en");
+    await act(async () => {
+      await i18n.changeLanguage("en");
+    });
   });
 
   it("renders translated proxy management sections", async () => {
     const api = await import("./shared/tauri/api");
 
-    renderApp();
+    await renderApp();
 
     await waitFor(() => expect(api.getProxyStore).toHaveBeenCalled());
 
@@ -67,7 +69,7 @@ describe("App", () => {
     const user = userEvent.setup();
     const api = await import("./shared/tauri/api");
 
-    renderApp();
+    await renderApp();
 
     await waitFor(() => expect(api.getProxyStore).toHaveBeenCalled());
 
@@ -86,7 +88,7 @@ describe("App", () => {
   it("keeps the settings view aligned to the app content width", async () => {
     const user = userEvent.setup();
     const api = await import("./shared/tauri/api");
-    const { container } = renderApp();
+    const { container } = await renderApp();
 
     await waitFor(() => expect(api.getProxyStore).toHaveBeenCalled());
     await user.click(screen.getByRole("button", { name: "Settings" }));
@@ -99,7 +101,7 @@ describe("App", () => {
     const user = userEvent.setup();
     const api = await import("./shared/tauri/api");
 
-    renderApp();
+    await renderApp();
 
     await waitFor(() => expect(api.getProxyStore).toHaveBeenCalled());
 
@@ -130,7 +132,7 @@ describe("App", () => {
     const user = userEvent.setup();
     const api = await import("./shared/tauri/api");
 
-    renderApp();
+    await renderApp();
 
     await waitFor(() => expect(api.getProxyStore).toHaveBeenCalled());
     await user.click(screen.getByRole("button", { name: "Settings" }));
@@ -143,7 +145,7 @@ describe("App", () => {
     const user = userEvent.setup();
     const api = await import("./shared/tauri/api");
 
-    renderApp();
+    await renderApp();
 
     await waitFor(() => expect(api.getProxyStore).toHaveBeenCalled());
     await user.click(screen.getByRole("button", { name: "Settings" }));
@@ -177,7 +179,7 @@ describe("App", () => {
       },
     });
 
-    renderApp();
+    await renderApp();
 
     await waitFor(() => expect(document.documentElement).toHaveClass("dark"));
   });
@@ -199,16 +201,22 @@ describe("App", () => {
       },
     });
 
-    renderApp();
+    await renderApp();
 
     await waitFor(() => expect(screen.getByText("代理类型")).toBeInTheDocument());
   });
 });
 
-function renderApp() {
-  return render(
+async function renderApp() {
+  const renderResult = render(
     <ThemeProvider storageKey="term-proxy-test-theme">
       <App />
     </ThemeProvider>,
   );
+
+  await act(async () => {
+    await Promise.resolve();
+  });
+
+  return renderResult;
 }
