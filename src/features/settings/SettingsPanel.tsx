@@ -24,7 +24,12 @@ export function SettingsPanel({
   onToggleShellIntegration,
 }: SettingsPanelProps) {
   const { t } = useTranslation();
+  const [theme, setTheme] = useState<AppSettings["theme"]>(settings.theme);
   const [noProxy, setNoProxy] = useState(settings.noProxy);
+
+  useEffect(() => {
+    setTheme(settings.theme);
+  }, [settings.theme]);
 
   useEffect(() => {
     setNoProxy(settings.noProxy);
@@ -34,6 +39,7 @@ export function SettingsPanel({
     event.preventDefault();
     void onSaveSettings({
       ...settings,
+      theme,
       noProxy: noProxy.trim(),
     });
   }
@@ -46,9 +52,24 @@ export function SettingsPanel({
       <CardContent>
         <form className="grid gap-4" onSubmit={handleSubmit}>
           <dl className="grid gap-4">
-            <div className="flex justify-between gap-4">
-              <dt className="text-sm text-muted-foreground">{t("settings.theme")}</dt>
-              <dd className="text-sm font-medium">{settings.theme}</dd>
+            <div className="grid gap-1">
+              <dt>
+                <label className="text-sm text-muted-foreground" htmlFor="settings-theme">
+                  {t("settings.theme")}
+                </label>
+              </dt>
+              <dd>
+                <select
+                  id="settings-theme"
+                  value={theme}
+                  className="h-9 w-full rounded-md border bg-background px-3 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40"
+                  onChange={(event) => setTheme(event.currentTarget.value as AppSettings["theme"])}
+                >
+                  <option value="system">{t("settings.themeOptions.system")}</option>
+                  <option value="light">{t("settings.themeOptions.light")}</option>
+                  <option value="dark">{t("settings.themeOptions.dark")}</option>
+                </select>
+              </dd>
             </div>
             <div className="flex justify-between gap-4">
               <dt className="text-sm text-muted-foreground">{t("settings.language")}</dt>

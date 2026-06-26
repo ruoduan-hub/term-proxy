@@ -42,6 +42,26 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const mediaQuery = globalThis.matchMedia?.("(prefers-color-scheme: dark)") ?? null;
+
+    function applyTheme() {
+      const prefersDark = mediaQuery?.matches ?? false;
+      const shouldUseDark = store.settings.theme === "dark" || (
+        store.settings.theme === "system" && prefersDark
+      );
+
+      document.documentElement.classList.toggle("dark", shouldUseDark);
+    }
+
+    applyTheme();
+    mediaQuery?.addEventListener?.("change", applyTheme);
+
+    return () => {
+      mediaQuery?.removeEventListener?.("change", applyTheme);
+    };
+  }, [store.settings.theme]);
+
+  useEffect(() => {
     let isMounted = true;
 
     void getProxyStore()

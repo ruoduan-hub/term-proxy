@@ -33,6 +33,11 @@
   "settings": {
     "title": "設定",
     "theme": "テーマ",
+    "themeOptions": {
+      "system": "システムに合わせる",
+      "light": "ライト",
+      "dark": "ダーク"
+    },
     "language": "言語",
     "autoLaunch": "起動時に開く",
     "noProxy": "グローバル no_proxy",

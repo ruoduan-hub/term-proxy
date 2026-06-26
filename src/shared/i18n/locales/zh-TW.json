@@ -33,6 +33,11 @@
   "settings": {
     "title": "設定",
     "theme": "主題",
+    "themeOptions": {
+      "system": "跟隨系統",
+      "light": "淺色",
+      "dark": "深色"
+    },
     "language": "語言",
     "autoLaunch": "開機自動啟動",
     "noProxy": "全域 no_proxy",

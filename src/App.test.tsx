@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { vi } from "vitest";
 
 import { App } from "./App";
@@ -41,6 +41,10 @@ vi.mock("./shared/tauri/api", () => ({
 }));
 
 describe("App", () => {
+  afterEach(() => {
+    document.documentElement.classList.remove("dark");
+  });
+
   it("renders translated proxy management sections", async () => {
     const api = await import("./shared/tauri/api");
 
@@ -117,5 +121,27 @@ describe("App", () => {
         }),
       }),
     );
+  });
+
+  it("applies dark theme from stored settings", async () => {
+    const api = await import("./shared/tauri/api");
+    vi.mocked(api.getProxyStore).mockResolvedValueOnce({
+      proxies: [],
+      settings: {
+        theme: "dark",
+        language: "system",
+        autoLaunch: false,
+        noProxy: "localhost,127.0.0.1",
+        shellIntegration: {
+          zsh: false,
+          bash: false,
+          powershell: false,
+        },
+      },
+    });
+
+    render(<App />);
+
+    await waitFor(() => expect(document.documentElement).toHaveClass("dark"));
   });
 });

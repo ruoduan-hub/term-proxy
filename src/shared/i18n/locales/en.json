@@ -33,6 +33,11 @@
   "settings": {
     "title": "Settings",
     "theme": "Theme",
+    "themeOptions": {
+      "system": "Follow system",
+      "light": "Light",
+      "dark": "Dark"
+    },
     "language": "Language",
     "autoLaunch": "Launch at startup",
     "noProxy": "Global no_proxy",

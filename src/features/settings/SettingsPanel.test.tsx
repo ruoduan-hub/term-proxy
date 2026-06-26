@@ -19,6 +19,27 @@ const settings: AppSettings = {
 };
 
 describe("SettingsPanel", () => {
+  it("saves the selected theme value", async () => {
+    const user = userEvent.setup();
+    const onSaveSettings = vi.fn(async (_settings: AppSettings) => {});
+
+    render(
+      <SettingsPanel
+        settings={settings}
+        onSaveSettings={onSaveSettings}
+        onToggleShellIntegration={vi.fn()}
+      />,
+    );
+
+    await user.selectOptions(screen.getByLabelText("Theme"), "dark");
+    await user.click(screen.getByRole("button", { name: "Save settings" }));
+
+    expect(onSaveSettings).toHaveBeenCalledWith({
+      ...settings,
+      theme: "dark",
+    });
+  });
+
   it("renders shell integration switches from settings", () => {
     render(
       <SettingsPanel
