@@ -25,6 +25,7 @@
     "form": {
       "name": "Name",
       "host": "Host",
+      "hostIpTitle": "Use an IPv4 address, for example 127.0.0.1",
       "port": "Port",
       "save": "Save proxy"
     },

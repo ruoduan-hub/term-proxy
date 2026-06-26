@@ -17,6 +17,9 @@ const proxyKinds = [
 ] as const;
 
 const DEFAULT_PROXY_SCHEME: ProxyScheme = "http";
+const PROXY_NAME_MAX_LENGTH = 30;
+const IPV4_ADDRESS_PATTERN =
+  "((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.){3}(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)";
 
 type ProxyDashboardProps = {
   proxies: ProxyConfig[];
@@ -29,6 +32,12 @@ type ProxyDashboardProps = {
 };
 
 type EditableProxyConfig = Pick<ProxyConfig, "name" | "host" | "port">;
+
+function normalizeProxyName(name: FormDataEntryValue | null) {
+  return String(name ?? "")
+    .trim()
+    .slice(0, PROXY_NAME_MAX_LENGTH);
+}
 
 export function ProxyDashboard({
   proxies,
@@ -57,7 +66,7 @@ export function ProxyDashboard({
     try {
       setIsSubmittingAdd(true);
       await onAddProxy({
-        name: String(data.get("name") ?? "").trim(),
+        name: normalizeProxyName(data.get("name")),
         kind: selectedKind,
         scheme: DEFAULT_PROXY_SCHEME,
         host: String(data.get("host") ?? "").trim(),
@@ -79,7 +88,7 @@ export function ProxyDashboard({
     try {
       setSubmittingEditId(id);
       await onUpdateProxy(id, {
-        name: String(data.get("name") ?? "").trim(),
+        name: normalizeProxyName(data.get("name")),
         host: String(data.get("host") ?? "").trim(),
         port: Number(data.get("port")),
       });
@@ -137,13 +146,25 @@ export function ProxyDashboard({
               >
                 <div className="grid gap-2">
                   <Label htmlFor="proxy-name">{t("proxy.form.name")}</Label>
-                  <Input id="proxy-name" name="name" required />
+                  <Input
+                    id="proxy-name"
+                    name="name"
+                    maxLength={PROXY_NAME_MAX_LENGTH}
+                    required
+                  />
                 </div>
 
                 <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_120px]">
                   <div className="grid gap-2">
                     <Label htmlFor="proxy-host">{t("proxy.form.host")}</Label>
-                    <Input id="proxy-host" name="host" required />
+                    <Input
+                      id="proxy-host"
+                      name="host"
+                      inputMode="decimal"
+                      pattern={IPV4_ADDRESS_PATTERN}
+                      title={t("proxy.form.hostIpTitle")}
+                      required
+                    />
                   </div>
 
                   <div className="grid gap-2">
@@ -186,6 +207,7 @@ export function ProxyDashboard({
                             id={`proxy-name-${proxy.id}`}
                             name="name"
                             defaultValue={proxy.name}
+                            maxLength={PROXY_NAME_MAX_LENGTH}
                             required
                           />
                         </div>
@@ -199,6 +221,9 @@ export function ProxyDashboard({
                               id={`proxy-host-${proxy.id}`}
                               name="host"
                               defaultValue={proxy.host}
+                              inputMode="decimal"
+                              pattern={IPV4_ADDRESS_PATTERN}
+                              title={t("proxy.form.hostIpTitle")}
                               required
                             />
                           </div>

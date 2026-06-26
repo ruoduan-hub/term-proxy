@@ -70,6 +70,16 @@ describe("SettingsPanel", () => {
     expect(screen.getByRole("tablist", { name: "Language" })).not.toHaveClass("w-full");
   });
 
+  it("keeps auto launch compact and renders no_proxy as multiline input", () => {
+    render(<SettingsPanel settings={settings} onSaveSettings={vi.fn()} />);
+
+    const autoLaunch = screen.getByRole("switch", { name: "Launch at startup" });
+    const noProxy = screen.getByLabelText("Global no_proxy");
+
+    expect(autoLaunch.closest("div")).toHaveClass("max-w-[18rem]");
+    expect(noProxy.tagName).toBe("TEXTAREA");
+  });
+
   it("does not render shell integration controls", () => {
     render(
       <SettingsPanel

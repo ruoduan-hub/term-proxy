@@ -5,10 +5,10 @@ import type { AppSettings } from "@/shared/types/proxy";
 import { useTheme } from "@/shared/theme/ThemeProvider";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
-import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Switch } from "@/shared/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
+import { Textarea } from "@/shared/ui/textarea";
 
 type SettingsPanelProps = {
   settings: AppSettings;
@@ -126,7 +126,7 @@ export function SettingsPanel({ settings, onSaveSettings }: SettingsPanelProps) 
             </div>
           </div>
           <div className="grid gap-3">
-            <div className="flex min-h-10 items-center justify-between gap-3 rounded-md border border-border/70 bg-background px-3 py-2 dark:bg-secondary/20">
+            <div className="flex min-h-10 max-w-[18rem] items-center justify-between gap-3 rounded-md border border-border/70 bg-background px-3 py-2 dark:bg-secondary/20">
               <Label htmlFor="settings-auto-launch" className="text-sm">
                 {t("settings.autoLaunch")}
               </Label>
@@ -137,12 +137,13 @@ export function SettingsPanel({ settings, onSaveSettings }: SettingsPanelProps) 
                 onCheckedChange={setAutoLaunch}
               />
             </div>
-            <div className="grid gap-1">
+            <div className="grid max-w-[32rem] gap-1">
               <Label htmlFor="settings-no-proxy">{t("settings.noProxy")}</Label>
-              <Input
+              <Textarea
                 id="settings-no-proxy"
                 value={noProxy}
                 className="font-mono"
+                rows={4}
                 onChange={(event) => setNoProxy(event.currentTarget.value)}
               />
             </div>

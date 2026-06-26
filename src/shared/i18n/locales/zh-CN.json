@@ -25,6 +25,7 @@
     "form": {
       "name": "名称",
       "host": "主机",
+      "hostIpTitle": "请输入 IPv4 地址，例如 127.0.0.1",
       "port": "端口",
       "save": "保存代理"
     },

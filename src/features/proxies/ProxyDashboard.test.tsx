@@ -108,6 +108,37 @@ describe("ProxyDashboard", () => {
     });
   });
 
+  it("limits proxy names and accepts only IPv4 hosts in the add form", async () => {
+    const user = userEvent.setup();
+    const onAddProxy = vi.fn();
+
+    render(
+      <ProxyDashboard
+        proxies={[]}
+        onAddProxy={onAddProxy}
+        onEnableProxy={vi.fn()}
+        onDisableProxy={vi.fn()}
+        onUpdateProxy={vi.fn()}
+        onDeleteProxy={vi.fn()}
+        onCopyProxyUrl={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Add proxy" }));
+
+    const name = screen.getByLabelText("Name");
+    const host = screen.getByLabelText("Host");
+
+    expect(name).toHaveAttribute("maxLength", "30");
+    expect(host).toHaveAttribute("pattern");
+
+    await user.type(name, "Invalid host");
+    await user.type(host, "localhost");
+    await user.click(screen.getByRole("button", { name: "Save proxy" }));
+
+    expect(onAddProxy).not.toHaveBeenCalled();
+  });
+
   it("disables the add form save button while submitting", async () => {
     const user = userEvent.setup();
     let resolveSubmit: () => void = () => {};
@@ -172,6 +203,27 @@ describe("ProxyDashboard", () => {
       host: "10.0.0.3",
       port: 1088,
     });
+  });
+
+  it("limits proxy names and accepts only IPv4 hosts in the edit form", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <ProxyDashboard
+        proxies={[proxy({ id: "http-b", name: "Backup HTTP", host: "10.0.0.2" })]}
+        onAddProxy={vi.fn()}
+        onEnableProxy={vi.fn()}
+        onDisableProxy={vi.fn()}
+        onUpdateProxy={vi.fn()}
+        onDeleteProxy={vi.fn()}
+        onCopyProxyUrl={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Edit Backup HTTP" }));
+
+    expect(screen.getByLabelText("Name")).toHaveAttribute("maxLength", "30");
+    expect(screen.getByLabelText("Host")).toHaveAttribute("pattern");
   });
 
   it("deletes a proxy row", async () => {
