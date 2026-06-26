@@ -13,7 +13,13 @@ import {
   removeShellIntegration,
   saveProxyStore,
 } from "@/shared/tauri/api";
-import type { NewProxyConfig, ProxyConfig, ProxyStore, ShellKind } from "@/shared/types/proxy";
+import type {
+  AppSettings,
+  NewProxyConfig,
+  ProxyConfig,
+  ProxyStore,
+  ShellKind,
+} from "@/shared/types/proxy";
 
 const defaultProxyStore: ProxyStore = {
   proxies: [],
@@ -102,6 +108,21 @@ export function App() {
     }
   }
 
+  async function handleSaveSettings(settings: AppSettings) {
+    const nextStore = {
+      ...store,
+      settings,
+    };
+
+    try {
+      const savedStore = await saveProxyStore(nextStore);
+      setStore(savedStore);
+      setError(null);
+    } catch (unknownError) {
+      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
+    }
+  }
+
   return (
     <main className="min-h-dvh bg-gradient-to-b from-background to-muted px-5 py-6 text-foreground md:px-8 md:py-8">
       <header className="mx-auto mb-6 flex max-w-6xl flex-col items-start justify-between gap-4 md:flex-row md:items-center">
@@ -130,6 +151,7 @@ export function App() {
         </div>
         <SettingsPanel
           settings={store.settings}
+          onSaveSettings={handleSaveSettings}
           onToggleShellIntegration={handleToggleShellIntegration}
         />
       </div>

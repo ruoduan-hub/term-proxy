@@ -38,6 +38,7 @@
     "noProxy": "グローバル no_proxy",
     "shellIntegration": "Shell 連携",
     "on": "オン",
-    "off": "オフ"
+    "off": "オフ",
+    "save": "設定を保存"
   }
 }

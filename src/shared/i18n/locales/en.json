@@ -38,6 +38,7 @@
     "noProxy": "Global no_proxy",
     "shellIntegration": "Shell integration",
     "on": "On",
-    "off": "Off"
+    "off": "Off",
+    "save": "Save settings"
   }
 }

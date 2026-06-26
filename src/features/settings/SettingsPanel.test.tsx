@@ -20,7 +20,13 @@ const settings: AppSettings = {
 
 describe("SettingsPanel", () => {
   it("renders shell integration switches from settings", () => {
-    render(<SettingsPanel settings={settings} onToggleShellIntegration={vi.fn()} />);
+    render(
+      <SettingsPanel
+        settings={settings}
+        onSaveSettings={vi.fn()}
+        onToggleShellIntegration={vi.fn()}
+      />,
+    );
 
     expect(screen.getByRole("switch", { name: "zsh" })).toHaveAttribute(
       "aria-checked",
@@ -43,6 +49,7 @@ describe("SettingsPanel", () => {
     render(
       <SettingsPanel
         settings={settings}
+        onSaveSettings={vi.fn()}
         onToggleShellIntegration={onToggleShellIntegration}
       />,
     );
@@ -50,5 +57,27 @@ describe("SettingsPanel", () => {
     await user.click(screen.getByRole("switch", { name: "zsh" }));
 
     expect(onToggleShellIntegration).toHaveBeenCalledWith("zsh" satisfies ShellKind, true);
+  });
+
+  it("saves the edited no_proxy value", async () => {
+    const user = userEvent.setup();
+    const onSaveSettings = vi.fn(async (_settings: AppSettings) => {});
+
+    render(
+      <SettingsPanel
+        settings={settings}
+        onSaveSettings={onSaveSettings}
+        onToggleShellIntegration={vi.fn()}
+      />,
+    );
+
+    await user.clear(screen.getByLabelText("Global no_proxy"));
+    await user.type(screen.getByLabelText("Global no_proxy"), "localhost,127.0.0.1,*.local");
+    await user.click(screen.getByRole("button", { name: "Save settings" }));
+
+    expect(onSaveSettings).toHaveBeenCalledWith({
+      ...settings,
+      noProxy: "localhost,127.0.0.1,*.local",
+    });
   });
 });

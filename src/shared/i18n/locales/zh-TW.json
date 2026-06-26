@@ -38,6 +38,7 @@
     "noProxy": "全域 no_proxy",
     "shellIntegration": "Shell 整合",
     "on": "開",
-    "off": "關"
+    "off": "關",
+    "save": "儲存設定"
   }
 }

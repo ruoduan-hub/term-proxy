@@ -98,4 +98,24 @@ describe("App", () => {
 
     expect(api.installShellIntegration).toHaveBeenCalledWith("zsh");
   });
+
+  it("saves edited settings through the Tauri API", async () => {
+    const user = userEvent.setup();
+    const api = await import("./shared/tauri/api");
+
+    render(<App />);
+
+    await waitFor(() => expect(api.getProxyStore).toHaveBeenCalled());
+    await user.clear(screen.getByLabelText("Global no_proxy"));
+    await user.type(screen.getByLabelText("Global no_proxy"), "localhost,127.0.0.1,*.local");
+    await user.click(screen.getByRole("button", { name: "Save settings" }));
+
+    expect(api.saveProxyStore).toHaveBeenCalledWith(
+      expect.objectContaining({
+        settings: expect.objectContaining({
+          noProxy: "localhost,127.0.0.1,*.local",
+        }),
+      }),
+    );
+  });
 });
