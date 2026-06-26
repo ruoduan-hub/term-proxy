@@ -34,6 +34,8 @@ describe("ProxyDashboard", () => {
         ]}
         onAddProxy={vi.fn()}
         onEnableProxy={onEnableProxy}
+        onUpdateProxy={vi.fn()}
+        onDeleteProxy={vi.fn()}
       />,
     );
 
@@ -50,7 +52,15 @@ describe("ProxyDashboard", () => {
     const user = userEvent.setup();
     const onAddProxy = vi.fn();
 
-    render(<ProxyDashboard proxies={[]} onAddProxy={onAddProxy} onEnableProxy={vi.fn()} />);
+    render(
+      <ProxyDashboard
+        proxies={[]}
+        onAddProxy={onAddProxy}
+        onEnableProxy={vi.fn()}
+        onUpdateProxy={vi.fn()}
+        onDeleteProxy={vi.fn()}
+      />,
+    );
 
     await user.click(screen.getByRole("tab", { name: "ALL_PROXY" }));
     await user.click(screen.getByRole("button", { name: "Add proxy" }));
@@ -71,5 +81,54 @@ describe("ProxyDashboard", () => {
       host: "127.0.0.1",
       port: 1080,
     });
+  });
+
+  it("submits edited proxy values without changing the selected proxy type", async () => {
+    const user = userEvent.setup();
+    const onUpdateProxy = vi.fn();
+
+    render(
+      <ProxyDashboard
+        proxies={[proxy({ id: "http-b", name: "Backup HTTP", host: "10.0.0.2" })]}
+        onAddProxy={vi.fn()}
+        onEnableProxy={vi.fn()}
+        onUpdateProxy={onUpdateProxy}
+        onDeleteProxy={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Edit Backup HTTP" }));
+    await user.clear(screen.getByLabelText("Host"));
+    await user.type(screen.getByLabelText("Host"), "10.0.0.3");
+    await user.clear(screen.getByLabelText("Port"));
+    await user.type(screen.getByLabelText("Port"), "1088");
+    await user.click(screen.getByRole("button", { name: "Save proxy" }));
+
+    expect(screen.queryByLabelText("Type")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Scheme")).not.toBeInTheDocument();
+    expect(onUpdateProxy).toHaveBeenCalledWith("http-b", {
+      name: "Backup HTTP",
+      host: "10.0.0.3",
+      port: 1088,
+    });
+  });
+
+  it("deletes a proxy row", async () => {
+    const user = userEvent.setup();
+    const onDeleteProxy = vi.fn();
+
+    render(
+      <ProxyDashboard
+        proxies={[proxy({ id: "http-b", name: "Backup HTTP" })]}
+        onAddProxy={vi.fn()}
+        onEnableProxy={vi.fn()}
+        onUpdateProxy={vi.fn()}
+        onDeleteProxy={onDeleteProxy}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Delete Backup HTTP" }));
+
+    expect(onDeleteProxy).toHaveBeenCalledWith("http-b");
   });
 });

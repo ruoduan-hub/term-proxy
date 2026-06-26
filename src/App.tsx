@@ -119,6 +119,48 @@ export function App() {
     }
   }
 
+  async function handleUpdateProxy(
+    id: string,
+    proxyPatch: Pick<ProxyConfig, "name" | "host" | "port">,
+  ) {
+    const now = new Date().toISOString();
+    const nextStore = {
+      ...store,
+      proxies: store.proxies.map((proxy) =>
+        proxy.id === id
+          ? {
+              ...proxy,
+              ...proxyPatch,
+              updatedAt: now,
+            }
+          : proxy,
+      ),
+    };
+
+    try {
+      const savedStore = await saveProxyStore(nextStore);
+      setStore(savedStore);
+      setError(null);
+    } catch (unknownError) {
+      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
+    }
+  }
+
+  async function handleDeleteProxy(id: string) {
+    const nextStore = {
+      ...store,
+      proxies: store.proxies.filter((proxy) => proxy.id !== id),
+    };
+
+    try {
+      const savedStore = await saveProxyStore(nextStore);
+      setStore(savedStore);
+      setError(null);
+    } catch (unknownError) {
+      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
+    }
+  }
+
   async function handleToggleShellIntegration(shell: ShellKind, enabled: boolean) {
     try {
       const nextStore = enabled
@@ -212,6 +254,8 @@ export function App() {
               proxies={store.proxies}
               onAddProxy={handleAddProxy}
               onEnableProxy={handleEnableProxy}
+              onUpdateProxy={handleUpdateProxy}
+              onDeleteProxy={handleDeleteProxy}
             />
           </div>
         )}

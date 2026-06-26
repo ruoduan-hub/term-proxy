@@ -128,6 +128,97 @@ describe("App", () => {
     );
   });
 
+  it("saves edited proxy values through the Tauri API", async () => {
+    const user = userEvent.setup();
+    const api = await import("./shared/tauri/api");
+    vi.mocked(api.getProxyStore).mockResolvedValueOnce({
+      proxies: [
+        {
+          id: "http-a",
+          name: "Local HTTP",
+          kind: "http_proxy",
+          scheme: "http",
+          host: "127.0.0.1",
+          port: 1087,
+          enabled: false,
+          createdAt: "2026-06-26T00:00:00Z",
+          updatedAt: "2026-06-26T00:00:00Z",
+        },
+      ],
+      settings: {
+        theme: "system",
+        language: "system",
+        autoLaunch: false,
+        noProxy: "localhost,127.0.0.1",
+        shellIntegration: {
+          zsh: false,
+          bash: false,
+          powershell: false,
+        },
+      },
+    });
+
+    await renderApp();
+
+    await user.click(screen.getByRole("button", { name: "Edit Local HTTP" }));
+    await user.clear(screen.getByLabelText("Host"));
+    await user.type(screen.getByLabelText("Host"), "10.0.0.3");
+    await user.click(screen.getByRole("button", { name: "Save proxy" }));
+
+    expect(api.saveProxyStore).toHaveBeenCalledWith(
+      expect.objectContaining({
+        proxies: [
+          expect.objectContaining({
+            id: "http-a",
+            host: "10.0.0.3",
+            updatedAt: expect.any(String),
+          }),
+        ],
+      }),
+    );
+  });
+
+  it("deletes a proxy through the Tauri API", async () => {
+    const user = userEvent.setup();
+    const api = await import("./shared/tauri/api");
+    vi.mocked(api.getProxyStore).mockResolvedValueOnce({
+      proxies: [
+        {
+          id: "http-a",
+          name: "Local HTTP",
+          kind: "http_proxy",
+          scheme: "http",
+          host: "127.0.0.1",
+          port: 1087,
+          enabled: false,
+          createdAt: "2026-06-26T00:00:00Z",
+          updatedAt: "2026-06-26T00:00:00Z",
+        },
+      ],
+      settings: {
+        theme: "system",
+        language: "system",
+        autoLaunch: false,
+        noProxy: "localhost,127.0.0.1",
+        shellIntegration: {
+          zsh: false,
+          bash: false,
+          powershell: false,
+        },
+      },
+    });
+
+    await renderApp();
+
+    await user.click(screen.getByRole("button", { name: "Delete Local HTTP" }));
+
+    expect(api.saveProxyStore).toHaveBeenCalledWith(
+      expect.objectContaining({
+        proxies: [],
+      }),
+    );
+  });
+
   it("installs shell integration from settings", async () => {
     const user = userEvent.setup();
     const api = await import("./shared/tauri/api");

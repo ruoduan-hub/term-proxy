@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus } from "lucide-react";
+import { Pencil, Plus, Trash2, X } from "lucide-react";
 
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
@@ -22,12 +22,23 @@ type ProxyDashboardProps = {
   proxies: ProxyConfig[];
   onAddProxy: (proxy: NewProxyConfig) => void;
   onEnableProxy: (id: string) => void;
+  onUpdateProxy: (id: string, proxy: EditableProxyConfig) => void;
+  onDeleteProxy: (id: string) => void;
 };
 
-export function ProxyDashboard({ proxies, onAddProxy, onEnableProxy }: ProxyDashboardProps) {
+type EditableProxyConfig = Pick<ProxyConfig, "name" | "host" | "port">;
+
+export function ProxyDashboard({
+  proxies,
+  onAddProxy,
+  onEnableProxy,
+  onUpdateProxy,
+  onDeleteProxy,
+}: ProxyDashboardProps) {
   const { t } = useTranslation();
   const [selectedKind, setSelectedKind] = useState<ProxyKind>("http_proxy");
   const [isAdding, setIsAdding] = useState(false);
+  const [editingProxyId, setEditingProxyId] = useState<string | null>(null);
 
   const visibleProxies = proxies.filter((proxy) => proxy.kind === selectedKind);
 
@@ -48,8 +59,24 @@ export function ProxyDashboard({ proxies, onAddProxy, onEnableProxy }: ProxyDash
     setIsAdding(false);
   }
 
+  function handleEditSubmit(event: FormEvent<HTMLFormElement>, id: string) {
+    event.preventDefault();
+
+    const data = new FormData(event.currentTarget);
+
+    onUpdateProxy(id, {
+      name: String(data.get("name") ?? "").trim(),
+      host: String(data.get("host") ?? "").trim(),
+      port: Number(data.get("port")),
+    });
+
+    setEditingProxyId(null);
+  }
+
   function handleKindChange(nextKind: string) {
     setSelectedKind(nextKind as ProxyKind);
+    setEditingProxyId(null);
+    setIsAdding(false);
   }
 
   return (
@@ -123,28 +150,115 @@ export function ProxyDashboard({ proxies, onAddProxy, onEnableProxy }: ProxyDash
                 {visibleProxies.map((proxy) => (
                   <article
                     key={proxy.id}
-                    className="grid gap-3 rounded-lg border border-border/70 bg-background/72 p-3 transition-[border-color,background-color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-ring/35 dark:bg-secondary/20 md:grid-cols-[minmax(0,1fr)_auto]"
+                    className="rounded-lg border border-border/70 bg-background/72 p-3 transition-[border-color,background-color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-ring/35 dark:bg-secondary/20"
                   >
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="text-sm font-semibold">{proxy.name}</h3>
-                        {proxy.enabled ? <Badge>{t("proxy.enabled")}</Badge> : null}
-                      </div>
-                      <p className="mt-1 truncate font-mono text-sm text-muted-foreground">
-                        {`${proxy.scheme}://${proxy.host}:${proxy.port}`}
-                      </p>
-                    </div>
+                    {editingProxyId === proxy.id ? (
+                      <form
+                        className="grid gap-3"
+                        onSubmit={(event) => handleEditSubmit(event, proxy.id)}
+                      >
+                        <div className="grid gap-2">
+                          <Label htmlFor={`proxy-name-${proxy.id}`}>{t("proxy.form.name")}</Label>
+                          <Input
+                            id={`proxy-name-${proxy.id}`}
+                            name="name"
+                            defaultValue={proxy.name}
+                            required
+                          />
+                        </div>
 
-                    <Button
-                      type="button"
-                      variant={proxy.enabled ? "secondary" : "outline"}
-                      size="sm"
-                      disabled={proxy.enabled}
-                      aria-label={t("proxy.enableNamed", { name: proxy.name })}
-                      onClick={() => onEnableProxy(proxy.id)}
-                    >
-                      {proxy.enabled ? t("proxy.enabled") : t("proxy.enable")}
-                    </Button>
+                        <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_120px]">
+                          <div className="grid gap-2">
+                            <Label htmlFor={`proxy-host-${proxy.id}`}>
+                              {t("proxy.form.host")}
+                            </Label>
+                            <Input
+                              id={`proxy-host-${proxy.id}`}
+                              name="host"
+                              defaultValue={proxy.host}
+                              required
+                            />
+                          </div>
+
+                          <div className="grid gap-2">
+                            <Label htmlFor={`proxy-port-${proxy.id}`}>
+                              {t("proxy.form.port")}
+                            </Label>
+                            <Input
+                              id={`proxy-port-${proxy.id}`}
+                              name="port"
+                              type="number"
+                              min={1}
+                              max={65535}
+                              defaultValue={proxy.port}
+                              required
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            aria-label={t("proxy.cancelEditNamed", { name: proxy.name })}
+                            onClick={() => setEditingProxyId(null)}
+                          >
+                            <X aria-hidden="true" />
+                            {t("proxy.cancel")}
+                          </Button>
+                          <Button type="submit" size="sm">
+                            {t("proxy.form.save")}
+                          </Button>
+                        </div>
+                      </form>
+                    ) : (
+                      <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h3 className="text-sm font-semibold">{proxy.name}</h3>
+                            {proxy.enabled ? <Badge>{t("proxy.enabled")}</Badge> : null}
+                          </div>
+                          <p className="mt-1 truncate font-mono text-sm text-muted-foreground">
+                            {`${proxy.scheme}://${proxy.host}:${proxy.port}`}
+                          </p>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Button
+                            type="button"
+                            variant={proxy.enabled ? "secondary" : "outline"}
+                            size="sm"
+                            disabled={proxy.enabled}
+                            aria-label={t("proxy.enableNamed", { name: proxy.name })}
+                            onClick={() => onEnableProxy(proxy.id)}
+                          >
+                            {proxy.enabled ? t("proxy.enabled") : t("proxy.enable")}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            aria-label={t("proxy.editNamed", { name: proxy.name })}
+                            onClick={() => {
+                              setIsAdding(false);
+                              setEditingProxyId(proxy.id);
+                            }}
+                          >
+                            <Pencil aria-hidden="true" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            aria-label={t("proxy.deleteNamed", { name: proxy.name })}
+                            onClick={() => onDeleteProxy(proxy.id)}
+                          >
+                            <Trash2 aria-hidden="true" />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </article>
                 ))}
               </div>
