@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
@@ -145,6 +145,33 @@ describe("SettingsPanel", () => {
     expect(onSaveSettings).toHaveBeenCalledWith({
       ...settings,
       autoLaunch: true,
+    });
+  });
+
+  it("disables the save button while settings are saving", async () => {
+    const user = userEvent.setup();
+    let resolveSubmit: () => void = () => {};
+    const onSaveSettings = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveSubmit = resolve;
+        }),
+    );
+
+    render(
+      <SettingsPanel
+        settings={settings}
+        onSaveSettings={onSaveSettings}
+        onToggleShellIntegration={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Save settings" }));
+
+    expect(screen.getByRole("button", { name: "Save settings" })).toBeDisabled();
+
+    await act(async () => {
+      resolveSubmit();
     });
   });
 });

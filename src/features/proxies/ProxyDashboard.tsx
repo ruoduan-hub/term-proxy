@@ -20,9 +20,9 @@ const DEFAULT_PROXY_SCHEME: ProxyScheme = "http";
 
 type ProxyDashboardProps = {
   proxies: ProxyConfig[];
-  onAddProxy: (proxy: NewProxyConfig) => void;
+  onAddProxy: (proxy: NewProxyConfig) => Promise<void> | void;
   onEnableProxy: (id: string) => void;
-  onUpdateProxy: (id: string, proxy: EditableProxyConfig) => void;
+  onUpdateProxy: (id: string, proxy: EditableProxyConfig) => Promise<void> | void;
   onDeleteProxy: (id: string) => void;
 };
 
@@ -38,45 +38,60 @@ export function ProxyDashboard({
   const { t } = useTranslation();
   const [selectedKind, setSelectedKind] = useState<ProxyKind>("http_proxy");
   const [isAdding, setIsAdding] = useState(false);
+  const [isSubmittingAdd, setIsSubmittingAdd] = useState(false);
+  const [submittingEditId, setSubmittingEditId] = useState<string | null>(null);
   const [editingProxyId, setEditingProxyId] = useState<string | null>(null);
 
   const visibleProxies = proxies.filter((proxy) => proxy.kind === selectedKind);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const data = new FormData(event.currentTarget);
+    const form = event.currentTarget;
 
-    onAddProxy({
-      name: String(data.get("name") ?? "").trim(),
-      kind: selectedKind,
-      scheme: DEFAULT_PROXY_SCHEME,
-      host: String(data.get("host") ?? "").trim(),
-      port: Number(data.get("port")),
-    });
+    try {
+      setIsSubmittingAdd(true);
+      await onAddProxy({
+        name: String(data.get("name") ?? "").trim(),
+        kind: selectedKind,
+        scheme: DEFAULT_PROXY_SCHEME,
+        host: String(data.get("host") ?? "").trim(),
+        port: Number(data.get("port")),
+      });
 
-    event.currentTarget.reset();
-    setIsAdding(false);
+      form.reset();
+      setIsAdding(false);
+    } finally {
+      setIsSubmittingAdd(false);
+    }
   }
 
-  function handleEditSubmit(event: FormEvent<HTMLFormElement>, id: string) {
+  async function handleEditSubmit(event: FormEvent<HTMLFormElement>, id: string) {
     event.preventDefault();
 
     const data = new FormData(event.currentTarget);
 
-    onUpdateProxy(id, {
-      name: String(data.get("name") ?? "").trim(),
-      host: String(data.get("host") ?? "").trim(),
-      port: Number(data.get("port")),
-    });
+    try {
+      setSubmittingEditId(id);
+      await onUpdateProxy(id, {
+        name: String(data.get("name") ?? "").trim(),
+        host: String(data.get("host") ?? "").trim(),
+        port: Number(data.get("port")),
+      });
 
-    setEditingProxyId(null);
+      setEditingProxyId(null);
+    } finally {
+      setSubmittingEditId(null);
+    }
   }
 
   function handleKindChange(nextKind: string) {
     setSelectedKind(nextKind as ProxyKind);
     setEditingProxyId(null);
+    setSubmittingEditId(null);
     setIsAdding(false);
+    setIsSubmittingAdd(false);
   }
 
   return (
@@ -138,7 +153,7 @@ export function ProxyDashboard({
                 </div>
 
                 <div className="flex justify-end">
-                  <Button type="submit" size="sm">
+                  <Button type="submit" size="sm" disabled={isSubmittingAdd}>
                     {t("proxy.form.save")}
                   </Button>
                 </div>
@@ -202,12 +217,13 @@ export function ProxyDashboard({
                             variant="ghost"
                             size="sm"
                             aria-label={t("proxy.cancelEditNamed", { name: proxy.name })}
+                            disabled={submittingEditId === proxy.id}
                             onClick={() => setEditingProxyId(null)}
                           >
                             <X aria-hidden="true" />
                             {t("proxy.cancel")}
                           </Button>
-                          <Button type="submit" size="sm">
+                          <Button type="submit" size="sm" disabled={submittingEditId === proxy.id}>
                             {t("proxy.form.save")}
                           </Button>
                         </div>

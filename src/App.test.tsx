@@ -43,6 +43,14 @@ vi.mock("./shared/tauri/api", () => ({
   setAutoLaunch: vi.fn(async (_enabled: boolean) => {}),
 }));
 
+vi.mock("sonner", () => ({
+  Toaster: () => null,
+  toast: {
+    error: vi.fn(),
+    success: vi.fn(),
+  },
+}));
+
 describe("App", () => {
   afterEach(async () => {
     document.documentElement.classList.remove("dark");
@@ -102,6 +110,7 @@ describe("App", () => {
   it("saves a new proxy through the Tauri API", async () => {
     const user = userEvent.setup();
     const api = await import("./shared/tauri/api");
+    const { toast } = await import("sonner");
 
     await renderApp();
 
@@ -128,6 +137,25 @@ describe("App", () => {
         ],
       }),
     );
+    expect(toast.success).toHaveBeenCalledWith("Proxy saved");
+  });
+
+  it("shows an error toast when saving a proxy fails", async () => {
+    const user = userEvent.setup();
+    const api = await import("./shared/tauri/api");
+    const { toast } = await import("sonner");
+    vi.mocked(api.saveProxyStore).mockRejectedValueOnce(new Error("disk full"));
+
+    await renderApp();
+
+    await user.click(screen.getByRole("button", { name: "Add proxy" }));
+    await user.type(screen.getByLabelText("Name"), "Local HTTP");
+    await user.type(screen.getByLabelText("Host"), "127.0.0.1");
+    await user.clear(screen.getByLabelText("Port"));
+    await user.type(screen.getByLabelText("Port"), "1087");
+    await user.click(screen.getByRole("button", { name: "Save proxy" }));
+
+    expect(toast.error).toHaveBeenCalledWith("disk full");
   });
 
   it("imports a scanned profile proxy through the Tauri API", async () => {

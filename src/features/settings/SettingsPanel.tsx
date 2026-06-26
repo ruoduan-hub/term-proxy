@@ -49,6 +49,7 @@ export function SettingsPanel({
     useState<AppSettings["language"]>(settings.language);
   const [autoLaunch, setAutoLaunch] = useState(settings.autoLaunch);
   const [noProxy, setNoProxy] = useState(settings.noProxy);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     setSelectedTheme(settings.theme);
@@ -66,15 +67,21 @@ export function SettingsPanel({
     setNoProxy(settings.noProxy);
   }, [settings.noProxy]);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    void onSaveSettings({
-      ...settings,
-      theme: selectedTheme,
-      language: selectedLanguage,
-      autoLaunch,
-      noProxy: noProxy.trim(),
-    });
+
+    try {
+      setIsSaving(true);
+      await onSaveSettings({
+        ...settings,
+        theme: selectedTheme,
+        language: selectedLanguage,
+        autoLaunch,
+        noProxy: noProxy.trim(),
+      });
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   function handleThemeChange(nextTheme: AppSettings["theme"]) {
@@ -183,7 +190,7 @@ export function SettingsPanel({
             </div>
           </div>
           <div>
-            <Button type="submit" size="sm">
+            <Button type="submit" size="sm" disabled={isSaving}>
               {t("settings.save")}
             </Button>
           </div>

@@ -8,6 +8,7 @@ import { SettingsPanel } from "./features/settings/SettingsPanel";
 import "./shared/i18n";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
+import { Toaster, toast } from "@/shared/ui/sonner";
 import { useTheme } from "@/shared/theme/ThemeProvider";
 import {
   enableProxyConfig,
@@ -46,6 +47,10 @@ const supportedLanguages = ["zh-CN", "en", "ja", "zh-TW"] as const;
 
 type SupportedLanguage = (typeof supportedLanguages)[number];
 type AppView = "proxies" | "settings";
+
+function errorMessageFromUnknown(unknownError: unknown) {
+  return unknownError instanceof Error ? unknownError.message : String(unknownError);
+}
 
 export function App() {
   const { t, i18n } = useTranslation();
@@ -119,8 +124,11 @@ export function App() {
       const savedStore = await saveProxyStore(nextStore);
       setStore(savedStore);
       setError(null);
+      toast.success(t("feedback.proxySaved"));
     } catch (unknownError) {
-      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
+      const message = errorMessageFromUnknown(unknownError);
+      setError(message);
+      toast.error(message);
     }
   }
 
@@ -150,8 +158,11 @@ export function App() {
         candidates.filter((current) => current.id !== candidate.id),
       );
       setError(null);
+      toast.success(t("feedback.proxyImported"));
     } catch (unknownError) {
-      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
+      const message = errorMessageFromUnknown(unknownError);
+      setError(message);
+      toast.error(message);
     }
   }
 
@@ -160,8 +171,11 @@ export function App() {
       const nextStore = await enableProxyConfig(id);
       setStore(nextStore);
       setError(null);
+      toast.success(t("feedback.proxyEnabled"));
     } catch (unknownError) {
-      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
+      const message = errorMessageFromUnknown(unknownError);
+      setError(message);
+      toast.error(message);
     }
   }
 
@@ -187,8 +201,11 @@ export function App() {
       const savedStore = await saveProxyStore(nextStore);
       setStore(savedStore);
       setError(null);
+      toast.success(t("feedback.proxyUpdated"));
     } catch (unknownError) {
-      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
+      const message = errorMessageFromUnknown(unknownError);
+      setError(message);
+      toast.error(message);
     }
   }
 
@@ -202,8 +219,11 @@ export function App() {
       const savedStore = await saveProxyStore(nextStore);
       setStore(savedStore);
       setError(null);
+      toast.success(t("feedback.proxyDeleted"));
     } catch (unknownError) {
-      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
+      const message = errorMessageFromUnknown(unknownError);
+      setError(message);
+      toast.error(message);
     }
   }
 
@@ -214,8 +234,13 @@ export function App() {
         : await removeShellIntegration(shell);
       setStore(nextStore);
       setError(null);
+      toast.success(
+        enabled ? t("feedback.shellIntegrationEnabled") : t("feedback.shellIntegrationDisabled"),
+      );
     } catch (unknownError) {
-      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
+      const message = errorMessageFromUnknown(unknownError);
+      setError(message);
+      toast.error(message);
     }
   }
 
@@ -233,8 +258,11 @@ export function App() {
       const savedStore = await saveProxyStore(nextStore);
       setStore(savedStore);
       setError(null);
+      toast.success(t("feedback.settingsSaved"));
     } catch (unknownError) {
-      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
+      const message = errorMessageFromUnknown(unknownError);
+      setError(message);
+      toast.error(message);
     }
   }
 
@@ -314,6 +342,7 @@ export function App() {
           </div>
         )}
       </div>
+      <Toaster />
     </main>
   );
 }

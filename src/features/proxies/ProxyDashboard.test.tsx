@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
@@ -80,6 +80,38 @@ describe("ProxyDashboard", () => {
       scheme: "http",
       host: "127.0.0.1",
       port: 1080,
+    });
+  });
+
+  it("disables the add form save button while submitting", async () => {
+    const user = userEvent.setup();
+    let resolveSubmit: () => void = () => {};
+    const onAddProxy = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveSubmit = resolve;
+        }),
+    );
+
+    render(
+      <ProxyDashboard
+        proxies={[]}
+        onAddProxy={onAddProxy}
+        onEnableProxy={vi.fn()}
+        onUpdateProxy={vi.fn()}
+        onDeleteProxy={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Add proxy" }));
+    await user.type(screen.getByLabelText("Name"), "Local HTTP");
+    await user.type(screen.getByLabelText("Host"), "127.0.0.1");
+    await user.click(screen.getByRole("button", { name: "Save proxy" }));
+
+    expect(screen.getByRole("button", { name: "Save proxy" })).toBeDisabled();
+
+    await act(async () => {
+      resolveSubmit();
     });
   });
 

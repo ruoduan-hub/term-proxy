@@ -38,6 +38,16 @@
     "import": "匯入",
     "importNamed": "匯入 {{name}}"
   },
+  "feedback": {
+    "proxySaved": "代理已儲存",
+    "proxyImported": "代理已匯入",
+    "proxyEnabled": "代理已啟用",
+    "proxyUpdated": "代理已更新",
+    "proxyDeleted": "代理已刪除",
+    "settingsSaved": "設定已儲存",
+    "shellIntegrationEnabled": "Shell 整合已啟用",
+    "shellIntegrationDisabled": "Shell 整合已關閉"
+  },
   "settings": {
     "title": "設定",
     "theme": "主題",

@@ -38,6 +38,16 @@
     "import": "Import",
     "importNamed": "Import {{name}}"
   },
+  "feedback": {
+    "proxySaved": "Proxy saved",
+    "proxyImported": "Proxy imported",
+    "proxyEnabled": "Proxy enabled",
+    "proxyUpdated": "Proxy updated",
+    "proxyDeleted": "Proxy deleted",
+    "settingsSaved": "Settings saved",
+    "shellIntegrationEnabled": "Shell integration enabled",
+    "shellIntegrationDisabled": "Shell integration disabled"
+  },
   "settings": {
     "title": "Settings",
     "theme": "Theme",
