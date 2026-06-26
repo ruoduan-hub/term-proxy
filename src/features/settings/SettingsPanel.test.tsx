@@ -63,11 +63,19 @@ describe("SettingsPanel", () => {
     });
   });
 
-  it("keeps theme and language selectors at content width", () => {
+  it("keeps theme and language selectors compact with equal-width tabs", () => {
     render(<SettingsPanel settings={settings} onSaveSettings={vi.fn()} />);
 
-    expect(screen.getByRole("tablist", { name: "Theme" })).not.toHaveClass("w-full");
-    expect(screen.getByRole("tablist", { name: "Language" })).not.toHaveClass("w-full");
+    const themeTabs = screen.getByRole("tablist", { name: "Theme" });
+    const languageTabs = screen.getByRole("tablist", { name: "Language" });
+
+    expect(themeTabs.closest("[data-settings-control]")).toHaveClass("w-[18rem]", "max-w-full");
+    expect(languageTabs.closest("[data-settings-control]")).toHaveClass(
+      "w-[38rem]",
+      "max-w-full",
+    );
+    expect(themeTabs).toHaveClass("w-full");
+    expect(languageTabs).toHaveClass("w-full");
   });
 
   it("keeps auto launch compact and renders no_proxy as multiline input", () => {
