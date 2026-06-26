@@ -4,7 +4,8 @@ import { afterEach, describe, expect, it } from "vitest";
 import { vi } from "vitest";
 
 import { App } from "./App";
-import "./shared/i18n";
+import { i18n } from "./shared/i18n";
+import { ThemeProvider } from "./shared/theme/ThemeProvider";
 
 vi.mock("./shared/tauri/api", () => ({
   enableProxyConfig: vi.fn(),
@@ -41,14 +42,16 @@ vi.mock("./shared/tauri/api", () => ({
 }));
 
 describe("App", () => {
-  afterEach(() => {
+  afterEach(async () => {
     document.documentElement.classList.remove("dark");
+    localStorage.clear();
+    await i18n.changeLanguage("en");
   });
 
   it("renders translated proxy management sections", async () => {
     const api = await import("./shared/tauri/api");
 
-    render(<App />);
+    renderApp();
 
     await waitFor(() => expect(api.getProxyStore).toHaveBeenCalled());
 
@@ -64,7 +67,7 @@ describe("App", () => {
     const user = userEvent.setup();
     const api = await import("./shared/tauri/api");
 
-    render(<App />);
+    renderApp();
 
     await waitFor(() => expect(api.getProxyStore).toHaveBeenCalled());
 
@@ -95,7 +98,7 @@ describe("App", () => {
     const user = userEvent.setup();
     const api = await import("./shared/tauri/api");
 
-    render(<App />);
+    renderApp();
 
     await waitFor(() => expect(api.getProxyStore).toHaveBeenCalled());
     await user.click(screen.getByRole("switch", { name: "zsh" }));
@@ -107,7 +110,7 @@ describe("App", () => {
     const user = userEvent.setup();
     const api = await import("./shared/tauri/api");
 
-    render(<App />);
+    renderApp();
 
     await waitFor(() => expect(api.getProxyStore).toHaveBeenCalled());
     await user.clear(screen.getByLabelText("Global no_proxy"));
@@ -140,8 +143,38 @@ describe("App", () => {
       },
     });
 
-    render(<App />);
+    renderApp();
 
     await waitFor(() => expect(document.documentElement).toHaveClass("dark"));
   });
+
+  it("applies stored language setting", async () => {
+    const api = await import("./shared/tauri/api");
+    vi.mocked(api.getProxyStore).mockResolvedValueOnce({
+      proxies: [],
+      settings: {
+        theme: "system",
+        language: "zh-CN",
+        autoLaunch: false,
+        noProxy: "localhost,127.0.0.1",
+        shellIntegration: {
+          zsh: false,
+          bash: false,
+          powershell: false,
+        },
+      },
+    });
+
+    renderApp();
+
+    await waitFor(() => expect(screen.getByText("代理类型")).toBeInTheDocument());
+  });
 });
+
+function renderApp() {
+  return render(
+    <ThemeProvider storageKey="term-proxy-test-theme">
+      <App />
+    </ThemeProvider>,
+  );
+}

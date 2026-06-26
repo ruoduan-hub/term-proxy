@@ -39,6 +39,13 @@
       "dark": "ダーク"
     },
     "language": "言語",
+    "languageOptions": {
+      "system": "システムに合わせる",
+      "zhCN": "簡体字中国語",
+      "en": "英語",
+      "ja": "日本語",
+      "zhTW": "繁体字中国語"
+    },
     "autoLaunch": "起動時に開く",
     "noProxy": "グローバル no_proxy",
     "shellIntegration": "Shell 連携",

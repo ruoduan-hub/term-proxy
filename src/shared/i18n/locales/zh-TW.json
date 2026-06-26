@@ -39,6 +39,13 @@
       "dark": "深色"
     },
     "language": "語言",
+    "languageOptions": {
+      "system": "跟隨系統",
+      "zhCN": "簡體中文",
+      "en": "英文",
+      "ja": "日語",
+      "zhTW": "繁體中文"
+    },
     "autoLaunch": "開機自動啟動",
     "noProxy": "全域 no_proxy",
     "shellIntegration": "Shell 整合",

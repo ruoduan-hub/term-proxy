@@ -39,6 +39,13 @@
       "dark": "Dark"
     },
     "language": "Language",
+    "languageOptions": {
+      "system": "Follow system",
+      "zhCN": "Simplified Chinese",
+      "en": "English",
+      "ja": "Japanese",
+      "zhTW": "Traditional Chinese"
+    },
     "autoLaunch": "Launch at startup",
     "noProxy": "Global no_proxy",
     "shellIntegration": "Shell integration",

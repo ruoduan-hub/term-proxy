@@ -40,6 +40,27 @@ describe("SettingsPanel", () => {
     });
   });
 
+  it("saves the selected language value", async () => {
+    const user = userEvent.setup();
+    const onSaveSettings = vi.fn(async (_settings: AppSettings) => {});
+
+    render(
+      <SettingsPanel
+        settings={settings}
+        onSaveSettings={onSaveSettings}
+        onToggleShellIntegration={vi.fn()}
+      />,
+    );
+
+    await user.selectOptions(screen.getByLabelText("Language"), "zh-CN");
+    await user.click(screen.getByRole("button", { name: "Save settings" }));
+
+    expect(onSaveSettings).toHaveBeenCalledWith({
+      ...settings,
+      language: "zh-CN",
+    });
+  });
+
   it("renders shell integration switches from settings", () => {
     render(
       <SettingsPanel

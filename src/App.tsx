@@ -6,6 +6,7 @@ import { ProxyDashboard } from "./features/proxies/ProxyDashboard";
 import { SettingsPanel } from "./features/settings/SettingsPanel";
 import "./shared/i18n";
 import { Badge } from "@/shared/ui/badge";
+import { useTheme } from "@/shared/theme/ThemeProvider";
 import {
   enableProxyConfig,
   getProxyStore,
@@ -36,30 +37,26 @@ const defaultProxyStore: ProxyStore = {
   },
 };
 
+const supportedLanguages = ["zh-CN", "en", "ja", "zh-TW"] as const;
+
+type SupportedLanguage = (typeof supportedLanguages)[number];
+
 export function App() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const { setTheme } = useTheme();
   const [store, setStore] = useState<ProxyStore>(defaultProxyStore);
+  const [hasLoadedStore, setHasLoadedStore] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const mediaQuery = globalThis.matchMedia?.("(prefers-color-scheme: dark)") ?? null;
-
-    function applyTheme() {
-      const prefersDark = mediaQuery?.matches ?? false;
-      const shouldUseDark = store.settings.theme === "dark" || (
-        store.settings.theme === "system" && prefersDark
-      );
-
-      document.documentElement.classList.toggle("dark", shouldUseDark);
+    if (hasLoadedStore) {
+      setTheme(store.settings.theme);
     }
+  }, [hasLoadedStore, setTheme, store.settings.theme]);
 
-    applyTheme();
-    mediaQuery?.addEventListener?.("change", applyTheme);
-
-    return () => {
-      mediaQuery?.removeEventListener?.("change", applyTheme);
-    };
-  }, [store.settings.theme]);
+  useEffect(() => {
+    void i18n.changeLanguage(resolveLanguage(store.settings.language));
+  }, [i18n, store.settings.language]);
 
   useEffect(() => {
     let isMounted = true;
@@ -68,11 +65,13 @@ export function App() {
       .then((nextStore) => {
         if (isMounted) {
           setStore(nextStore);
+          setHasLoadedStore(true);
           setError(null);
         }
       })
       .catch((unknownError: unknown) => {
         if (isMounted) {
+          setHasLoadedStore(true);
           setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
         }
       });
@@ -177,4 +176,30 @@ export function App() {
       </div>
     </main>
   );
+}
+
+function resolveLanguage(language: AppSettings["language"]): SupportedLanguage {
+  if (isSupportedLanguage(language)) {
+    return language;
+  }
+
+  const browserLanguage = globalThis.navigator?.language ?? "en";
+
+  if (browserLanguage === "zh-TW" || browserLanguage === "zh-HK" || browserLanguage === "zh-MO") {
+    return "zh-TW";
+  }
+
+  if (browserLanguage.startsWith("zh")) {
+    return "zh-CN";
+  }
+
+  if (browserLanguage.startsWith("ja")) {
+    return "ja";
+  }
+
+  return "en";
+}
+
+function isSupportedLanguage(language: AppSettings["language"]): language is SupportedLanguage {
+  return supportedLanguages.some((supportedLanguage) => supportedLanguage === language);
 }
