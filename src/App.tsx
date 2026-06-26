@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, CircleAlert, Settings2 } from "lucide-react";
 
+import { ImportCandidates } from "./features/import/ImportCandidates";
 import { ProxyDashboard } from "./features/proxies/ProxyDashboard";
 import { SettingsPanel } from "./features/settings/SettingsPanel";
 import "./shared/i18n";
@@ -13,12 +14,14 @@ import {
   getProxyStore,
   installShellIntegration,
   removeShellIntegration,
+  scanProxyImports,
   saveProxyStore,
 } from "@/shared/tauri/api";
 import type {
   AppSettings,
   NewProxyConfig,
   ProxyConfig,
+  ProxyImportCandidate,
   ProxyStore,
   ShellKind,
 } from "@/shared/types/proxy";
@@ -50,6 +53,7 @@ export function App() {
   const [hasLoadedStore, setHasLoadedStore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeView, setActiveView] = useState<AppView>("proxies");
+  const [importCandidates, setImportCandidates] = useState<ProxyImportCandidate[]>([]);
   const activeProxyCount = store.proxies.filter((proxy) => proxy.enabled).length;
 
   useEffect(() => {
@@ -66,9 +70,19 @@ export function App() {
     let isMounted = true;
 
     void getProxyStore()
-      .then((nextStore) => {
+      .then(async (nextStore) => {
+        let nextImportCandidates: ProxyImportCandidate[] = [];
+
+        try {
+          nextImportCandidates = await scanProxyImports();
+        } catch {
+          // 导入扫描只是辅助入口，失败不能影响主配置加载和代理开关。
+          nextImportCandidates = [];
+        }
+
         if (isMounted) {
           setStore(nextStore);
+          setImportCandidates(nextImportCandidates);
           setHasLoadedStore(true);
           setError(null);
         }
@@ -103,6 +117,37 @@ export function App() {
     try {
       const savedStore = await saveProxyStore(nextStore);
       setStore(savedStore);
+      setError(null);
+    } catch (unknownError) {
+      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
+    }
+  }
+
+  async function handleImportCandidate(candidate: ProxyImportCandidate) {
+    const now = new Date().toISOString();
+    const newProxy: ProxyConfig = {
+      name: candidate.name,
+      kind: candidate.kind,
+      scheme: candidate.scheme,
+      host: candidate.host,
+      port: candidate.port,
+      id: globalThis.crypto?.randomUUID?.() ?? `proxy-${Date.now()}`,
+      enabled: false,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    const nextStore = {
+      ...store,
+      proxies: [...store.proxies, newProxy],
+    };
+
+    try {
+      const savedStore = await saveProxyStore(nextStore);
+      setStore(savedStore);
+      setImportCandidates((candidates) =>
+        candidates.filter((current) => current.id !== candidate.id),
+      );
       setError(null);
     } catch (unknownError) {
       setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
@@ -256,6 +301,10 @@ export function App() {
               onEnableProxy={handleEnableProxy}
               onUpdateProxy={handleUpdateProxy}
               onDeleteProxy={handleDeleteProxy}
+            />
+            <ImportCandidates
+              candidates={importCandidates}
+              onImportCandidate={handleImportCandidate}
             />
           </div>
         )}

@@ -3,7 +3,8 @@ use std::path::{Path, PathBuf};
 use tauri::{AppHandle, Manager};
 
 use crate::{
-    models::proxy::{ProxyStore, ShellKind},
+    models::proxy::{ProxyImportCandidate, ProxyStore, ShellKind},
+    shell::import_scanner::scan_proxy_import_candidates,
     shell::profile::{
         install_profile_marker_file, profile_path_from_home_dir, remove_profile_marker_file,
     },
@@ -17,6 +18,16 @@ const STORE_FILE_NAME: &str = "proxy-store.json";
 pub fn get_proxy_store(app: AppHandle) -> Result<ProxyStore, String> {
     let path = proxy_store_path(&app)?;
     load_proxy_store(&path).map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+pub fn scan_proxy_imports(app: AppHandle) -> Result<Vec<ProxyImportCandidate>, String> {
+    let home_dir = app
+        .path()
+        .home_dir()
+        .map_err(|error| format!("failed to resolve home directory: {error}"))?;
+
+    scan_proxy_import_candidates(&home_dir).map_err(|error| error.to_string())
 }
 
 #[tauri::command]

@@ -32,6 +32,12 @@
       "all": "ALL_PROXY"
     }
   },
+  "import": {
+    "title": "検出したプロキシをインポート",
+    "description": "既存の shell profile のプロキシ値を確認してから Term Proxy に追加します。",
+    "import": "インポート",
+    "importNamed": "{{name}} をインポート"
+  },
   "settings": {
     "title": "設定",
     "theme": "テーマ",

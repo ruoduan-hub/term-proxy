@@ -66,6 +66,20 @@ pub struct ProxyStore {
     pub settings: AppSettings,
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct ProxyImportCandidate {
+    pub id: String,
+    pub name: String,
+    pub kind: ProxyKind,
+    pub scheme: ProxyScheme,
+    pub host: String,
+    pub port: u16,
+    pub shell: ShellKind,
+    pub source_path: String,
+    pub line_number: usize,
+}
+
 impl Default for ShellIntegrationSettings {
     fn default() -> Self {
         Self {

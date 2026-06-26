@@ -32,6 +32,12 @@
       "all": "ALL_PROXY"
     }
   },
+  "import": {
+    "title": "导入检测到的代理",
+    "description": "确认现有 Shell profile 代理值后再添加到 Term Proxy。",
+    "import": "导入",
+    "importNamed": "导入 {{name}}"
+  },
   "settings": {
     "title": "设置",
     "theme": "主题",

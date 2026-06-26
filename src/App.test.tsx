@@ -23,6 +23,7 @@ vi.mock("./shared/tauri/api", () => ({
       },
     },
   })),
+  scanProxyImports: vi.fn(async () => []),
   installShellIntegration: vi.fn(async () => ({
     proxies: [],
     settings: {
@@ -58,7 +59,7 @@ describe("App", () => {
     await waitFor(() => expect(api.getProxyStore).toHaveBeenCalled());
 
     expect(screen.getByText("Proxy types")).toBeInTheDocument();
-    expect(screen.queryByText("Import existing proxy")).not.toBeInTheDocument();
+    expect(screen.queryByText("Import detected proxies")).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Term Proxy" })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Settings" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Add proxy" })).toBeInTheDocument();
@@ -126,6 +127,57 @@ describe("App", () => {
         ],
       }),
     );
+  });
+
+  it("imports a scanned profile proxy through the Tauri API", async () => {
+    const user = userEvent.setup();
+    const api = await import("./shared/tauri/api");
+    vi.mocked(api.scanProxyImports).mockResolvedValueOnce([
+      {
+        id: "/Users/example/.zshrc:1:http_proxy",
+        name: "http_proxy 127.0.0.1:1087",
+        kind: "http_proxy",
+        scheme: "http",
+        host: "127.0.0.1",
+        port: 1087,
+        shell: "zsh",
+        sourcePath: "/Users/example/.zshrc",
+        lineNumber: 1,
+      },
+    ]);
+
+    await renderApp();
+
+    expect(screen.getByText("Import detected proxies")).toBeInTheDocument();
+    expect(screen.getByText("/Users/example/.zshrc:1")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Import http_proxy 127.0.0.1:1087" }));
+
+    expect(api.saveProxyStore).toHaveBeenCalledWith(
+      expect.objectContaining({
+        proxies: [
+          expect.objectContaining({
+            name: "http_proxy 127.0.0.1:1087",
+            kind: "http_proxy",
+            scheme: "http",
+            host: "127.0.0.1",
+            port: 1087,
+            enabled: false,
+          }),
+        ],
+      }),
+    );
+  });
+
+  it("keeps the app usable when profile import scanning fails", async () => {
+    const api = await import("./shared/tauri/api");
+    vi.mocked(api.scanProxyImports).mockRejectedValueOnce(new Error("permission denied"));
+
+    await renderApp();
+
+    await waitFor(() => expect(api.getProxyStore).toHaveBeenCalled());
+    expect(screen.getByText("Proxy types")).toBeInTheDocument();
+    expect(screen.queryByText("permission denied")).not.toBeInTheDocument();
   });
 
   it("saves edited proxy values through the Tauri API", async () => {

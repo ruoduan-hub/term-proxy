@@ -32,6 +32,12 @@
       "all": "ALL_PROXY"
     }
   },
+  "import": {
+    "title": "Import detected proxies",
+    "description": "Review existing shell profile proxy values before adding them to Term Proxy.",
+    "import": "Import",
+    "importNamed": "Import {{name}}"
+  },
   "settings": {
     "title": "Settings",
     "theme": "Theme",
