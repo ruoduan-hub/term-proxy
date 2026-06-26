@@ -31,8 +31,6 @@ export function ProxyDashboard({ proxies, onAddProxy, onEnableProxy }: ProxyDash
     event.preventDefault();
 
     const data = new FormData(event.currentTarget);
-    const username = String(data.get("username") ?? "").trim();
-    const password = String(data.get("password") ?? "").trim();
 
     onAddProxy({
       name: String(data.get("name") ?? "").trim(),
@@ -40,8 +38,6 @@ export function ProxyDashboard({ proxies, onAddProxy, onEnableProxy }: ProxyDash
       scheme: String(data.get("scheme")) as ProxyScheme,
       host: String(data.get("host") ?? "").trim(),
       port: Number(data.get("port")),
-      username: username || undefined,
-      password: password || undefined,
     });
 
     event.currentTarget.reset();
@@ -152,31 +148,6 @@ export function ProxyDashboard({ proxies, onAddProxy, onEnableProxy }: ProxyDash
                   max={65535}
                   defaultValue={1087}
                   required
-                  className="h-9 rounded-md border bg-background px-3 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40"
-                />
-              </div>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="grid gap-2">
-                <label className="text-sm font-medium" htmlFor="proxy-username">
-                  {t("proxy.form.username")}
-                </label>
-                <input
-                  id="proxy-username"
-                  name="username"
-                  className="h-9 rounded-md border bg-background px-3 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40"
-                />
-              </div>
-
-              <div className="grid gap-2">
-                <label className="text-sm font-medium" htmlFor="proxy-password">
-                  {t("proxy.form.password")}
-                </label>
-                <input
-                  id="proxy-password"
-                  name="password"
-                  type="password"
                   className="h-9 rounded-md border bg-background px-3 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40"
                 />
               </div>

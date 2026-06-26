@@ -22,8 +22,6 @@ export type NewProxyConfig = {
   scheme: ProxyScheme;
   host: string;
   port: number;
-  username?: string;
-  password?: string;
 };
 
 export type ShellIntegrationSettings = {

@@ -146,8 +146,6 @@ type ProxyConfig = {
   scheme: ProxyScheme;
   host: string;
   port: number;
-  username?: string;
-  password?: string;
   enabled: boolean;
   createdAt: string;
   updatedAt: string;
@@ -157,8 +155,8 @@ type ProxyConfig = {
 注意：
 
 - `no_proxy` 是全局设置，不属于单条代理配置。
-- MVP 允许用户名和密码明文保存到 app config JSON，但 UI 不应默认明文展示密码。
-- 后续应预留迁移到 macOS Keychain、Windows Credential Manager、Linux Secret Service 的接口。
+- MVP UI 不采集代理用户名和密码，只配置代理协议、host 和 port。
+- Rust 数据模型可保留可选凭证字段用于兼容旧 JSON 或后续扩展；如未来支持认证代理，应迁移到 macOS Keychain、Windows Credential Manager、Linux Secret Service。
 
 ## Profile 写入规则
 
@@ -191,7 +189,7 @@ if (Test-Path $termProxyProfile) { . $termProxyProfile }
 - 不得删除、重排或改写 marker 外的用户 profile 内容。
 - 重复运行集成时不得重复插入 marker。
 - 托管文件由应用完整重写，写入必须使用临时文件 + rename 的原子写入策略。
-- URL、用户名、密码、路径必须按目标 Shell 正确转义。
+- URL、host、port、路径必须按目标 Shell 正确转义。若未来恢复凭证字段，用户名和密码也必须按目标 Shell 正确转义。
 - 关闭代理只更新托管文件，不删除 profile marker。
 - “移除集成”只删除受控 marker，不删除用户其他配置。
 
@@ -240,7 +238,7 @@ if (Test-Path $termProxyProfile) { . $termProxyProfile }
 - 顶部状态栏：应用名、集成状态、主题/语言/设置入口。
 - 代理类型切换：`http_proxy`、`https_proxy`、`ALL_PROXY`。
 - 代理列表：名称、协议、host、port、启用开关、编辑、删除。
-- 编辑面板：名称、类型、scheme、host、port、用户名、密码。
+- 编辑面板：名称、类型、scheme、host、port。
 - 设置页：主题、语言、开机自启、全局 `no_proxy`、Shell 集成、移除集成。
 - 导入页：显示扫描候选，用户确认后导入。
 
@@ -310,7 +308,7 @@ Rust 错误应使用结构化错误类型，返回给前端时包含：
 Rust 侧至少覆盖：
 
 - 代理 URL 生成。
-- 用户名/密码转义。
+- URL、host、port、路径转义。
 - `http_proxy`、`https_proxy`、`ALL_PROXY` 单选启用规则。
 - zsh/bash/PowerShell 托管脚本生成。
 - profile marker 插入、去重、移除。
@@ -372,7 +370,7 @@ Windows：
 - 用户输入在写入脚本前必须校验和转义。
 - 不直接插入未转义 HTML。
 - 不保留生产调试 `console.log`。
-- MVP 明文保存代理密码是已知取舍，必须在设置或文档中明确；后续迁移系统凭据存储。
+- MVP 不在 UI 中采集代理密码；如后续支持认证代理，不得在客户端硬编码敏感信息，并应迁移系统凭据存储。
 
 ## 提交规范
 

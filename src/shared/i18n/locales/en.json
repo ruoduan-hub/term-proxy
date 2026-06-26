@@ -18,8 +18,6 @@
       "scheme": "Scheme",
       "host": "Host",
       "port": "Port",
-      "username": "Username",
-      "password": "Password",
       "save": "Save proxy"
     },
     "kind": {

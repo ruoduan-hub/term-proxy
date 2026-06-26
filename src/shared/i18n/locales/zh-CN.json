@@ -18,8 +18,6 @@
       "scheme": "协议",
       "host": "主机",
       "port": "端口",
-      "username": "用户名",
-      "password": "密码",
       "save": "保存代理"
     },
     "kind": {
