@@ -6,8 +6,14 @@ import { ProxyDashboard } from "./features/proxies/ProxyDashboard";
 import { SettingsPanel } from "./features/settings/SettingsPanel";
 import "./shared/i18n";
 import { Badge } from "@/shared/ui/badge";
-import { enableProxyConfig, getProxyStore, saveProxyStore } from "@/shared/tauri/api";
-import type { NewProxyConfig, ProxyConfig, ProxyStore } from "@/shared/types/proxy";
+import {
+  enableProxyConfig,
+  getProxyStore,
+  installShellIntegration,
+  removeShellIntegration,
+  saveProxyStore,
+} from "@/shared/tauri/api";
+import type { NewProxyConfig, ProxyConfig, ProxyStore, ShellKind } from "@/shared/types/proxy";
 
 const defaultProxyStore: ProxyStore = {
   proxies: [],
@@ -84,6 +90,18 @@ export function App() {
     }
   }
 
+  async function handleToggleShellIntegration(shell: ShellKind, enabled: boolean) {
+    try {
+      const nextStore = enabled
+        ? await installShellIntegration(shell)
+        : await removeShellIntegration(shell);
+      setStore(nextStore);
+      setError(null);
+    } catch (unknownError) {
+      setError(unknownError instanceof Error ? unknownError.message : String(unknownError));
+    }
+  }
+
   return (
     <main className="min-h-dvh bg-gradient-to-b from-background to-muted px-5 py-6 text-foreground md:px-8 md:py-8">
       <header className="mx-auto mb-6 flex max-w-6xl flex-col items-start justify-between gap-4 md:flex-row md:items-center">
@@ -110,7 +128,10 @@ export function App() {
           />
           <ImportNotice />
         </div>
-        <SettingsPanel />
+        <SettingsPanel
+          settings={store.settings}
+          onToggleShellIntegration={handleToggleShellIntegration}
+        />
       </div>
     </main>
   );

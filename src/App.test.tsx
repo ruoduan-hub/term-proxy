@@ -22,6 +22,21 @@ vi.mock("./shared/tauri/api", () => ({
       },
     },
   })),
+  installShellIntegration: vi.fn(async () => ({
+    proxies: [],
+    settings: {
+      theme: "system",
+      language: "system",
+      autoLaunch: false,
+      noProxy: "localhost,127.0.0.1",
+      shellIntegration: {
+        zsh: true,
+        bash: false,
+        powershell: false,
+      },
+    },
+  })),
+  removeShellIntegration: vi.fn(),
   saveProxyStore: vi.fn(async (store) => store),
 }));
 
@@ -70,5 +85,17 @@ describe("App", () => {
         ],
       }),
     );
+  });
+
+  it("installs shell integration from settings", async () => {
+    const user = userEvent.setup();
+    const api = await import("./shared/tauri/api");
+
+    render(<App />);
+
+    await waitFor(() => expect(api.getProxyStore).toHaveBeenCalled());
+    await user.click(screen.getByRole("switch", { name: "zsh" }));
+
+    expect(api.installShellIntegration).toHaveBeenCalledWith("zsh");
   });
 });

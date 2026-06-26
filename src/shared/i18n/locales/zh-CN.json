@@ -36,6 +36,8 @@
     "language": "语言",
     "autoLaunch": "开机自启",
     "noProxy": "全局 no_proxy",
-    "shellIntegration": "Shell 集成"
+    "shellIntegration": "Shell 集成",
+    "on": "开",
+    "off": "关"
   }
 }

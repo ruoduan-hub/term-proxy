@@ -12,7 +12,9 @@ pub fn run() {
             commands::app::get_app_info,
             commands::proxy::get_proxy_store,
             commands::proxy::save_proxy_store_command,
-            commands::proxy::enable_proxy_config
+            commands::proxy::enable_proxy_config,
+            commands::proxy::install_shell_integration,
+            commands::proxy::remove_shell_integration
         ])
         .run(tauri::generate_context!())
         .expect("error while running Term Proxy");

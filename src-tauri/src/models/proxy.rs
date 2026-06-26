@@ -18,6 +18,15 @@ pub enum ProxyScheme {
     Socks5,
 }
 
+#[derive(Debug, Clone, Copy, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum ShellKind {
+    Zsh,
+    Bash,
+    #[serde(rename = "powershell")]
+    PowerShell,
+}
+
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct ProxyConfig {

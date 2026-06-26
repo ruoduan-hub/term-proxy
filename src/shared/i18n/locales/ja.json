@@ -36,6 +36,8 @@
     "language": "言語",
     "autoLaunch": "起動時に開く",
     "noProxy": "グローバル no_proxy",
-    "shellIntegration": "Shell 連携"
+    "shellIntegration": "Shell 連携",
+    "on": "オン",
+    "off": "オフ"
   }
 }

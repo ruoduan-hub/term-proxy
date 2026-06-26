@@ -36,6 +36,8 @@
     "language": "Language",
     "autoLaunch": "Launch at startup",
     "noProxy": "Global no_proxy",
-    "shellIntegration": "Shell integration"
+    "shellIntegration": "Shell integration",
+    "on": "On",
+    "off": "Off"
   }
 }
