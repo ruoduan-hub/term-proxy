@@ -1,10 +1,25 @@
-# Term Proxy
+<div align="center">
+  <img src="./app-icon.png" alt="Term Proxy" width="96">
 
-[English](./README.md) · [简体中文](./README.zh-CN.md)
+  <h1>Term Proxy</h1>
 
-Term Proxy は、macOS、Linux、Windows でターミナルのプロキシ設定をまとめて管理するための、小さく洗練されたデスクトップアプリです。
+  <p><strong>ターミナルプロキシを管理する、小さく洗練されたデスクトップアプリ。</strong></p>
+  <p>shell profile を手で編集せずに、プロキシを保存、切り替え、無効化できます。</p>
 
-これまで手動で書いていたような設定:
+  <p>
+    <a href="https://github.com/ruoduan-hub/term-proxy/releases"><img src="https://img.shields.io/github/v/release/ruoduan-hub/term-proxy?color=111827&label=version" alt="Version"></a>
+    <a href="https://github.com/ruoduan-hub/term-proxy/releases"><img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg" alt="Platform"></a>
+    <a href="https://tauri.app/"><img src="https://img.shields.io/badge/built%20with-Tauri%202-24C8DB.svg" alt="Built with Tauri 2"></a>
+    <a href="https://github.com/ruoduan-hub/term-proxy/releases/latest"><img src="https://img.shields.io/github/downloads/ruoduan-hub/term-proxy/total?color=0f766e&label=downloads" alt="Downloads"></a>
+    <a href="./LICENSE"><img src="https://img.shields.io/github/license/ruoduan-hub/term-proxy?color=111827" alt="License"></a>
+  </p>
+
+  <p>
+    <a href="./README.md">English</a> · <a href="./README.zh-CN.md">简体中文</a> · 日本語
+  </p>
+</div>
+
+Term Proxy は、これまで手動で書いていたような設定:
 
 ```bash
 export http_proxy=http://127.0.0.1:1087
@@ -16,6 +31,18 @@ export https_proxy=http://127.0.0.1:1087
 <p align="center">
   <img src="./intro/screenshots.png" alt="Term Proxy アプリのスクリーンショット" width="860">
 </p>
+
+## ダウンロード
+
+最新ビルドは [GitHub Releases](https://github.com/ruoduan-hub/term-proxy/releases/latest) からダウンロードできます。
+
+| プラットフォーム | 推奨パッケージ |
+| --- | --- |
+| macOS | `Term.Proxy_1.0.0_universal.dmg` |
+| Windows | `Term.Proxy_1.0.0_x64-setup.exe` または `Term.Proxy_1.0.0_x64_en-US.msi` |
+| Linux | `Term.Proxy_1.0.0_amd64.AppImage`、`.deb`、`.rpm` |
+
+macOS ビルドはまだコード署名されていません。初回起動時にブロックされた場合は、Finder のコンテキストメニューから一度開いてください。
 
 ## なぜ作るのか
 
@@ -146,6 +173,29 @@ pnpm cargo:test
 - 各 OS 向けの Tauri ビルド要件。
 
 Tauri は現在の OS 向けにネイティブアプリをビルドします。macOS、Linux、Windows の成果物は、それぞれ対応する OS または CI runner でビルドしてください。
+
+## FAQ
+
+<details>
+<summary><strong>Term Proxy は OS のネットワークプロキシを変更しますか？</strong></summary>
+
+いいえ。Term Proxy はターミナル環境変数としてのプロキシだけを管理します。OS のシステムネットワークプロキシ設定は変更しません。
+
+</details>
+
+<details>
+<summary><strong>既に開いているターミナルにすぐ反映されないのはなぜですか？</strong></summary>
+
+環境変数はターミナルセッションの開始時に読み込まれます。Term Proxy で変更した後は、新しいターミナルを開くと最新の設定が使われます。
+
+</details>
+
+<details>
+<summary><strong>生成されたプロキシスクリプトはどこに保存されますか？</strong></summary>
+
+Term Proxy は管理スクリプトを `~/.term-proxy` に保存します。shell profile は、管理済みブロックからそれらのスクリプトを読み込むだけです。
+
+</details>
 
 ## ライセンス
 

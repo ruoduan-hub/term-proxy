@@ -1,10 +1,25 @@
-# Term Proxy
+<div align="center">
+  <img src="./app-icon.png" alt="Term Proxy" width="96">
 
-[English](./README.md) · [日本語](./README.ja.md)
+  <h1>Term Proxy</h1>
 
-Term Proxy 是一个精美、小巧的跨平台桌面端应用，用来批量管理电脑里的终端代理配置。
+  <p><strong>精美、小巧的跨平台桌面端代理管理工具。</strong></p>
+  <p>用桌面 UI 批量管理终端代理，不再反复手改 shell profile。</p>
 
-它把过去需要手动维护的命令：
+  <p>
+    <a href="https://github.com/ruoduan-hub/term-proxy/releases"><img src="https://img.shields.io/github/v/release/ruoduan-hub/term-proxy?color=111827&label=version" alt="Version"></a>
+    <a href="https://github.com/ruoduan-hub/term-proxy/releases"><img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg" alt="Platform"></a>
+    <a href="https://tauri.app/"><img src="https://img.shields.io/badge/built%20with-Tauri%202-24C8DB.svg" alt="Built with Tauri 2"></a>
+    <a href="https://github.com/ruoduan-hub/term-proxy/releases/latest"><img src="https://img.shields.io/github/downloads/ruoduan-hub/term-proxy/total?color=0f766e&label=downloads" alt="Downloads"></a>
+    <a href="./LICENSE"><img src="https://img.shields.io/github/license/ruoduan-hub/term-proxy?color=111827" alt="License"></a>
+  </p>
+
+  <p>
+    <a href="./README.md">English</a> · 简体中文 · <a href="./README.ja.md">日本語</a>
+  </p>
+</div>
+
+Term Proxy 把过去需要手动维护的命令：
 
 ```bash
 export http_proxy=http://127.0.0.1:1087
@@ -16,6 +31,18 @@ export https_proxy=http://127.0.0.1:1087
 <p align="center">
   <img src="./intro/screenshots.png" alt="Term Proxy 应用截图" width="860">
 </p>
+
+## 下载
+
+从 [GitHub Releases](https://github.com/ruoduan-hub/term-proxy/releases/latest) 下载最新版本。
+
+| 平台 | 推荐安装包 |
+| --- | --- |
+| macOS | `Term.Proxy_1.0.0_universal.dmg` |
+| Windows | `Term.Proxy_1.0.0_x64-setup.exe` 或 `Term.Proxy_1.0.0_x64_en-US.msi` |
+| Linux | `Term.Proxy_1.0.0_amd64.AppImage`、`.deb` 或 `.rpm` |
+
+macOS 版本暂未做代码签名。如果首次启动被系统拦截，可以在 Finder 里右键打开一次。
 
 ## 为什么做这个
 
@@ -146,6 +173,29 @@ pnpm cargo:test
 - 对应平台的 Tauri 构建依赖。
 
 Tauri 会为当前操作系统构建原生应用。macOS、Linux、Windows 三端产物建议分别在对应系统或 CI runner 中构建。
+
+## 常见问题
+
+<details>
+<summary><strong>Term Proxy 会修改系统网络代理吗？</strong></summary>
+
+不会。Term Proxy 只管理终端环境变量代理，不修改操作系统的系统网络代理设置。
+
+</details>
+
+<details>
+<summary><strong>为什么已经打开的终端没有立刻变化？</strong></summary>
+
+环境变量会在终端会话启动时加载。你在 Term Proxy 中切换代理后，新打开的终端会使用最新配置。
+
+</details>
+
+<details>
+<summary><strong>生成的代理脚本保存在哪里？</strong></summary>
+
+Term Proxy 把托管脚本保存在 `~/.term-proxy`。shell profile 只通过受控块加载这些托管脚本。
+
+</details>
 
 ## 开源协议
 
