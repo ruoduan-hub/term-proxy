@@ -13,6 +13,7 @@
     "enable": "有効化",
     "enabled": "有効",
     "enableNamed": "{{name}} を有効化",
+    "copyUrlNamed": "{{name}} の URL をコピー",
     "editNamed": "{{name}} を編集",
     "deleteNamed": "{{name}} を削除",
     "cancelEditNamed": "{{name}} の編集をキャンセル",
@@ -44,6 +45,7 @@
     "proxyEnabled": "プロキシを有効にしました",
     "proxyUpdated": "プロキシを更新しました",
     "proxyDeleted": "プロキシを削除しました",
+    "proxyUrlCopied": "プロキシ URL をコピーしました",
     "settingsSaved": "設定を保存しました",
     "shellIntegrationEnabled": "Shell 連携を有効にしました",
     "shellIntegrationDisabled": "Shell 連携を無効にしました"

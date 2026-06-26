@@ -7,6 +7,7 @@
     "core:default",
     "autostart:allow-disable",
     "autostart:allow-enable",
-    "autostart:allow-is-enabled"
+    "autostart:allow-is-enabled",
+    "clipboard-manager:allow-write-text"
   ]
 }

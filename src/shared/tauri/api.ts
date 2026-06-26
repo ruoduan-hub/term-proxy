@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
+import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { disable, enable } from "@tauri-apps/plugin-autostart";
 
 import type { AppInfo, ProxyImportCandidate, ProxyStore, ShellKind } from "../types/proxy";
@@ -9,6 +10,10 @@ export async function getAppInfo(): Promise<AppInfo> {
 
 export async function getProxyStore(): Promise<ProxyStore> {
   return invoke<ProxyStore>("get_proxy_store");
+}
+
+export async function copyText(text: string): Promise<void> {
+  await writeText(text);
 }
 
 export async function scanProxyImports(): Promise<ProxyImportCandidate[]> {

@@ -11,6 +11,7 @@ import { Button } from "@/shared/ui/button";
 import { Toaster, toast } from "@/shared/ui/sonner";
 import { useTheme } from "@/shared/theme/ThemeProvider";
 import {
+  copyText,
   enableProxyConfig,
   getProxyStore,
   installShellIntegration,
@@ -227,6 +228,18 @@ export function App() {
     }
   }
 
+  async function handleCopyProxyUrl(url: string) {
+    try {
+      await copyText(url);
+      setError(null);
+      toast.success(t("feedback.proxyUrlCopied"));
+    } catch (unknownError) {
+      const message = errorMessageFromUnknown(unknownError);
+      setError(message);
+      toast.error(message);
+    }
+  }
+
   async function handleToggleShellIntegration(shell: ShellKind, enabled: boolean) {
     try {
       const nextStore = enabled
@@ -334,6 +347,7 @@ export function App() {
               onEnableProxy={handleEnableProxy}
               onUpdateProxy={handleUpdateProxy}
               onDeleteProxy={handleDeleteProxy}
+              onCopyProxyUrl={handleCopyProxyUrl}
             />
             <ImportCandidates
               candidates={importCandidates}

@@ -36,6 +36,7 @@ describe("ProxyDashboard", () => {
         onEnableProxy={onEnableProxy}
         onUpdateProxy={vi.fn()}
         onDeleteProxy={vi.fn()}
+        onCopyProxyUrl={vi.fn()}
       />,
     );
 
@@ -59,6 +60,7 @@ describe("ProxyDashboard", () => {
         onEnableProxy={vi.fn()}
         onUpdateProxy={vi.fn()}
         onDeleteProxy={vi.fn()}
+        onCopyProxyUrl={vi.fn()}
       />,
     );
 
@@ -100,6 +102,7 @@ describe("ProxyDashboard", () => {
         onEnableProxy={vi.fn()}
         onUpdateProxy={vi.fn()}
         onDeleteProxy={vi.fn()}
+        onCopyProxyUrl={vi.fn()}
       />,
     );
 
@@ -126,6 +129,7 @@ describe("ProxyDashboard", () => {
         onEnableProxy={vi.fn()}
         onUpdateProxy={onUpdateProxy}
         onDeleteProxy={vi.fn()}
+        onCopyProxyUrl={vi.fn()}
       />,
     );
 
@@ -156,11 +160,32 @@ describe("ProxyDashboard", () => {
         onEnableProxy={vi.fn()}
         onUpdateProxy={vi.fn()}
         onDeleteProxy={onDeleteProxy}
+        onCopyProxyUrl={vi.fn()}
       />,
     );
 
     await user.click(screen.getByRole("button", { name: "Delete Backup HTTP" }));
 
     expect(onDeleteProxy).toHaveBeenCalledWith("http-b");
+  });
+
+  it("copies a proxy URL from a row", async () => {
+    const user = userEvent.setup();
+    const onCopyProxyUrl = vi.fn();
+
+    render(
+      <ProxyDashboard
+        proxies={[proxy({ id: "http-b", name: "Backup HTTP", host: "10.0.0.2" })]}
+        onAddProxy={vi.fn()}
+        onEnableProxy={vi.fn()}
+        onUpdateProxy={vi.fn()}
+        onDeleteProxy={vi.fn()}
+        onCopyProxyUrl={onCopyProxyUrl}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Copy Backup HTTP URL" }));
+
+    expect(onCopyProxyUrl).toHaveBeenCalledWith("http://10.0.0.2:1087");
   });
 });

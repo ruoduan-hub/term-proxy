@@ -8,6 +8,7 @@ import { i18n } from "./shared/i18n";
 import { ThemeProvider } from "./shared/theme/ThemeProvider";
 
 vi.mock("./shared/tauri/api", () => ({
+  copyText: vi.fn(async (_text: string) => {}),
   enableProxyConfig: vi.fn(),
   getProxyStore: vi.fn(async () => ({
     proxies: [],
@@ -156,6 +157,45 @@ describe("App", () => {
     await user.click(screen.getByRole("button", { name: "Save proxy" }));
 
     expect(toast.error).toHaveBeenCalledWith("disk full");
+  });
+
+  it("copies a proxy URL through the clipboard API", async () => {
+    const user = userEvent.setup();
+    const api = await import("./shared/tauri/api");
+    const { toast } = await import("sonner");
+    vi.mocked(api.getProxyStore).mockResolvedValueOnce({
+      proxies: [
+        {
+          id: "http-a",
+          name: "Local HTTP",
+          kind: "http_proxy",
+          scheme: "http",
+          host: "127.0.0.1",
+          port: 1087,
+          enabled: false,
+          createdAt: "2026-06-26T00:00:00Z",
+          updatedAt: "2026-06-26T00:00:00Z",
+        },
+      ],
+      settings: {
+        theme: "system",
+        language: "system",
+        autoLaunch: false,
+        noProxy: "localhost,127.0.0.1",
+        shellIntegration: {
+          zsh: false,
+          bash: false,
+          powershell: false,
+        },
+      },
+    });
+
+    await renderApp();
+
+    await user.click(screen.getByRole("button", { name: "Copy Local HTTP URL" }));
+
+    expect(api.copyText).toHaveBeenCalledWith("http://127.0.0.1:1087");
+    expect(toast.success).toHaveBeenCalledWith("Proxy URL copied");
   });
 
   it("imports a scanned profile proxy through the Tauri API", async () => {

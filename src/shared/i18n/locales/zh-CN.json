@@ -13,6 +13,7 @@
     "enable": "启用",
     "enabled": "已启用",
     "enableNamed": "启用 {{name}}",
+    "copyUrlNamed": "复制 {{name}} URL",
     "editNamed": "编辑 {{name}}",
     "deleteNamed": "删除 {{name}}",
     "cancelEditNamed": "取消编辑 {{name}}",
@@ -44,6 +45,7 @@
     "proxyEnabled": "代理已启用",
     "proxyUpdated": "代理已更新",
     "proxyDeleted": "代理已删除",
+    "proxyUrlCopied": "代理 URL 已复制",
     "settingsSaved": "设置已保存",
     "shellIntegrationEnabled": "Shell 集成已启用",
     "shellIntegrationDisabled": "Shell 集成已关闭"

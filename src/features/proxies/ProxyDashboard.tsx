@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { Pencil, Plus, Trash2, X } from "lucide-react";
+import { Copy, Pencil, Plus, Trash2, X } from "lucide-react";
 
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
@@ -24,6 +24,7 @@ type ProxyDashboardProps = {
   onEnableProxy: (id: string) => void;
   onUpdateProxy: (id: string, proxy: EditableProxyConfig) => Promise<void> | void;
   onDeleteProxy: (id: string) => void;
+  onCopyProxyUrl: (url: string) => void;
 };
 
 type EditableProxyConfig = Pick<ProxyConfig, "name" | "host" | "port">;
@@ -34,6 +35,7 @@ export function ProxyDashboard({
   onEnableProxy,
   onUpdateProxy,
   onDeleteProxy,
+  onCopyProxyUrl,
 }: ProxyDashboardProps) {
   const { t } = useTranslation();
   const [selectedKind, setSelectedKind] = useState<ProxyKind>("http_proxy");
@@ -92,6 +94,10 @@ export function ProxyDashboard({
     setSubmittingEditId(null);
     setIsAdding(false);
     setIsSubmittingAdd(false);
+  }
+
+  function proxyUrl(proxy: ProxyConfig) {
+    return `${proxy.scheme}://${proxy.host}:${proxy.port}`;
   }
 
   return (
@@ -236,11 +242,20 @@ export function ProxyDashboard({
                             {proxy.enabled ? <Badge>{t("proxy.enabled")}</Badge> : null}
                           </div>
                           <p className="mt-1 truncate font-mono text-sm text-muted-foreground">
-                            {`${proxy.scheme}://${proxy.host}:${proxy.port}`}
+                            {proxyUrl(proxy)}
                           </p>
                         </div>
 
                         <div className="flex flex-wrap items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            aria-label={t("proxy.copyUrlNamed", { name: proxy.name })}
+                            onClick={() => onCopyProxyUrl(proxyUrl(proxy))}
+                          >
+                            <Copy aria-hidden="true" />
+                          </Button>
                           <Button
                             type="button"
                             variant={proxy.enabled ? "secondary" : "outline"}

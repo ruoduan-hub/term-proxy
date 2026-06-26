@@ -13,6 +13,7 @@
     "enable": "Enable",
     "enabled": "Enabled",
     "enableNamed": "Enable {{name}}",
+    "copyUrlNamed": "Copy {{name}} URL",
     "editNamed": "Edit {{name}}",
     "deleteNamed": "Delete {{name}}",
     "cancelEditNamed": "Cancel editing {{name}}",
@@ -44,6 +45,7 @@
     "proxyEnabled": "Proxy enabled",
     "proxyUpdated": "Proxy updated",
     "proxyDeleted": "Proxy deleted",
+    "proxyUrlCopied": "Proxy URL copied",
     "settingsSaved": "Settings saved",
     "shellIntegrationEnabled": "Shell integration enabled",
     "shellIntegrationDisabled": "Shell integration disabled"
