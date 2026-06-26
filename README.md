@@ -110,6 +110,19 @@ Build the desktop app:
 pnpm tauri:build
 ```
 
+## Release Builds
+
+GitHub Actions builds downloadable packages for macOS, Windows, and Linux.
+
+Maintainers can create a draft GitHub Release by pushing a version tag:
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+The same workflow can also be started manually from GitHub Actions through the `Release` workflow. Generated releases are drafts by default, so assets can be checked before publishing.
+
 ## Quality Checks
 
 Run the frontend checks:

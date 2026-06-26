@@ -110,6 +110,19 @@ pnpm tauri:icon
 pnpm tauri:build
 ```
 
+## リリースビルド
+
+GitHub Actions は、macOS、Windows、Linux 向けのダウンロード可能なパッケージをビルドします。
+
+メンテナーは、バージョン tag を push して draft GitHub Release を作成できます。
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+GitHub Actions の `Release` workflow から手動で実行することもできます。生成される Release はデフォルトで draft なので、公開前にアセットを確認できます。
+
 ## 品質チェック
 
 フロントエンド:

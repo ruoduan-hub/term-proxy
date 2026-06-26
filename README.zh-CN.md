@@ -110,6 +110,19 @@ pnpm tauri:icon
 pnpm tauri:build
 ```
 
+## 发布构建
+
+GitHub Actions 会构建 macOS、Windows、Linux 三端可下载安装包。
+
+维护者可以通过推送版本 tag 创建草稿 Release：
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+也可以在 GitHub Actions 页面手动运行 `Release` workflow。生成的 Release 默认是草稿，方便检查安装包后再正式发布。
+
 ## 质量检查
 
 前端检查：
