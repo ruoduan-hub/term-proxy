@@ -15,7 +15,7 @@ pub fn profile_path_from_home_dir(home_dir: &Path, shell: ShellKind) -> PathBuf 
         ShellKind::Bash => home_dir.join(".bashrc"),
         ShellKind::PowerShell => home_dir
             .join("Documents")
-            .join("PowerShell")
+            .join("WindowsPowerShell")
             .join("Microsoft.PowerShell_profile.ps1"),
     }
 }
@@ -175,7 +175,7 @@ mod tests {
             profile_path_from_home_dir(&home_dir, ShellKind::PowerShell),
             home_dir
                 .join("Documents")
-                .join("PowerShell")
+                .join("WindowsPowerShell")
                 .join("Microsoft.PowerShell_profile.ps1")
         );
     }

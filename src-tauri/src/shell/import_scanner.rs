@@ -180,7 +180,7 @@ mod tests {
     fn scans_powershell_proxy_assignments() {
         let candidates = scan_profile_content(
             &PathBuf::from(
-                r"C:\Users\example\Documents\PowerShell\Microsoft.PowerShell_profile.ps1",
+                r"C:\Users\example\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1",
             ),
             ShellKind::PowerShell,
             "$env:https_proxy = \"https://127.0.0.1:1087\"\n",
