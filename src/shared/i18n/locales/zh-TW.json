@@ -1,0 +1,28 @@
+{
+  "app": {
+    "title": "Term Proxy",
+    "subtitle": "終端代理管理器",
+    "statusNotIntegrated": "未整合"
+  },
+  "proxy": {
+    "types": "代理類型",
+    "emptyTitle": "尚無代理設定",
+    "emptyDescription": "新增代理設定後即可統一管理終端環境變數。",
+    "kind": {
+      "http": "http_proxy",
+      "https": "https_proxy",
+      "all": "ALL_PROXY"
+    }
+  },
+  "import": {
+    "title": "匯入現有代理",
+    "description": "掃描到的 Shell profile 代理設定會在這裡等待你確認。"
+  },
+  "settings": {
+    "title": "設定",
+    "theme": "主題",
+    "language": "語言",
+    "autoLaunch": "開機自動啟動",
+    "noProxy": "全域 no_proxy"
+  }
+}

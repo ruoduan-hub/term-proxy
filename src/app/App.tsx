@@ -1,21 +1,31 @@
+import { useTranslation } from "react-i18next";
+
+import { ImportNotice } from "../features/import/ImportNotice";
+import { ProxyDashboard } from "../features/proxies/ProxyDashboard";
+import { SettingsPanel } from "../features/settings/SettingsPanel";
+import "../shared/i18n";
 import "./styles.css";
 
 export function App() {
+  const { t } = useTranslation();
+
   return (
     <main className="app-shell">
       <header className="app-header">
         <div>
-          <p className="app-kicker">Terminal proxy manager</p>
-          <h1>Term Proxy</h1>
+          <p className="app-kicker">{t("app.subtitle")}</p>
+          <h1>{t("app.title")}</h1>
         </div>
-        <span className="app-status">Not integrated</span>
+        <span className="app-status">{t("app.statusNotIntegrated")}</span>
       </header>
 
-      <section className="proxy-tabs" aria-label="Proxy types">
-        <button type="button">http_proxy</button>
-        <button type="button">https_proxy</button>
-        <button type="button">ALL_PROXY</button>
-      </section>
+      <div className="app-grid">
+        <div className="main-column">
+          <ProxyDashboard />
+          <ImportNotice />
+        </div>
+        <SettingsPanel />
+      </div>
     </main>
   );
 }

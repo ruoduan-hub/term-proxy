@@ -1,0 +1,28 @@
+{
+  "app": {
+    "title": "Term Proxy",
+    "subtitle": "Terminal proxy manager",
+    "statusNotIntegrated": "Not integrated"
+  },
+  "proxy": {
+    "types": "Proxy types",
+    "emptyTitle": "No proxies yet",
+    "emptyDescription": "Add a proxy configuration to start managing terminal environment variables.",
+    "kind": {
+      "http": "http_proxy",
+      "https": "https_proxy",
+      "all": "ALL_PROXY"
+    }
+  },
+  "import": {
+    "title": "Import existing proxy",
+    "description": "Existing shell profile proxy values will appear here for confirmation."
+  },
+  "settings": {
+    "title": "Settings",
+    "theme": "Theme",
+    "language": "Language",
+    "autoLaunch": "Launch at startup",
+    "noProxy": "Global no_proxy"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "app": {
+    "title": "Term Proxy",
+    "subtitle": "终端代理管理器",
+    "statusNotIntegrated": "未集成"
+  },
+  "proxy": {
+    "types": "代理类型",
+    "emptyTitle": "还没有代理配置",
+    "emptyDescription": "添加代理配置后即可统一管理终端环境变量。",
+    "kind": {
+      "http": "http_proxy",
+      "https": "https_proxy",
+      "all": "ALL_PROXY"
+    }
+  },
+  "import": {
+    "title": "导入现有代理",
+    "description": "扫描到的 Shell profile 代理配置会在这里等待你确认。"
+  },
+  "settings": {
+    "title": "设置",
+    "theme": "主题",
+    "language": "语言",
+    "autoLaunch": "开机自启",
+    "noProxy": "全局 no_proxy"
+  }
+}

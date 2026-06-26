@@ -1,0 +1,28 @@
+{
+  "app": {
+    "title": "Term Proxy",
+    "subtitle": "ターミナルプロキシ管理",
+    "statusNotIntegrated": "未連携"
+  },
+  "proxy": {
+    "types": "プロキシ種別",
+    "emptyTitle": "プロキシ設定はまだありません",
+    "emptyDescription": "設定を追加すると、ターミナル環境変数を管理できます。",
+    "kind": {
+      "http": "http_proxy",
+      "https": "https_proxy",
+      "all": "ALL_PROXY"
+    }
+  },
+  "import": {
+    "title": "既存プロキシをインポート",
+    "description": "検出した shell profile のプロキシ値を確認できます。"
+  },
+  "settings": {
+    "title": "設定",
+    "theme": "テーマ",
+    "language": "言語",
+    "autoLaunch": "起動時に開く",
+    "noProxy": "グローバル no_proxy"
+  }
+}
