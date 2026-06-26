@@ -76,8 +76,6 @@ Term Proxy follows the official `create-tauri-app` structure.
 - i18next and react-i18next
 - Sonner
 
-More project notes live in [`docs/`](./docs).
-
 ## Development
 
 Install dependencies:
@@ -117,8 +115,8 @@ GitHub Actions builds downloadable packages for macOS, Windows, and Linux.
 Maintainers can create a draft GitHub Release by pushing a version tag:
 
 ```bash
-git tag v0.1.0
-git push origin v0.1.0
+git tag v1.0.0
+git push origin v1.0.0
 ```
 
 The same workflow can also be started manually from GitHub Actions through the `Release` workflow. Generated releases are drafts by default, so assets can be checked before publishing.
@@ -148,17 +146,6 @@ pnpm cargo:test
 - Tauri prerequisites for the target operating system.
 
 Tauri packages native apps for the current OS. Build macOS, Linux, and Windows artifacts on matching systems or CI runners.
-
-## Project Documents
-
-- [`docs/PRODUCT.md`](./docs/PRODUCT.md)
-- [`DESIGN.md`](./DESIGN.md)
-- [`AGENTS.md`](./AGENTS.md)
-- [`docs/superpowers/specs/2026-06-26-term-proxy-design.md`](./docs/superpowers/specs/2026-06-26-term-proxy-design.md)
-
-## Inspiration
-
-Term Proxy is inspired by [`cc-switch`](https://github.com/farion1231/cc-switch), especially its Tauri desktop app structure, cross-platform mindset, and developer-tool ergonomics. Term Proxy focuses only on terminal proxy environment management.
 
 ## License
 

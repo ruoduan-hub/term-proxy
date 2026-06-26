@@ -76,8 +76,6 @@ Term Proxy 的目标是“少侵入、可解释、可回滚”。
 - i18next / react-i18next
 - Sonner
 
-更多产品、设计和工程说明见 [`docs/`](./docs)。
-
 ## 开发
 
 安装依赖：
@@ -117,8 +115,8 @@ GitHub Actions 会构建 macOS、Windows、Linux 三端可下载安装包。
 维护者可以通过推送版本 tag 创建草稿 Release：
 
 ```bash
-git tag v0.1.0
-git push origin v0.1.0
+git tag v1.0.0
+git push origin v1.0.0
 ```
 
 也可以在 GitHub Actions 页面手动运行 `Release` workflow。生成的 Release 默认是草稿，方便检查安装包后再正式发布。
@@ -148,17 +146,6 @@ pnpm cargo:test
 - 对应平台的 Tauri 构建依赖。
 
 Tauri 会为当前操作系统构建原生应用。macOS、Linux、Windows 三端产物建议分别在对应系统或 CI runner 中构建。
-
-## 项目文档
-
-- [`docs/PRODUCT.md`](./docs/PRODUCT.md)
-- [`DESIGN.md`](./DESIGN.md)
-- [`AGENTS.md`](./AGENTS.md)
-- [`docs/superpowers/specs/2026-06-26-term-proxy-design.md`](./docs/superpowers/specs/2026-06-26-term-proxy-design.md)
-
-## 灵感来源
-
-Term Proxy 的项目灵感来自 [`cc-switch`](https://github.com/farion1231/cc-switch)。本项目借鉴它在 Tauri 桌面工具、跨平台工程结构和开发者体验上的思路，但功能范围聚焦在终端代理环境变量管理。
 
 ## 开源协议
 
