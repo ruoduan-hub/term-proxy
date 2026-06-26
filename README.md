@@ -1,65 +1,78 @@
 # Term Proxy
 
-Term Proxy is a lightweight Tauri desktop app for managing terminal proxy environment variables across macOS, Linux, and Windows.
+[简体中文](./README.zh-CN.md) · [日本語](./README.ja.md)
 
-It turns shell profile commands such as:
+Term Proxy is a small, polished desktop app for managing terminal proxy variables across macOS, Linux, and Windows.
+
+It replaces repeated shell edits such as:
 
 ```bash
 export http_proxy=http://127.0.0.1:1087
 export https_proxy=http://127.0.0.1:1087
 ```
 
-into a small desktop UI with saved profiles, one-click enable/disable, import, copy, and settings.
+with a compact UI for saving, switching, and disabling proxy profiles.
+
+## Why
+
+Developers often keep several local proxy ports for debugging, company networks, CLI tools, and temporary environments. Maintaining those values by hand in `.zshrc`, `.bashrc`, or PowerShell profiles is easy to forget and hard to audit.
+
+Term Proxy keeps that workflow visible. You add proxy entries once, pick the active entry for each proxy type, and the app writes a managed shell script for new terminal sessions.
+
+The integration is intentionally conservative. Term Proxy does not take over your shell profile. It only adds a small managed loader block, then keeps generated proxy values in its own files under `~/.term-proxy`.
 
 ## Features
 
 - Manage `http_proxy`, `https_proxy`, and `ALL_PROXY`.
-- Keep multiple saved proxies, with only one enabled proxy per type.
-- Generate managed shell scripts under `~/.term-proxy`.
-- Automatically install shell profile integration for:
-  - macOS/Linux: `.zshrc`, `.bashrc`
-  - Windows PowerShell: `~/Documents/PowerShell/Microsoft.PowerShell_profile.ps1`
-- Scan existing profile files and merge detected proxy values into the app store.
+- Save multiple proxy entries for each type.
+- Keep only one active entry per proxy type at a time.
+- Configure host and port from the desktop UI, without credentials.
+- Manage global `no_proxy` in settings.
+- Automatically install shell integration for supported shells.
+- Read and merge existing proxy values from shell profiles.
 - Copy proxy URLs to the system clipboard.
-- Toggle app theme: light, dark, or system.
-- Toggle app language: Simplified Chinese, English, Japanese, Traditional Chinese, or system.
-- Toggle launch at startup with the Tauri autostart plugin.
-- Show operation feedback with toast notifications.
+- Support light theme, dark theme, and system theme.
+- Support English, Simplified Chinese, Japanese, and Traditional Chinese.
+- Support launch at startup through Tauri autostart.
 
-System network proxy settings are intentionally out of scope for the MVP. This app manages terminal environment variables through shell profile integration.
+Term Proxy currently manages terminal proxy environment variables. It does not modify system network proxy settings.
 
-## Verifying Terminal Proxy
+## Shell Integration
 
-After enabling a proxy in the app, Term Proxy automatically installs the shell profile integration for the current platform and writes the managed script. Newly opened terminal sessions will load the proxy automatically.
+Term Proxy uses an extension-style proxy integration.
 
-Existing terminal sessions cannot be updated by a desktop app after they have already started. To inspect the generated value in the same session during development:
+On macOS and Linux, the app creates:
 
-```bash
-source ~/.zshrc
-echo $http_proxy
+```text
+~/.term-proxy/proxy.sh
 ```
 
-On Windows PowerShell:
+and adds a controlled loader block to supported shell profiles such as `.zshrc` and `.bashrc`.
 
-```powershell
-. $PROFILE
-echo $env:http_proxy
+On Windows PowerShell, the app creates:
+
+```text
+~/.term-proxy/proxy.ps1
 ```
 
-Disabling a proxy rewrites the managed script so the next profile reload clears the managed proxy variables.
+and loads it from the PowerShell profile.
 
-## Stack
+The shell profile remains yours. The generated proxy content lives in Term Proxy managed files, so enabling or disabling proxy entries rewrites only the managed script.
 
-Project structure follows the official `create-tauri-app` React TypeScript template.
+## Tech Stack
 
-- Tauri 2 / Rust
+Term Proxy follows the official `create-tauri-app` structure.
+
+- Tauri 2 and Rust
 - React 19
 - TypeScript
 - Vite
 - Tailwind CSS
-- i18next / react-i18next
 - shadcn/ui conventions
+- i18next and react-i18next
 - Sonner
+
+More project notes live in [`docs/`](./docs).
 
 ## Development
 
@@ -69,49 +82,67 @@ Install dependencies:
 pnpm install
 ```
 
-Run the web UI only:
+Run the web UI:
 
 ```bash
 pnpm dev
 ```
 
-Run the full Tauri app:
+Run the desktop app:
 
 ```bash
 pnpm tauri:dev
 ```
 
-Quality checks:
+Generate app icons:
 
 ```bash
-pnpm typecheck
-pnpm test
-pnpm build
-pnpm cargo:fmt
-pnpm cargo:test
+pnpm tauri:icon
 ```
 
-## Packaging
+Build the desktop app:
 
 ```bash
 pnpm tauri:build
 ```
 
-Tauri builds native packages for the current operating system. Build macOS, Linux, and Windows artifacts on their respective platforms or in matching CI runners.
+## Quality Checks
 
-Prerequisites:
+Run the frontend checks:
+
+```bash
+pnpm typecheck
+pnpm test
+pnpm build
+```
+
+Run the Rust checks:
+
+```bash
+pnpm cargo:fmt
+pnpm cargo:test
+```
+
+## Requirements
 
 - Node.js 20.19+ or 22.12+ for Vite 7.
+- pnpm.
 - Rust stable toolchain from `rustup`.
-- Tauri platform prerequisites for each target OS.
+- Tauri prerequisites for the target operating system.
 
-Current local note: the project builds with Node 20.18.0 but Vite prints a version warning. Upgrade Node to remove that warning before release packaging.
+Tauri packages native apps for the current OS. Build macOS, Linux, and Windows artifacts on matching systems or CI runners.
 
-## Project Context
+## Project Documents
 
-Read these files before feature work:
+- [`docs/PRODUCT.md`](./docs/PRODUCT.md)
+- [`DESIGN.md`](./DESIGN.md)
+- [`AGENTS.md`](./AGENTS.md)
+- [`docs/superpowers/specs/2026-06-26-term-proxy-design.md`](./docs/superpowers/specs/2026-06-26-term-proxy-design.md)
 
-- `PRODUCT.md`
-- `DESIGN.md`
-- `AGENTS.md`
-- `docs/superpowers/specs/2026-06-26-term-proxy-design.md`
+## Inspiration
+
+Term Proxy is inspired by [`cc-switch`](https://github.com/farion1231/cc-switch), especially its Tauri desktop app structure, cross-platform mindset, and developer-tool ergonomics. Term Proxy focuses only on terminal proxy environment management.
+
+## License
+
+MIT. See [`LICENSE`](./LICENSE).
