@@ -38,6 +38,28 @@ pub fn enable_proxy(
         .collect())
 }
 
+pub fn disable_proxy(
+    configs: Vec<ProxyConfig>,
+    target_id: &str,
+) -> Result<Vec<ProxyConfig>, ProxyServiceError> {
+    let has_target = configs.iter().any(|item| item.id == target_id);
+
+    if !has_target {
+        return Err(ProxyServiceError::NotFound);
+    }
+
+    Ok(configs
+        .into_iter()
+        .map(|mut item| {
+            if item.id == target_id {
+                item.enabled = false;
+            }
+
+            item
+        })
+        .collect())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -93,6 +115,47 @@ mod tests {
         let configs = vec![proxy("http-a", ProxyKind::HttpProxy, true)];
 
         let result = enable_proxy(configs, "missing");
+
+        assert_eq!(result, Err(ProxyServiceError::NotFound));
+    }
+
+    #[test]
+    fn disabling_proxy_turns_off_only_target_config() {
+        let configs = vec![
+            proxy("http-a", ProxyKind::HttpProxy, true),
+            proxy("http-b", ProxyKind::HttpProxy, false),
+            proxy("https-a", ProxyKind::HttpsProxy, true),
+        ];
+
+        let next = disable_proxy(configs, "http-a").expect("proxy should exist");
+
+        assert!(
+            !next
+                .iter()
+                .find(|item| item.id == "http-a")
+                .unwrap()
+                .enabled
+        );
+        assert!(
+            !next
+                .iter()
+                .find(|item| item.id == "http-b")
+                .unwrap()
+                .enabled
+        );
+        assert!(
+            next.iter()
+                .find(|item| item.id == "https-a")
+                .unwrap()
+                .enabled
+        );
+    }
+
+    #[test]
+    fn disabling_missing_proxy_returns_error() {
+        let configs = vec![proxy("http-a", ProxyKind::HttpProxy, true)];
+
+        let result = disable_proxy(configs, "missing");
 
         assert_eq!(result, Err(ProxyServiceError::NotFound));
     }

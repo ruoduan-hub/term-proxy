@@ -22,6 +22,7 @@ type ProxyDashboardProps = {
   proxies: ProxyConfig[];
   onAddProxy: (proxy: NewProxyConfig) => Promise<void> | void;
   onEnableProxy: (id: string) => void;
+  onDisableProxy: (id: string) => void;
   onUpdateProxy: (id: string, proxy: EditableProxyConfig) => Promise<void> | void;
   onDeleteProxy: (id: string) => void;
   onCopyProxyUrl: (url: string) => void;
@@ -33,6 +34,7 @@ export function ProxyDashboard({
   proxies,
   onAddProxy,
   onEnableProxy,
+  onDisableProxy,
   onUpdateProxy,
   onDeleteProxy,
   onCopyProxyUrl,
@@ -260,11 +262,16 @@ export function ProxyDashboard({
                             type="button"
                             variant={proxy.enabled ? "secondary" : "outline"}
                             size="sm"
-                            disabled={proxy.enabled}
-                            aria-label={t("proxy.enableNamed", { name: proxy.name })}
-                            onClick={() => onEnableProxy(proxy.id)}
+                            aria-label={
+                              proxy.enabled
+                                ? t("proxy.disableNamed", { name: proxy.name })
+                                : t("proxy.enableNamed", { name: proxy.name })
+                            }
+                            onClick={() =>
+                              proxy.enabled ? onDisableProxy(proxy.id) : onEnableProxy(proxy.id)
+                            }
                           >
-                            {proxy.enabled ? t("proxy.enabled") : t("proxy.enable")}
+                            {proxy.enabled ? t("proxy.disable") : t("proxy.enable")}
                           </Button>
                           <Button
                             type="button"

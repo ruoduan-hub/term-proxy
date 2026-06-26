@@ -9,6 +9,7 @@ import { ThemeProvider } from "./shared/theme/ThemeProvider";
 
 vi.mock("./shared/tauri/api", () => ({
   copyText: vi.fn(async (_text: string) => {}),
+  disableProxyConfig: vi.fn(),
   enableProxyConfig: vi.fn(),
   getProxyStore: vi.fn(async () => ({
     proxies: [],
@@ -338,6 +339,71 @@ describe("App", () => {
         proxies: [],
       }),
     );
+  });
+
+  it("disables an enabled proxy through the Tauri API", async () => {
+    const user = userEvent.setup();
+    const api = await import("./shared/tauri/api");
+    const { toast } = await import("sonner");
+    vi.mocked(api.getProxyStore).mockResolvedValueOnce({
+      proxies: [
+        {
+          id: "http-a",
+          name: "Local HTTP",
+          kind: "http_proxy",
+          scheme: "http",
+          host: "127.0.0.1",
+          port: 1099,
+          enabled: true,
+          createdAt: "2026-06-26T00:00:00Z",
+          updatedAt: "2026-06-26T00:00:00Z",
+        },
+      ],
+      settings: {
+        theme: "system",
+        language: "system",
+        autoLaunch: false,
+        noProxy: "localhost,127.0.0.1",
+        shellIntegration: {
+          zsh: false,
+          bash: false,
+          powershell: false,
+        },
+      },
+    });
+    vi.mocked(api.disableProxyConfig).mockResolvedValueOnce({
+      proxies: [
+        {
+          id: "http-a",
+          name: "Local HTTP",
+          kind: "http_proxy",
+          scheme: "http",
+          host: "127.0.0.1",
+          port: 1099,
+          enabled: false,
+          createdAt: "2026-06-26T00:00:00Z",
+          updatedAt: "2026-06-26T00:00:00Z",
+        },
+      ],
+      settings: {
+        theme: "system",
+        language: "system",
+        autoLaunch: false,
+        noProxy: "localhost,127.0.0.1",
+        shellIntegration: {
+          zsh: false,
+          bash: false,
+          powershell: false,
+        },
+      },
+    });
+
+    await renderApp();
+
+    await user.click(screen.getByRole("button", { name: "Disable Local HTTP" }));
+
+    expect(api.disableProxyConfig).toHaveBeenCalledWith("http-a");
+    expect(toast.success).toHaveBeenCalledWith("Proxy disabled");
   });
 
   it("installs shell integration from settings", async () => {

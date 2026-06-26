@@ -21,6 +21,7 @@ pub fn run() {
             commands::proxy::scan_proxy_imports,
             commands::proxy::save_proxy_store_command,
             commands::proxy::enable_proxy_config,
+            commands::proxy::disable_proxy_config,
             commands::proxy::install_shell_integration,
             commands::proxy::remove_shell_integration
         ])

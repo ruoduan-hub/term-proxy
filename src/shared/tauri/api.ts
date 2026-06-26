@@ -37,6 +37,10 @@ export async function enableProxyConfig(id: string): Promise<ProxyStore> {
   return invoke<ProxyStore>("enable_proxy_config", { id });
 }
 
+export async function disableProxyConfig(id: string): Promise<ProxyStore> {
+  return invoke<ProxyStore>("disable_proxy_config", { id });
+}
+
 export async function installShellIntegration(shell: ShellKind): Promise<ProxyStore> {
   return invoke<ProxyStore>("install_shell_integration", { shell });
 }

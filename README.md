@@ -9,7 +9,7 @@ export http_proxy=http://127.0.0.1:1087
 export https_proxy=http://127.0.0.1:1087
 ```
 
-into a small desktop UI with saved profiles, one-click enable, import, copy, and settings.
+into a small desktop UI with saved profiles, one-click enable/disable, import, copy, and settings.
 
 ## Features
 
@@ -27,6 +27,24 @@ into a small desktop UI with saved profiles, one-click enable, import, copy, and
 - Show operation feedback with toast notifications.
 
 System network proxy settings are intentionally out of scope for the MVP. This app manages terminal environment variables through shell profile integration.
+
+## Verifying Terminal Proxy
+
+After enabling a proxy, make sure shell integration is enabled in Settings. Existing terminal sessions need to reload the profile before environment variables change:
+
+```bash
+source ~/.zshrc
+echo $http_proxy
+```
+
+On Windows PowerShell:
+
+```powershell
+. $PROFILE
+echo $env:http_proxy
+```
+
+Disabling a proxy rewrites the managed script so the next profile reload clears the managed proxy variables.
 
 ## Stack
 

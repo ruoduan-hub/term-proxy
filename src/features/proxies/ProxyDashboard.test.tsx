@@ -34,6 +34,7 @@ describe("ProxyDashboard", () => {
         ]}
         onAddProxy={vi.fn()}
         onEnableProxy={onEnableProxy}
+        onDisableProxy={vi.fn()}
         onUpdateProxy={vi.fn()}
         onDeleteProxy={vi.fn()}
         onCopyProxyUrl={vi.fn()}
@@ -49,6 +50,27 @@ describe("ProxyDashboard", () => {
     expect(onEnableProxy).toHaveBeenCalledWith("http-b");
   });
 
+  it("disables an enabled proxy row", async () => {
+    const user = userEvent.setup();
+    const onDisableProxy = vi.fn();
+
+    render(
+      <ProxyDashboard
+        proxies={[proxy({ id: "http-a", enabled: true })]}
+        onAddProxy={vi.fn()}
+        onEnableProxy={vi.fn()}
+        onDisableProxy={onDisableProxy}
+        onUpdateProxy={vi.fn()}
+        onDeleteProxy={vi.fn()}
+        onCopyProxyUrl={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Disable Local HTTP" }));
+
+    expect(onDisableProxy).toHaveBeenCalledWith("http-a");
+  });
+
   it("submits a new proxy from the add form", async () => {
     const user = userEvent.setup();
     const onAddProxy = vi.fn();
@@ -58,6 +80,7 @@ describe("ProxyDashboard", () => {
         proxies={[]}
         onAddProxy={onAddProxy}
         onEnableProxy={vi.fn()}
+        onDisableProxy={vi.fn()}
         onUpdateProxy={vi.fn()}
         onDeleteProxy={vi.fn()}
         onCopyProxyUrl={vi.fn()}
@@ -100,6 +123,7 @@ describe("ProxyDashboard", () => {
         proxies={[]}
         onAddProxy={onAddProxy}
         onEnableProxy={vi.fn()}
+        onDisableProxy={vi.fn()}
         onUpdateProxy={vi.fn()}
         onDeleteProxy={vi.fn()}
         onCopyProxyUrl={vi.fn()}
@@ -127,6 +151,7 @@ describe("ProxyDashboard", () => {
         proxies={[proxy({ id: "http-b", name: "Backup HTTP", host: "10.0.0.2" })]}
         onAddProxy={vi.fn()}
         onEnableProxy={vi.fn()}
+        onDisableProxy={vi.fn()}
         onUpdateProxy={onUpdateProxy}
         onDeleteProxy={vi.fn()}
         onCopyProxyUrl={vi.fn()}
@@ -158,6 +183,7 @@ describe("ProxyDashboard", () => {
         proxies={[proxy({ id: "http-b", name: "Backup HTTP" })]}
         onAddProxy={vi.fn()}
         onEnableProxy={vi.fn()}
+        onDisableProxy={vi.fn()}
         onUpdateProxy={vi.fn()}
         onDeleteProxy={onDeleteProxy}
         onCopyProxyUrl={vi.fn()}
@@ -178,6 +204,7 @@ describe("ProxyDashboard", () => {
         proxies={[proxy({ id: "http-b", name: "Backup HTTP", host: "10.0.0.2" })]}
         onAddProxy={vi.fn()}
         onEnableProxy={vi.fn()}
+        onDisableProxy={vi.fn()}
         onUpdateProxy={vi.fn()}
         onDeleteProxy={vi.fn()}
         onCopyProxyUrl={onCopyProxyUrl}

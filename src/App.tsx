@@ -12,6 +12,7 @@ import { Toaster, toast } from "@/shared/ui/sonner";
 import { useTheme } from "@/shared/theme/ThemeProvider";
 import {
   copyText,
+  disableProxyConfig,
   enableProxyConfig,
   getProxyStore,
   installShellIntegration,
@@ -173,6 +174,19 @@ export function App() {
       setStore(nextStore);
       setError(null);
       toast.success(t("feedback.proxyEnabled"));
+    } catch (unknownError) {
+      const message = errorMessageFromUnknown(unknownError);
+      setError(message);
+      toast.error(message);
+    }
+  }
+
+  async function handleDisableProxy(id: string) {
+    try {
+      const nextStore = await disableProxyConfig(id);
+      setStore(nextStore);
+      setError(null);
+      toast.success(t("feedback.proxyDisabled"));
     } catch (unknownError) {
       const message = errorMessageFromUnknown(unknownError);
       setError(message);
@@ -345,6 +359,7 @@ export function App() {
               proxies={store.proxies}
               onAddProxy={handleAddProxy}
               onEnableProxy={handleEnableProxy}
+              onDisableProxy={handleDisableProxy}
               onUpdateProxy={handleUpdateProxy}
               onDeleteProxy={handleDeleteProxy}
               onCopyProxyUrl={handleCopyProxyUrl}

@@ -9,7 +9,9 @@ use crate::{
         install_profile_marker_file, profile_path_from_home_dir, remove_profile_marker_file,
     },
     storage::managed_files::{managed_proxy_directory_from_home_dir, write_managed_proxy_files},
-    storage::proxy_store::{enable_proxy_in_store, load_proxy_store, save_proxy_store},
+    storage::proxy_store::{
+        disable_proxy_in_store, enable_proxy_in_store, load_proxy_store, save_proxy_store,
+    },
 };
 
 const STORE_FILE_NAME: &str = "proxy-store.json";
@@ -42,6 +44,14 @@ pub fn save_proxy_store_command(app: AppHandle, store: ProxyStore) -> Result<Pro
 pub fn enable_proxy_config(app: AppHandle, id: String) -> Result<ProxyStore, String> {
     let path = proxy_store_path(&app)?;
     let store = enable_proxy_in_store(&path, &id).map_err(|error| error.to_string())?;
+    sync_managed_proxy_files(&app, &store)?;
+    Ok(store)
+}
+
+#[tauri::command]
+pub fn disable_proxy_config(app: AppHandle, id: String) -> Result<ProxyStore, String> {
+    let path = proxy_store_path(&app)?;
+    let store = disable_proxy_in_store(&path, &id).map_err(|error| error.to_string())?;
     sync_managed_proxy_files(&app, &store)?;
     Ok(store)
 }
