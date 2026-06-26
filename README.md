@@ -13,6 +13,10 @@ export https_proxy=http://127.0.0.1:1087
 
 with a compact UI for saving, switching, and disabling proxy profiles.
 
+<p align="center">
+  <img src="./intro/screenshots.png" alt="Term Proxy app screenshot" width="860">
+</p>
+
 ## Why
 
 Developers often keep several local proxy ports for debugging, company networks, CLI tools, and temporary environments. Maintaining those values by hand in `.zshrc`, `.bashrc`, or PowerShell profiles is easy to forget and hard to audit.

@@ -13,6 +13,10 @@ export https_proxy=http://127.0.0.1:1087
 
 整理成一个清晰的桌面 UI。你可以保存多个代理，按类型切换启用状态，也可以随时关闭，不需要反复编辑命令行配置。
 
+<p align="center">
+  <img src="./intro/screenshots.png" alt="Term Proxy 应用截图" width="860">
+</p>
+
 ## 为什么做这个
 
 很多开发者会在本地调试、公司网络、CLI 工具、临时代理之间频繁切换。手动改 `.zshrc`、`.bashrc` 或 PowerShell profile 不难，但容易忘、容易写乱，也不方便确认当前到底哪个代理会生效。

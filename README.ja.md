@@ -13,6 +13,10 @@ export https_proxy=http://127.0.0.1:1087
 
 を、保存、切り替え、無効化できるコンパクトな UI に置き換えます。
 
+<p align="center">
+  <img src="./intro/screenshots.png" alt="Term Proxy アプリのスクリーンショット" width="860">
+</p>
+
 ## なぜ作るのか
 
 開発中は、ローカルデバッグ、社内ネットワーク、CLI ツール、一時的なプロキシなどを切り替える場面がよくあります。`.zshrc`、`.bashrc`、PowerShell profile を手で編集する方法は単純ですが、忘れやすく、状態も追いづらくなります。
