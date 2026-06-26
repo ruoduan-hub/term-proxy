@@ -3,7 +3,9 @@
     "title": "Term Proxy",
     "subtitle": "終端代理管理器",
     "statusNotIntegrated": "未整合",
-    "activeCount": "{{count}} 個啟用"
+    "activeCount": "{{count}} 個啟用",
+    "settings": "設定",
+    "backToProxies": "返回代理"
   },
   "proxy": {
     "types": "代理類型",
@@ -16,8 +18,6 @@
     "emptyDescription": "新增代理設定後即可統一管理終端環境變數。",
     "form": {
       "name": "名稱",
-      "type": "類型",
-      "scheme": "協議",
       "host": "主機",
       "port": "連接埠",
       "save": "儲存代理"
@@ -27,10 +27,6 @@
       "https": "https_proxy",
       "all": "ALL_PROXY"
     }
-  },
-  "import": {
-    "title": "匯入現有代理",
-    "description": "掃描到的 Shell profile 代理設定會在這裡等待你確認。"
   },
   "settings": {
     "title": "設定",

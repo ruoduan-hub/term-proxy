@@ -3,7 +3,9 @@
     "title": "Term Proxy",
     "subtitle": "Terminal proxy manager",
     "statusNotIntegrated": "Not integrated",
-    "activeCount": "{{count}} active"
+    "activeCount": "{{count}} active",
+    "settings": "Settings",
+    "backToProxies": "Back to proxies"
   },
   "proxy": {
     "types": "Proxy types",
@@ -16,8 +18,6 @@
     "emptyDescription": "Add a proxy configuration to start managing terminal environment variables.",
     "form": {
       "name": "Name",
-      "type": "Type",
-      "scheme": "Scheme",
       "host": "Host",
       "port": "Port",
       "save": "Save proxy"
@@ -27,10 +27,6 @@
       "https": "https_proxy",
       "all": "ALL_PROXY"
     }
-  },
-  "import": {
-    "title": "Import existing proxy",
-    "description": "Existing shell profile proxy values will appear here for confirmation."
   },
   "settings": {
     "title": "Settings",

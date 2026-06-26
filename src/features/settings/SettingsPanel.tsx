@@ -69,13 +69,13 @@ export function SettingsPanel({
   }
 
   return (
-    <Card as="aside" aria-labelledby="settings-heading" className="overflow-hidden">
-      <CardHeader className="border-b border-border/65 bg-muted/38">
+    <Card as="section" aria-labelledby="settings-heading" className="overflow-hidden">
+      <CardHeader className="border-b border-border/65 bg-muted/28">
         <CardTitle id="settings-heading">{t("settings.title")}</CardTitle>
       </CardHeader>
-      <CardContent className="pt-5">
+      <CardContent className="pt-4">
         <form className="grid gap-4" onSubmit={handleSubmit}>
-          <div className="grid gap-4">
+          <div className="grid gap-3">
             <div className="grid gap-1">
               <Label htmlFor="settings-theme">{t("settings.theme")}</Label>
               <Select
@@ -112,7 +112,7 @@ export function SettingsPanel({
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex min-h-10 items-center justify-between gap-4 rounded-xl bg-muted/36 px-3 py-2">
+            <div className="flex min-h-9 items-center justify-between gap-4 rounded-md border border-border/65 bg-muted/28 px-3 py-2">
               <span className="text-sm text-muted-foreground">{t("settings.autoLaunch")}</span>
               <span className="text-sm font-medium">
                 {settings.autoLaunch ? t("settings.on") : t("settings.off")}
@@ -139,7 +139,7 @@ export function SettingsPanel({
                   return (
                     <div
                       key={kind}
-                      className="flex min-h-11 items-center justify-between gap-3 rounded-xl border border-border/70 bg-background/62 px-3 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.58)] dark:bg-secondary/22 dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]"
+                      className="flex min-h-10 items-center justify-between gap-3 rounded-md border border-border/70 bg-background px-3 py-2 dark:bg-secondary/20"
                     >
                       <Label className="font-mono text-sm" htmlFor={`shell-${kind}`}>
                         {label}

@@ -55,12 +55,32 @@ describe("App", () => {
 
     await waitFor(() => expect(api.getProxyStore).toHaveBeenCalled());
 
-    expect(screen.getByRole("heading", { name: "Term Proxy" })).toBeInTheDocument();
     expect(screen.getByText("Proxy types")).toBeInTheDocument();
-    expect(screen.getByText("Import existing proxy")).toBeInTheDocument();
-    expect(screen.getByText("Settings")).toBeInTheDocument();
+    expect(screen.queryByText("Import existing proxy")).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Term Proxy" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Settings" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Add proxy" })).toBeInTheDocument();
+    expect(screen.queryByText("Shell integration")).not.toBeInTheDocument();
+  });
+
+  it("opens settings in a separate view and returns to proxy management", async () => {
+    const user = userEvent.setup();
+    const api = await import("./shared/tauri/api");
+
+    renderApp();
+
+    await waitFor(() => expect(api.getProxyStore).toHaveBeenCalled());
+
+    await user.click(screen.getByRole("button", { name: "Settings" }));
+
+    expect(screen.getByRole("heading", { name: "Settings" })).toBeInTheDocument();
     expect(screen.getByText("Shell integration")).toBeInTheDocument();
+    expect(screen.queryByText("Proxy types")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Back to proxies" }));
+
+    expect(screen.getByText("Proxy types")).toBeInTheDocument();
+    expect(screen.queryByText("Shell integration")).not.toBeInTheDocument();
   });
 
   it("saves a new proxy through the Tauri API", async () => {
@@ -101,6 +121,7 @@ describe("App", () => {
     renderApp();
 
     await waitFor(() => expect(api.getProxyStore).toHaveBeenCalled());
+    await user.click(screen.getByRole("button", { name: "Settings" }));
     await user.click(screen.getByRole("switch", { name: "zsh" }));
 
     expect(api.installShellIntegration).toHaveBeenCalledWith("zsh");
@@ -113,6 +134,7 @@ describe("App", () => {
     renderApp();
 
     await waitFor(() => expect(api.getProxyStore).toHaveBeenCalled());
+    await user.click(screen.getByRole("button", { name: "Settings" }));
     await user.clear(screen.getByLabelText("Global no_proxy"));
     await user.type(screen.getByLabelText("Global no_proxy"), "localhost,127.0.0.1,*.local");
     await user.click(screen.getByRole("button", { name: "Save settings" }));

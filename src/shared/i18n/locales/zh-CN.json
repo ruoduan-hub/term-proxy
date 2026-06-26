@@ -3,7 +3,9 @@
     "title": "Term Proxy",
     "subtitle": "终端代理管理器",
     "statusNotIntegrated": "未集成",
-    "activeCount": "{{count}} 个启用"
+    "activeCount": "{{count}} 个启用",
+    "settings": "设置",
+    "backToProxies": "返回代理"
   },
   "proxy": {
     "types": "代理类型",
@@ -16,8 +18,6 @@
     "emptyDescription": "添加代理配置后即可统一管理终端环境变量。",
     "form": {
       "name": "名称",
-      "type": "类型",
-      "scheme": "协议",
       "host": "主机",
       "port": "端口",
       "save": "保存代理"
@@ -27,10 +27,6 @@
       "https": "https_proxy",
       "all": "ALL_PROXY"
     }
-  },
-  "import": {
-    "title": "导入现有代理",
-    "description": "扫描到的 Shell profile 代理配置会在这里等待你确认。"
   },
   "settings": {
     "title": "设置",

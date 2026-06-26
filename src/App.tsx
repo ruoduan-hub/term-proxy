@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { CircleAlert, Terminal } from "lucide-react";
+import { ArrowLeft, CircleAlert, Settings2 } from "lucide-react";
 
-import { ImportNotice } from "./features/import/ImportNotice";
 import { ProxyDashboard } from "./features/proxies/ProxyDashboard";
 import { SettingsPanel } from "./features/settings/SettingsPanel";
 import "./shared/i18n";
 import { Badge } from "@/shared/ui/badge";
+import { Button } from "@/shared/ui/button";
 import { useTheme } from "@/shared/theme/ThemeProvider";
 import {
   enableProxyConfig,
@@ -41,6 +41,7 @@ const defaultProxyStore: ProxyStore = {
 const supportedLanguages = ["zh-CN", "en", "ja", "zh-TW"] as const;
 
 type SupportedLanguage = (typeof supportedLanguages)[number];
+type AppView = "proxies" | "settings";
 
 export function App() {
   const { t, i18n } = useTranslation();
@@ -48,6 +49,7 @@ export function App() {
   const [store, setStore] = useState<ProxyStore>(defaultProxyStore);
   const [hasLoadedStore, setHasLoadedStore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeView, setActiveView] = useState<AppView>("proxies");
   const activeProxyCount = store.proxies.filter((proxy) => proxy.enabled).length;
 
   useEffect(() => {
@@ -145,30 +147,59 @@ export function App() {
   }
 
   return (
-    <main className="min-h-dvh bg-background px-4 py-4 text-foreground sm:px-6 lg:px-8">
-      <div className="mx-auto flex min-h-[calc(100dvh-2rem)] max-w-7xl flex-col">
-        <header className="mb-4 flex flex-col gap-4 rounded-2xl border border-border/70 bg-card/88 px-4 py-3.5 shadow-[0_24px_80px_-66px_rgba(15,23,42,0.52),inset_0_1px_0_rgba(255,255,255,0.72)] sm:flex-row sm:items-center sm:justify-between dark:shadow-[0_24px_90px_-66px_rgba(0,0,0,0.92),inset_0_1px_0_rgba(255,255,255,0.05)]">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-foreground text-background shadow-[0_14px_32px_-24px_rgba(15,23,42,0.65)] dark:bg-foreground dark:text-background">
-              <Terminal aria-hidden="true" className="size-5" strokeWidth={1.7} />
-            </div>
-            <div className="min-w-0">
-              <h1 className="truncate text-xl font-semibold leading-tight tracking-[-0.02em]">
-                {t("app.title")}
-              </h1>
-              <p className="truncate text-sm text-muted-foreground">{t("app.subtitle")}</p>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
+    <main className="min-h-dvh bg-background px-3 py-3 text-foreground sm:px-4">
+      <div className="mx-auto flex min-h-[calc(100dvh-1.5rem)] max-w-5xl flex-col">
+        <header className="mb-3 flex h-11 items-center justify-between gap-3 border-b border-border/80 pb-3">
+          <div className="flex min-w-0 items-center gap-2">
             <Badge variant="outline">{t("app.statusNotIntegrated")}</Badge>
             <Badge variant="secondary">{t("app.activeCount", { count: activeProxyCount })}</Badge>
           </div>
+          {activeView === "settings" ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              aria-label={t("app.backToProxies")}
+              onClick={() => setActiveView("proxies")}
+            >
+              <ArrowLeft aria-hidden="true" />
+              <span>{t("app.backToProxies")}</span>
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={t("app.settings")}
+              onClick={() => setActiveView("settings")}
+            >
+              <Settings2 aria-hidden="true" />
+            </Button>
+          )}
         </header>
 
-        <div className="grid flex-1 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <div className="grid content-start gap-4">
+        {activeView === "settings" ? (
+          <div className="mx-auto w-full max-w-xl">
             {error ? (
-              <div className="flex items-start gap-3 rounded-2xl border border-destructive/25 bg-destructive/8 px-4 py-3 text-sm text-destructive">
+              <div className="mb-3 flex items-start gap-3 rounded-lg border border-destructive/25 bg-destructive/8 px-3 py-2.5 text-sm text-destructive">
+                <CircleAlert
+                  aria-hidden="true"
+                  className="mt-0.5 size-4 shrink-0"
+                  strokeWidth={1.8}
+                />
+                <span>{error}</span>
+              </div>
+            ) : null}
+            <SettingsPanel
+              settings={store.settings}
+              onSaveSettings={handleSaveSettings}
+              onToggleShellIntegration={handleToggleShellIntegration}
+            />
+          </div>
+        ) : (
+          <div className="grid content-start gap-3">
+            {error ? (
+              <div className="flex items-start gap-3 rounded-lg border border-destructive/25 bg-destructive/8 px-3 py-2.5 text-sm text-destructive">
                 <CircleAlert
                   aria-hidden="true"
                   className="mt-0.5 size-4 shrink-0"
@@ -182,14 +213,8 @@ export function App() {
               onAddProxy={handleAddProxy}
               onEnableProxy={handleEnableProxy}
             />
-            <ImportNotice />
           </div>
-          <SettingsPanel
-            settings={store.settings}
-            onSaveSettings={handleSaveSettings}
-            onToggleShellIntegration={handleToggleShellIntegration}
-          />
-        </div>
+        )}
       </div>
     </main>
   );

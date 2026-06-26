@@ -52,10 +52,13 @@ describe("ProxyDashboard", () => {
 
     render(<ProxyDashboard proxies={[]} onAddProxy={onAddProxy} onEnableProxy={vi.fn()} />);
 
+    await user.click(screen.getByRole("tab", { name: "ALL_PROXY" }));
     await user.click(screen.getByRole("button", { name: "Add proxy" }));
+
+    expect(screen.queryByLabelText("Type")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Scheme")).not.toBeInTheDocument();
+
     await user.type(screen.getByLabelText("Name"), "Local SOCKS");
-    await selectOption({ label: "Type", option: "ALL_PROXY", user });
-    await selectOption({ label: "Scheme", option: "socks5", user });
     await user.type(screen.getByLabelText("Host"), "127.0.0.1");
     await user.clear(screen.getByLabelText("Port"));
     await user.type(screen.getByLabelText("Port"), "1080");
@@ -64,22 +67,9 @@ describe("ProxyDashboard", () => {
     expect(onAddProxy).toHaveBeenCalledWith({
       name: "Local SOCKS",
       kind: "ALL_PROXY",
-      scheme: "socks5",
+      scheme: "http",
       host: "127.0.0.1",
       port: 1080,
     });
   });
 });
-
-async function selectOption({
-  label,
-  option,
-  user,
-}: {
-  label: string;
-  option: string;
-  user: ReturnType<typeof userEvent.setup>;
-}) {
-  await user.click(screen.getByRole("combobox", { name: label }));
-  await user.click(await screen.findByRole("option", { name: option }));
-}
