@@ -25,22 +25,6 @@ vi.mock("./shared/tauri/api", () => ({
       },
     },
   })),
-  scanProxyImports: vi.fn(async () => []),
-  installShellIntegration: vi.fn(async () => ({
-    proxies: [],
-    settings: {
-      theme: "system",
-      language: "system",
-      autoLaunch: false,
-      noProxy: "localhost,127.0.0.1",
-      shellIntegration: {
-        zsh: true,
-        bash: false,
-        powershell: false,
-      },
-    },
-  })),
-  removeShellIntegration: vi.fn(),
   saveProxyStore: vi.fn(async (store) => store),
   setAutoLaunch: vi.fn(async (_enabled: boolean) => {}),
 }));
@@ -88,7 +72,7 @@ describe("App", () => {
     await user.click(screen.getByRole("button", { name: "Settings" }));
 
     expect(screen.getByRole("heading", { name: "Settings" })).toBeInTheDocument();
-    expect(screen.getByText("Shell integration")).toBeInTheDocument();
+    expect(screen.queryByText("Shell integration")).not.toBeInTheDocument();
     expect(screen.queryByText("Proxy types")).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Back to proxies" }));
@@ -197,57 +181,6 @@ describe("App", () => {
 
     expect(api.copyText).toHaveBeenCalledWith("http://127.0.0.1:1087");
     expect(toast.success).toHaveBeenCalledWith("Proxy URL copied");
-  });
-
-  it("imports a scanned profile proxy through the Tauri API", async () => {
-    const user = userEvent.setup();
-    const api = await import("./shared/tauri/api");
-    vi.mocked(api.scanProxyImports).mockResolvedValueOnce([
-      {
-        id: "/Users/example/.zshrc:1:http_proxy",
-        name: "http_proxy 127.0.0.1:1087",
-        kind: "http_proxy",
-        scheme: "http",
-        host: "127.0.0.1",
-        port: 1087,
-        shell: "zsh",
-        sourcePath: "/Users/example/.zshrc",
-        lineNumber: 1,
-      },
-    ]);
-
-    await renderApp();
-
-    expect(screen.getByText("Import detected proxies")).toBeInTheDocument();
-    expect(screen.getByText("/Users/example/.zshrc:1")).toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: "Import http_proxy 127.0.0.1:1087" }));
-
-    expect(api.saveProxyStore).toHaveBeenCalledWith(
-      expect.objectContaining({
-        proxies: [
-          expect.objectContaining({
-            name: "http_proxy 127.0.0.1:1087",
-            kind: "http_proxy",
-            scheme: "http",
-            host: "127.0.0.1",
-            port: 1087,
-            enabled: false,
-          }),
-        ],
-      }),
-    );
-  });
-
-  it("keeps the app usable when profile import scanning fails", async () => {
-    const api = await import("./shared/tauri/api");
-    vi.mocked(api.scanProxyImports).mockRejectedValueOnce(new Error("permission denied"));
-
-    await renderApp();
-
-    await waitFor(() => expect(api.getProxyStore).toHaveBeenCalled());
-    expect(screen.getByText("Proxy types")).toBeInTheDocument();
-    expect(screen.queryByText("permission denied")).not.toBeInTheDocument();
   });
 
   it("saves edited proxy values through the Tauri API", async () => {
@@ -471,19 +404,6 @@ describe("App", () => {
     expect(toast.success).toHaveBeenCalledWith(
       "Proxy enabled. New terminals will use it automatically.",
     );
-  });
-
-  it("installs shell integration from settings", async () => {
-    const user = userEvent.setup();
-    const api = await import("./shared/tauri/api");
-
-    await renderApp();
-
-    await waitFor(() => expect(api.getProxyStore).toHaveBeenCalled());
-    await user.click(screen.getByRole("button", { name: "Settings" }));
-    await user.click(screen.getByRole("switch", { name: "zsh" }));
-
-    expect(api.installShellIntegration).toHaveBeenCalledWith("zsh");
   });
 
   it("saves edited settings through the Tauri API", async () => {

@@ -71,7 +71,7 @@ Rust 层负责：
 
 - Tauri commands。
 - 代理配置持久化。
-- profile 扫描和导入候选生成。
+- profile 扫描和自动合并。
 - profile marker 插入和移除。
 - 托管脚本生成。
 - 原子写入。
@@ -116,8 +116,7 @@ src/
 规则：
 
 - `features/proxies` 管理代理列表、表单、启用开关。
-- `features/settings` 管理主题、语言、自启、全局 `no_proxy`、Shell 集成状态。
-- `features/import` 管理启动扫描结果和导入确认。
+- `features/settings` 管理主题、语言、自启、全局 `no_proxy`。Shell 集成是内部默认能力，不提供用户开关。
 - `shared/ui` 只放 shadcn/ui 和少量项目级基础组件。
 - `shared/tauri` 封装 typed Tauri API，不在组件里直接散落 `invoke`。
 - `shared/i18n` 管理翻译资源和初始化。
@@ -191,7 +190,7 @@ if (Test-Path $termProxyProfile) { . $termProxyProfile }
 - 托管文件由应用完整重写，写入必须使用临时文件 + rename 的原子写入策略。
 - URL、host、port、路径必须按目标 Shell 正确转义。若未来恢复凭证字段，用户名和密码也必须按目标 Shell 正确转义。
 - 关闭代理只更新托管文件，不删除 profile marker。
-- “移除集成”只删除受控 marker，不删除用户其他配置。
+- Shell 集成没有用户可见的关闭入口；如未来支持卸载集成，必须提供单独的维护工具并明确说明只删除受控 marker。
 
 ## 导入规则
 
@@ -212,8 +211,8 @@ if (Test-Path $termProxyProfile) { . $termProxyProfile }
 
 导入规则：
 
-- 只生成候选，不自动迁移。
-- 用户确认后才写入 app config。
+- 自动合并未收录的 profile 代理配置到 app config。
+- 已存在同类型、同协议、同 host、同 port 的配置不得重复导入。
 - 默认不注释、不删除用户原始 profile 行。
 - 如果未来支持注释旧行，必须单独确认并可回滚。
 
@@ -228,7 +227,7 @@ if (Test-Path $termProxyProfile) { . $termProxyProfile }
 - 主题使用 OKLCH CSS variables。
 - 主色使用克制 moss/olive 方向，只用于主要操作、当前选择和启用状态。
 - 不使用 AI 紫色渐变、玻璃拟态、装饰性光斑、过度阴影。
-- 卡片只用于代理条目、导入候选、设置分组，禁止卡片套卡片。
+- 卡片只用于代理条目和设置分组，禁止卡片套卡片。
 - 环境变量、路径、代理 URL 使用 mono 字体，并提供复制能力。
 - 控件必须有 default、hover、focus、active、disabled、loading、error 状态。
 - 动效只服务于状态反馈，必须支持 `prefers-reduced-motion`。
@@ -239,8 +238,8 @@ if (Test-Path $termProxyProfile) { . $termProxyProfile }
 - 代理类型切换：`http_proxy`、`https_proxy`、`ALL_PROXY`。
 - 代理列表：名称、协议、host、port、启用开关、编辑、删除。
 - 编辑面板：名称、类型、scheme、host、port。
-- 设置页：主题、语言、开机自启、全局 `no_proxy`、Shell 集成、移除集成。
-- 导入页：显示扫描候选，用户确认后导入。
+- 设置页：主题、语言、开机自启、全局 `no_proxy`。
+- profile 代理在启动加载时自动合并进配置列表，不提供单独导入页。
 
 ## 多语言规则
 
@@ -320,7 +319,7 @@ Rust 侧至少覆盖：
 - 代理表单校验。
 - 代理类型切换。
 - 启用开关自动关闭同类型其他配置。
-- 导入候选确认流程。
+- 启动扫描自动合并流程。
 - 主题切换。
 - 语言切换。
 - 错误和空状态。

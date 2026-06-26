@@ -2,7 +2,6 @@
   "app": {
     "title": "Term Proxy",
     "subtitle": "終端代理管理器",
-    "statusNotIntegrated": "未整合",
     "activeCount": "{{count}} 個啟用",
     "settings": "設定",
     "backToProxies": "返回代理"
@@ -35,23 +34,14 @@
       "all": "ALL_PROXY"
     }
   },
-  "import": {
-    "title": "匯入偵測到的代理",
-    "description": "確認既有 Shell profile 代理值後再加入 Term Proxy。",
-    "import": "匯入",
-    "importNamed": "匯入 {{name}}"
-  },
   "feedback": {
     "proxySaved": "代理已儲存",
-    "proxyImported": "代理已匯入",
     "proxyEnabled": "代理已啟用，新開啟的終端會自動生效",
     "proxyDisabled": "代理已關閉",
     "proxyUpdated": "代理已更新",
     "proxyDeleted": "代理已刪除",
     "proxyUrlCopied": "代理 URL 已複製",
-    "settingsSaved": "設定已儲存",
-    "shellIntegrationEnabled": "Shell 整合已啟用",
-    "shellIntegrationDisabled": "Shell 整合已關閉"
+    "settingsSaved": "設定已儲存"
   },
   "settings": {
     "title": "設定",
@@ -71,9 +61,6 @@
     },
     "autoLaunch": "開機自動啟動",
     "noProxy": "全域 no_proxy",
-    "shellIntegration": "Shell 整合",
-    "on": "開",
-    "off": "關",
     "save": "儲存設定"
   }
 }

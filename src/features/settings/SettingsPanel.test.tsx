@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import "@/shared/i18n";
-import type { AppSettings, ShellKind } from "@/shared/types/proxy";
+import type { AppSettings } from "@/shared/types/proxy";
 import { SettingsPanel } from "./SettingsPanel";
 
 const settings: AppSettings = {
@@ -27,7 +27,6 @@ describe("SettingsPanel", () => {
       <SettingsPanel
         settings={settings}
         onSaveSettings={onSaveSettings}
-        onToggleShellIntegration={vi.fn()}
       />,
     );
 
@@ -50,7 +49,6 @@ describe("SettingsPanel", () => {
       <SettingsPanel
         settings={settings}
         onSaveSettings={onSaveSettings}
-        onToggleShellIntegration={vi.fn()}
       />,
     );
 
@@ -65,44 +63,18 @@ describe("SettingsPanel", () => {
     });
   });
 
-  it("renders shell integration switches from settings", () => {
+  it("does not render shell integration controls", () => {
     render(
       <SettingsPanel
         settings={settings}
         onSaveSettings={vi.fn()}
-        onToggleShellIntegration={vi.fn()}
       />,
     );
 
-    expect(screen.getByRole("switch", { name: "zsh" })).toHaveAttribute(
-      "aria-checked",
-      "false",
-    );
-    expect(screen.getByRole("switch", { name: "bash" })).toHaveAttribute(
-      "aria-checked",
-      "true",
-    );
-    expect(screen.getByRole("switch", { name: "PowerShell" })).toHaveAttribute(
-      "aria-checked",
-      "false",
-    );
-  });
-
-  it("requests shell integration toggle with the next state", async () => {
-    const user = userEvent.setup();
-    const onToggleShellIntegration = vi.fn(async (_shell: ShellKind, _enabled: boolean) => {});
-
-    render(
-      <SettingsPanel
-        settings={settings}
-        onSaveSettings={vi.fn()}
-        onToggleShellIntegration={onToggleShellIntegration}
-      />,
-    );
-
-    await user.click(screen.getByRole("switch", { name: "zsh" }));
-
-    expect(onToggleShellIntegration).toHaveBeenCalledWith("zsh" satisfies ShellKind, true);
+    expect(screen.queryByText("Shell integration")).not.toBeInTheDocument();
+    expect(screen.queryByRole("switch", { name: "zsh" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("switch", { name: "bash" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("switch", { name: "PowerShell" })).not.toBeInTheDocument();
   });
 
   it("saves the edited no_proxy value", async () => {
@@ -113,7 +85,6 @@ describe("SettingsPanel", () => {
       <SettingsPanel
         settings={settings}
         onSaveSettings={onSaveSettings}
-        onToggleShellIntegration={vi.fn()}
       />,
     );
 
@@ -135,7 +106,6 @@ describe("SettingsPanel", () => {
       <SettingsPanel
         settings={settings}
         onSaveSettings={onSaveSettings}
-        onToggleShellIntegration={vi.fn()}
       />,
     );
 
@@ -162,7 +132,6 @@ describe("SettingsPanel", () => {
       <SettingsPanel
         settings={settings}
         onSaveSettings={onSaveSettings}
-        onToggleShellIntegration={vi.fn()}
       />,
     );
 

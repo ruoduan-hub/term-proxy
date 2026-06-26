@@ -1,27 +1,19 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 
-import type { AppSettings, ShellKind } from "@/shared/types/proxy";
+import type { AppSettings } from "@/shared/types/proxy";
 import { useTheme } from "@/shared/theme/ThemeProvider";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
-import { Separator } from "@/shared/ui/separator";
 import { Switch } from "@/shared/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 
 type SettingsPanelProps = {
   settings: AppSettings;
   onSaveSettings: (settings: AppSettings) => Promise<void> | void;
-  onToggleShellIntegration: (shell: ShellKind, enabled: boolean) => Promise<void> | void;
 };
-
-const shellOptions: Array<{ kind: ShellKind; label: string }> = [
-  { kind: "zsh", label: "zsh" },
-  { kind: "bash", label: "bash" },
-  { kind: "powershell", label: "PowerShell" },
-];
 
 const themeOptions: Array<{ value: AppSettings["theme"]; labelKey: string }> = [
   { value: "system", labelKey: "settings.themeOptions.system" },
@@ -37,11 +29,7 @@ const languageOptions: Array<{ value: AppSettings["language"]; labelKey: string 
   { value: "zh-TW", labelKey: "settings.languageOptions.zhTW" },
 ];
 
-export function SettingsPanel({
-  settings,
-  onSaveSettings,
-  onToggleShellIntegration,
-}: SettingsPanelProps) {
+export function SettingsPanel({ settings, onSaveSettings }: SettingsPanelProps) {
   const { t } = useTranslation();
   const { setTheme } = useTheme();
   const [selectedTheme, setSelectedTheme] = useState<AppSettings["theme"]>(settings.theme);
@@ -157,36 +145,6 @@ export function SettingsPanel({
                 className="font-mono"
                 onChange={(event) => setNoProxy(event.currentTarget.value)}
               />
-            </div>
-            <Separator />
-            <div className="grid gap-3">
-              <div className="text-sm font-medium text-muted-foreground">
-                {t("settings.shellIntegration")}
-              </div>
-              <div className="grid gap-2">
-                {shellOptions.map(({ kind, label }) => {
-                  const enabled = settings.shellIntegration[kind];
-
-                  return (
-                    <div
-                      key={kind}
-                      className="flex min-h-10 items-center justify-between gap-3 rounded-md border border-border/70 bg-background px-3 py-2 dark:bg-secondary/20"
-                    >
-                      <Label className="font-mono text-sm" htmlFor={`shell-${kind}`}>
-                        {label}
-                      </Label>
-                      <Switch
-                        id={`shell-${kind}`}
-                        aria-label={label}
-                        checked={enabled}
-                        onCheckedChange={(checked) =>
-                          void onToggleShellIntegration(kind, checked)
-                        }
-                      />
-                    </div>
-                  );
-                })}
-              </div>
             </div>
           </div>
           <div>

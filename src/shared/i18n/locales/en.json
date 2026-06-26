@@ -2,7 +2,6 @@
   "app": {
     "title": "Term Proxy",
     "subtitle": "Terminal proxy manager",
-    "statusNotIntegrated": "Not integrated",
     "activeCount": "{{count}} active",
     "settings": "Settings",
     "backToProxies": "Back to proxies"
@@ -35,23 +34,14 @@
       "all": "ALL_PROXY"
     }
   },
-  "import": {
-    "title": "Import detected proxies",
-    "description": "Review existing shell profile proxy values before adding them to Term Proxy.",
-    "import": "Import",
-    "importNamed": "Import {{name}}"
-  },
   "feedback": {
     "proxySaved": "Proxy saved",
-    "proxyImported": "Proxy imported",
     "proxyEnabled": "Proxy enabled. New terminals will use it automatically.",
     "proxyDisabled": "Proxy disabled",
     "proxyUpdated": "Proxy updated",
     "proxyDeleted": "Proxy deleted",
     "proxyUrlCopied": "Proxy URL copied",
-    "settingsSaved": "Settings saved",
-    "shellIntegrationEnabled": "Shell integration enabled",
-    "shellIntegrationDisabled": "Shell integration disabled"
+    "settingsSaved": "Settings saved"
   },
   "settings": {
     "title": "Settings",
@@ -71,9 +61,6 @@
     },
     "autoLaunch": "Launch at startup",
     "noProxy": "Global no_proxy",
-    "shellIntegration": "Shell integration",
-    "on": "On",
-    "off": "Off",
     "save": "Save settings"
   }
 }

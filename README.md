@@ -16,10 +16,10 @@ into a small desktop UI with saved profiles, one-click enable/disable, import, c
 - Manage `http_proxy`, `https_proxy`, and `ALL_PROXY`.
 - Keep multiple saved proxies, with only one enabled proxy per type.
 - Generate managed shell scripts under `~/.term-proxy`.
-- Install or remove shell profile integration for:
+- Automatically install shell profile integration for:
   - macOS/Linux: `.zshrc`, `.bashrc`
   - Windows PowerShell: `~/Documents/PowerShell/Microsoft.PowerShell_profile.ps1`
-- Scan existing profile files and import detected proxy values.
+- Scan existing profile files and merge detected proxy values into the app store.
 - Copy proxy URLs to the system clipboard.
 - Toggle app theme: light, dark, or system.
 - Toggle app language: Simplified Chinese, English, Japanese, Traditional Chinese, or system.

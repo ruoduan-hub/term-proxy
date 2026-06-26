@@ -1,14 +1,15 @@
-use std::path::{Path, PathBuf};
+use std::{
+    path::{Path, PathBuf},
+    time::{SystemTime, UNIX_EPOCH},
+};
 
 use tauri::{AppHandle, Manager};
 
 use crate::{
-    models::proxy::{ProxyImportCandidate, ProxyStore, ShellKind},
+    models::proxy::{ProxyConfig, ProxyImportCandidate, ProxyStore, ShellKind},
     services::proxy::enable_proxy,
     shell::import_scanner::scan_proxy_import_candidates,
-    shell::profile::{
-        install_profile_marker_file, profile_path_from_home_dir, remove_profile_marker_file,
-    },
+    shell::profile::{install_profile_marker_file, profile_path_from_home_dir},
     storage::managed_files::{managed_proxy_directory_from_home_dir, write_managed_proxy_files},
     storage::proxy_store::{disable_proxy_in_store, load_proxy_store, save_proxy_store},
 };
@@ -18,17 +19,24 @@ const STORE_FILE_NAME: &str = "proxy-store.json";
 #[tauri::command]
 pub fn get_proxy_store(app: AppHandle) -> Result<ProxyStore, String> {
     let path = proxy_store_path(&app)?;
-    load_proxy_store(&path).map_err(|error| error.to_string())
-}
-
-#[tauri::command]
-pub fn scan_proxy_imports(app: AppHandle) -> Result<Vec<ProxyImportCandidate>, String> {
+    let mut store = load_proxy_store(&path).map_err(|error| error.to_string())?;
     let home_dir = app
         .path()
         .home_dir()
         .map_err(|error| format!("failed to resolve home directory: {error}"))?;
 
-    scan_proxy_import_candidates(&home_dir).map_err(|error| error.to_string())
+    if let Ok(candidates) = scan_proxy_import_candidates(&home_dir) {
+        store = merge_import_candidates_into_store(store, &candidates);
+    }
+
+    let store = install_shell_integrations_from_home_dir(
+        &home_dir,
+        store,
+        &default_auto_shell_integrations(),
+    )?;
+    save_proxy_store(&path, &store).map_err(|error| error.to_string())?;
+    sync_managed_proxy_files(&app, &store)?;
+    Ok(store)
 }
 
 #[tauri::command]
@@ -66,32 +74,6 @@ pub fn disable_proxy_config(app: AppHandle, id: String) -> Result<ProxyStore, St
     Ok(store)
 }
 
-#[tauri::command]
-pub fn install_shell_integration(app: AppHandle, shell: ShellKind) -> Result<ProxyStore, String> {
-    let profile_path = shell_profile_path(&app, shell)?;
-    install_profile_marker_file(&profile_path, shell).map_err(|error| error.to_string())?;
-
-    let store_path = proxy_store_path(&app)?;
-    let store = load_proxy_store(&store_path).map_err(|error| error.to_string())?;
-    let store = with_shell_integration_setting(store, shell, true);
-    save_proxy_store(&store_path, &store).map_err(|error| error.to_string())?;
-    sync_managed_proxy_files(&app, &store)?;
-    Ok(store)
-}
-
-#[tauri::command]
-pub fn remove_shell_integration(app: AppHandle, shell: ShellKind) -> Result<ProxyStore, String> {
-    let profile_path = shell_profile_path(&app, shell)?;
-    remove_profile_marker_file(&profile_path).map_err(|error| error.to_string())?;
-
-    let store_path = proxy_store_path(&app)?;
-    let store = load_proxy_store(&store_path).map_err(|error| error.to_string())?;
-    let store = with_shell_integration_setting(store, shell, false);
-    save_proxy_store(&store_path, &store).map_err(|error| error.to_string())?;
-    sync_managed_proxy_files(&app, &store)?;
-    Ok(store)
-}
-
 fn proxy_store_path(app: &AppHandle) -> Result<PathBuf, String> {
     let app_config_dir = app
         .path()
@@ -110,14 +92,6 @@ fn managed_proxy_directory(app: &AppHandle) -> Result<PathBuf, String> {
         .home_dir()
         .map_err(|error| format!("failed to resolve home directory: {error}"))?;
     Ok(managed_proxy_directory_from_home_dir(&home_dir))
-}
-
-fn shell_profile_path(app: &AppHandle, shell: ShellKind) -> Result<PathBuf, String> {
-    let home_dir = app
-        .path()
-        .home_dir()
-        .map_err(|error| format!("failed to resolve home directory: {error}"))?;
-    Ok(profile_path_from_home_dir(&home_dir, shell))
 }
 
 fn sync_managed_proxy_files(app: &AppHandle, store: &ProxyStore) -> Result<(), String> {
@@ -167,10 +141,54 @@ fn install_shell_integrations_from_home_dir(
     Ok(store)
 }
 
+fn merge_import_candidates_into_store(
+    mut store: ProxyStore,
+    candidates: &[ProxyImportCandidate],
+) -> ProxyStore {
+    let timestamp = current_timestamp();
+
+    for candidate in candidates {
+        let already_exists = store.proxies.iter().any(|proxy| {
+            proxy.kind == candidate.kind
+                && proxy.scheme == candidate.scheme
+                && proxy.host == candidate.host
+                && proxy.port == candidate.port
+        });
+
+        if already_exists {
+            continue;
+        }
+
+        store.proxies.push(ProxyConfig {
+            id: format!("imported:{}", candidate.id),
+            name: candidate.name.clone(),
+            kind: candidate.kind,
+            scheme: candidate.scheme,
+            host: candidate.host.clone(),
+            port: candidate.port,
+            enabled: false,
+            created_at: timestamp.clone(),
+            updated_at: timestamp.clone(),
+        });
+    }
+
+    store
+}
+
+fn current_timestamp() -> String {
+    let seconds = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|duration| duration.as_secs())
+        .unwrap_or_default();
+    format!("unix:{seconds}")
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::proxy::ShellKind;
+    use crate::models::proxy::{
+        ProxyConfig, ProxyImportCandidate, ProxyKind, ProxyScheme, ShellKind,
+    };
     use std::fs;
     use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -202,18 +220,6 @@ mod tests {
         assert!(next.settings.shell_integration.zsh);
         assert!(next.settings.shell_integration.bash);
         assert!(!next.settings.shell_integration.powershell);
-    }
-
-    #[test]
-    fn shell_integration_setting_can_disable_requested_shell() {
-        let mut store = ProxyStore::default();
-        store.settings.shell_integration.zsh = true;
-        store.settings.shell_integration.bash = true;
-
-        let next = with_shell_integration_setting(store, ShellKind::Zsh, false);
-
-        assert!(!next.settings.shell_integration.zsh);
-        assert!(next.settings.shell_integration.bash);
     }
 
     #[test]
@@ -251,11 +257,90 @@ mod tests {
         let _ = fs::remove_dir_all(home_dir);
     }
 
+    #[test]
+    fn import_candidates_merge_into_store_without_duplicates() {
+        let mut store = ProxyStore::default();
+        store.proxies = vec![proxy("existing", ProxyKind::HttpProxy, ProxyScheme::Http)];
+        let candidates = vec![
+            candidate(
+                "same",
+                ProxyKind::HttpProxy,
+                ProxyScheme::Http,
+                "127.0.0.1",
+                1087,
+            ),
+            candidate(
+                "new",
+                ProxyKind::HttpsProxy,
+                ProxyScheme::Https,
+                "10.0.0.2",
+                1099,
+            ),
+        ];
+
+        let next = merge_import_candidates_into_store(store, &candidates);
+
+        assert_eq!(next.proxies.len(), 2);
+        let imported = next
+            .proxies
+            .iter()
+            .find(|proxy| proxy.id == "imported:new")
+            .expect("new profile proxy should be imported");
+        assert_eq!(imported.name, "https_proxy 10.0.0.2:1099");
+        assert_eq!(imported.kind, ProxyKind::HttpsProxy);
+        assert_eq!(imported.scheme, ProxyScheme::Https);
+        assert_eq!(imported.host, "10.0.0.2");
+        assert_eq!(imported.port, 1099);
+        assert!(!imported.enabled);
+    }
+
     fn temp_home_dir(name: &str) -> PathBuf {
         let suffix = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .expect("system time should be valid")
             .as_nanos();
         std::env::temp_dir().join(format!("term-proxy-{name}-{suffix}"))
+    }
+
+    fn proxy(id: &str, kind: ProxyKind, scheme: ProxyScheme) -> ProxyConfig {
+        ProxyConfig {
+            id: id.to_string(),
+            name: id.to_string(),
+            kind,
+            scheme,
+            host: "127.0.0.1".to_string(),
+            port: 1087,
+            enabled: false,
+            created_at: "2026-06-26T00:00:00Z".to_string(),
+            updated_at: "2026-06-26T00:00:00Z".to_string(),
+        }
+    }
+
+    fn candidate(
+        id: &str,
+        kind: ProxyKind,
+        scheme: ProxyScheme,
+        host: &str,
+        port: u16,
+    ) -> ProxyImportCandidate {
+        ProxyImportCandidate {
+            id: id.to_string(),
+            name: format!("{} {host}:{port}", proxy_env_name(kind)),
+            kind,
+            scheme,
+            host: host.to_string(),
+            port,
+            shell: ShellKind::Zsh,
+            source_path: "/Users/example/.zshrc".to_string(),
+            line_number: 1,
+        }
+    }
+
+    fn proxy_env_name(kind: ProxyKind) -> &'static str {
+        match kind {
+            ProxyKind::HttpProxy => "http_proxy",
+            ProxyKind::HttpsProxy => "https_proxy",
+            ProxyKind::AllProxy => "ALL_PROXY",
+        }
     }
 }

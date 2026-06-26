@@ -29,6 +29,7 @@ pub fn install_profile_marker_file(
     write_replace(profile_path, &next)
 }
 
+#[cfg(test)]
 pub fn remove_profile_marker_file(profile_path: &Path) -> Result<(), ProfileIntegrationError> {
     let content = read_profile_or_empty(profile_path)?;
     let next = remove_profile_marker(&content);

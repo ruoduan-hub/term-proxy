@@ -2,7 +2,6 @@
   "app": {
     "title": "Term Proxy",
     "subtitle": "ターミナルプロキシ管理",
-    "statusNotIntegrated": "未連携",
     "activeCount": "{{count}} 件有効",
     "settings": "設定",
     "backToProxies": "プロキシへ戻る"
@@ -35,23 +34,14 @@
       "all": "ALL_PROXY"
     }
   },
-  "import": {
-    "title": "検出したプロキシをインポート",
-    "description": "既存の shell profile のプロキシ値を確認してから Term Proxy に追加します。",
-    "import": "インポート",
-    "importNamed": "{{name}} をインポート"
-  },
   "feedback": {
     "proxySaved": "プロキシを保存しました",
-    "proxyImported": "プロキシをインポートしました",
     "proxyEnabled": "プロキシを有効にしました。新しいターミナルで自動的に反映されます。",
     "proxyDisabled": "プロキシを無効にしました",
     "proxyUpdated": "プロキシを更新しました",
     "proxyDeleted": "プロキシを削除しました",
     "proxyUrlCopied": "プロキシ URL をコピーしました",
-    "settingsSaved": "設定を保存しました",
-    "shellIntegrationEnabled": "Shell 連携を有効にしました",
-    "shellIntegrationDisabled": "Shell 連携を無効にしました"
+    "settingsSaved": "設定を保存しました"
   },
   "settings": {
     "title": "設定",
@@ -71,9 +61,6 @@
     },
     "autoLaunch": "起動時に開く",
     "noProxy": "グローバル no_proxy",
-    "shellIntegration": "Shell 連携",
-    "on": "オン",
-    "off": "オフ",
     "save": "設定を保存"
   }
 }

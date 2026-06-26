@@ -2,7 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { disable, enable } from "@tauri-apps/plugin-autostart";
 
-import type { AppInfo, ProxyImportCandidate, ProxyStore, ShellKind } from "../types/proxy";
+import type { AppInfo, ProxyStore } from "../types/proxy";
 
 export async function getAppInfo(): Promise<AppInfo> {
   return invoke<AppInfo>("get_app_info");
@@ -14,10 +14,6 @@ export async function getProxyStore(): Promise<ProxyStore> {
 
 export async function copyText(text: string): Promise<void> {
   await writeText(text);
-}
-
-export async function scanProxyImports(): Promise<ProxyImportCandidate[]> {
-  return invoke<ProxyImportCandidate[]>("scan_proxy_imports");
 }
 
 export async function saveProxyStore(store: ProxyStore): Promise<ProxyStore> {
@@ -39,12 +35,4 @@ export async function enableProxyConfig(id: string): Promise<ProxyStore> {
 
 export async function disableProxyConfig(id: string): Promise<ProxyStore> {
   return invoke<ProxyStore>("disable_proxy_config", { id });
-}
-
-export async function installShellIntegration(shell: ShellKind): Promise<ProxyStore> {
-  return invoke<ProxyStore>("install_shell_integration", { shell });
-}
-
-export async function removeShellIntegration(shell: ShellKind): Promise<ProxyStore> {
-  return invoke<ProxyStore>("remove_shell_integration", { shell });
 }

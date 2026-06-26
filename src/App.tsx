@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, CircleAlert, Settings2 } from "lucide-react";
 
-import { ImportCandidates } from "./features/import/ImportCandidates";
 import { ProxyDashboard } from "./features/proxies/ProxyDashboard";
 import { SettingsPanel } from "./features/settings/SettingsPanel";
 import "./shared/i18n";
@@ -15,9 +14,6 @@ import {
   disableProxyConfig,
   enableProxyConfig,
   getProxyStore,
-  installShellIntegration,
-  removeShellIntegration,
-  scanProxyImports,
   saveProxyStore,
   setAutoLaunch,
 } from "@/shared/tauri/api";
@@ -25,9 +21,7 @@ import type {
   AppSettings,
   NewProxyConfig,
   ProxyConfig,
-  ProxyImportCandidate,
   ProxyStore,
-  ShellKind,
 } from "@/shared/types/proxy";
 
 const defaultProxyStore: ProxyStore = {
@@ -61,7 +55,6 @@ export function App() {
   const [hasLoadedStore, setHasLoadedStore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeView, setActiveView] = useState<AppView>("proxies");
-  const [importCandidates, setImportCandidates] = useState<ProxyImportCandidate[]>([]);
   const activeProxyCount = store.proxies.filter((proxy) => proxy.enabled).length;
 
   useEffect(() => {
@@ -78,19 +71,9 @@ export function App() {
     let isMounted = true;
 
     void getProxyStore()
-      .then(async (nextStore) => {
-        let nextImportCandidates: ProxyImportCandidate[] = [];
-
-        try {
-          nextImportCandidates = await scanProxyImports();
-        } catch {
-          // 导入扫描只是辅助入口，失败不能影响主配置加载和代理开关。
-          nextImportCandidates = [];
-        }
-
+      .then((nextStore) => {
         if (isMounted) {
           setStore(nextStore);
-          setImportCandidates(nextImportCandidates);
           setHasLoadedStore(true);
           setError(null);
         }
@@ -127,40 +110,6 @@ export function App() {
       setStore(savedStore);
       setError(null);
       toast.success(t("feedback.proxySaved"));
-    } catch (unknownError) {
-      const message = errorMessageFromUnknown(unknownError);
-      setError(message);
-      toast.error(message);
-    }
-  }
-
-  async function handleImportCandidate(candidate: ProxyImportCandidate) {
-    const now = new Date().toISOString();
-    const newProxy: ProxyConfig = {
-      name: candidate.name,
-      kind: candidate.kind,
-      scheme: candidate.scheme,
-      host: candidate.host,
-      port: candidate.port,
-      id: globalThis.crypto?.randomUUID?.() ?? `proxy-${Date.now()}`,
-      enabled: false,
-      createdAt: now,
-      updatedAt: now,
-    };
-
-    const nextStore = {
-      ...store,
-      proxies: [...store.proxies, newProxy],
-    };
-
-    try {
-      const savedStore = await saveProxyStore(nextStore);
-      setStore(savedStore);
-      setImportCandidates((candidates) =>
-        candidates.filter((current) => current.id !== candidate.id),
-      );
-      setError(null);
-      toast.success(t("feedback.proxyImported"));
     } catch (unknownError) {
       const message = errorMessageFromUnknown(unknownError);
       setError(message);
@@ -254,23 +203,6 @@ export function App() {
     }
   }
 
-  async function handleToggleShellIntegration(shell: ShellKind, enabled: boolean) {
-    try {
-      const nextStore = enabled
-        ? await installShellIntegration(shell)
-        : await removeShellIntegration(shell);
-      setStore(nextStore);
-      setError(null);
-      toast.success(
-        enabled ? t("feedback.shellIntegrationEnabled") : t("feedback.shellIntegrationDisabled"),
-      );
-    } catch (unknownError) {
-      const message = errorMessageFromUnknown(unknownError);
-      setError(message);
-      toast.error(message);
-    }
-  }
-
   async function handleSaveSettings(settings: AppSettings) {
     const nextStore = {
       ...store,
@@ -298,7 +230,6 @@ export function App() {
       <div className="mx-auto flex min-h-[calc(100dvh-1.5rem)] max-w-5xl flex-col">
         <header className="mb-3 flex h-11 items-center justify-between gap-3 border-b border-border/80 pb-3">
           <div className="flex min-w-0 items-center gap-2">
-            <Badge variant="outline">{t("app.statusNotIntegrated")}</Badge>
             <Badge variant="secondary">{t("app.activeCount", { count: activeProxyCount })}</Badge>
           </div>
           {activeView === "settings" ? (
@@ -340,7 +271,6 @@ export function App() {
             <SettingsPanel
               settings={store.settings}
               onSaveSettings={handleSaveSettings}
-              onToggleShellIntegration={handleToggleShellIntegration}
             />
           </div>
         ) : (
@@ -363,10 +293,6 @@ export function App() {
               onUpdateProxy={handleUpdateProxy}
               onDeleteProxy={handleDeleteProxy}
               onCopyProxyUrl={handleCopyProxyUrl}
-            />
-            <ImportCandidates
-              candidates={importCandidates}
-              onImportCandidate={handleImportCandidate}
             />
           </div>
         )}

@@ -43,14 +43,6 @@ export type ProxyStore = {
   settings: AppSettings;
 };
 
-export type ProxyImportCandidate = NewProxyConfig & {
-  id: string;
-  name: string;
-  shell: ShellKind;
-  sourcePath: string;
-  lineNumber: number;
-};
-
 export type AppInfo = {
   name: string;
   version: string;
