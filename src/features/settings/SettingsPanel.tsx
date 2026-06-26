@@ -47,6 +47,7 @@ export function SettingsPanel({
   const [selectedTheme, setSelectedTheme] = useState<AppSettings["theme"]>(settings.theme);
   const [selectedLanguage, setSelectedLanguage] =
     useState<AppSettings["language"]>(settings.language);
+  const [autoLaunch, setAutoLaunch] = useState(settings.autoLaunch);
   const [noProxy, setNoProxy] = useState(settings.noProxy);
 
   useEffect(() => {
@@ -58,6 +59,10 @@ export function SettingsPanel({
   }, [settings.language]);
 
   useEffect(() => {
+    setAutoLaunch(settings.autoLaunch);
+  }, [settings.autoLaunch]);
+
+  useEffect(() => {
     setNoProxy(settings.noProxy);
   }, [settings.noProxy]);
 
@@ -67,6 +72,7 @@ export function SettingsPanel({
       ...settings,
       theme: selectedTheme,
       language: selectedLanguage,
+      autoLaunch,
       noProxy: noProxy.trim(),
     });
   }
@@ -125,11 +131,16 @@ export function SettingsPanel({
             </div>
           </div>
           <div className="grid gap-3">
-            <div className="flex min-h-9 items-center justify-between gap-4 rounded-md border border-border/65 bg-muted/28 px-3 py-2">
-              <span className="text-sm text-muted-foreground">{t("settings.autoLaunch")}</span>
-              <span className="text-sm font-medium">
-                {settings.autoLaunch ? t("settings.on") : t("settings.off")}
-              </span>
+            <div className="flex min-h-10 items-center justify-between gap-3 rounded-md border border-border/70 bg-background px-3 py-2 dark:bg-secondary/20">
+              <Label htmlFor="settings-auto-launch" className="text-sm">
+                {t("settings.autoLaunch")}
+              </Label>
+              <Switch
+                id="settings-auto-launch"
+                aria-label={t("settings.autoLaunch")}
+                checked={autoLaunch}
+                onCheckedChange={setAutoLaunch}
+              />
             </div>
             <div className="grid gap-1">
               <Label htmlFor="settings-no-proxy">{t("settings.noProxy")}</Label>

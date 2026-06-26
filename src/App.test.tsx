@@ -40,6 +40,7 @@ vi.mock("./shared/tauri/api", () => ({
   })),
   removeShellIntegration: vi.fn(),
   saveProxyStore: vi.fn(async (store) => store),
+  setAutoLaunch: vi.fn(async (_enabled: boolean) => {}),
 }));
 
 describe("App", () => {
@@ -300,6 +301,27 @@ describe("App", () => {
       expect.objectContaining({
         settings: expect.objectContaining({
           noProxy: "localhost,127.0.0.1,*.local",
+        }),
+      }),
+    );
+  });
+
+  it("syncs auto launch when saving settings", async () => {
+    const user = userEvent.setup();
+    const api = await import("./shared/tauri/api");
+
+    await renderApp();
+
+    await waitFor(() => expect(api.getProxyStore).toHaveBeenCalled());
+    await user.click(screen.getByRole("button", { name: "Settings" }));
+    await user.click(screen.getByRole("switch", { name: "Launch at startup" }));
+    await user.click(screen.getByRole("button", { name: "Save settings" }));
+
+    expect(api.setAutoLaunch).toHaveBeenCalledWith(true);
+    expect(api.saveProxyStore).toHaveBeenCalledWith(
+      expect.objectContaining({
+        settings: expect.objectContaining({
+          autoLaunch: true,
         }),
       }),
     );

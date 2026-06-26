@@ -126,4 +126,25 @@ describe("SettingsPanel", () => {
       noProxy: "localhost,127.0.0.1,*.local",
     });
   });
+
+  it("saves the selected auto launch value", async () => {
+    const user = userEvent.setup();
+    const onSaveSettings = vi.fn(async (_settings: AppSettings) => {});
+
+    render(
+      <SettingsPanel
+        settings={settings}
+        onSaveSettings={onSaveSettings}
+        onToggleShellIntegration={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("switch", { name: "Launch at startup" }));
+    await user.click(screen.getByRole("button", { name: "Save settings" }));
+
+    expect(onSaveSettings).toHaveBeenCalledWith({
+      ...settings,
+      autoLaunch: true,
+    });
+  });
 });

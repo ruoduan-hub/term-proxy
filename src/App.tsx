@@ -16,6 +16,7 @@ import {
   removeShellIntegration,
   scanProxyImports,
   saveProxyStore,
+  setAutoLaunch,
 } from "@/shared/tauri/api";
 import type {
   AppSettings,
@@ -225,6 +226,10 @@ export function App() {
     };
 
     try {
+      if (settings.autoLaunch !== store.settings.autoLaunch) {
+        await setAutoLaunch(settings.autoLaunch);
+      }
+
       const savedStore = await saveProxyStore(nextStore);
       setStore(savedStore);
       setError(null);

@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
+import { disable, enable } from "@tauri-apps/plugin-autostart";
 
 import type { AppInfo, ProxyImportCandidate, ProxyStore, ShellKind } from "../types/proxy";
 
@@ -16,6 +17,15 @@ export async function scanProxyImports(): Promise<ProxyImportCandidate[]> {
 
 export async function saveProxyStore(store: ProxyStore): Promise<ProxyStore> {
   return invoke<ProxyStore>("save_proxy_store_command", { store });
+}
+
+export async function setAutoLaunch(enabled: boolean): Promise<void> {
+  if (enabled) {
+    await enable();
+    return;
+  }
+
+  await disable();
 }
 
 export async function enableProxyConfig(id: string): Promise<ProxyStore> {

@@ -3,5 +3,10 @@
   "identifier": "default",
   "description": "Default app capability",
   "windows": ["main"],
-  "permissions": ["core:default"]
+  "permissions": [
+    "core:default",
+    "autostart:allow-disable",
+    "autostart:allow-enable",
+    "autostart:allow-is-enabled"
+  ]
 }
