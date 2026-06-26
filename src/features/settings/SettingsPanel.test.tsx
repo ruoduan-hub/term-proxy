@@ -63,6 +63,13 @@ describe("SettingsPanel", () => {
     });
   });
 
+  it("keeps theme and language selectors at content width", () => {
+    render(<SettingsPanel settings={settings} onSaveSettings={vi.fn()} />);
+
+    expect(screen.getByRole("tablist", { name: "Theme" })).not.toHaveClass("w-full");
+    expect(screen.getByRole("tablist", { name: "Language" })).not.toHaveClass("w-full");
+  });
+
   it("does not render shell integration controls", () => {
     render(
       <SettingsPanel

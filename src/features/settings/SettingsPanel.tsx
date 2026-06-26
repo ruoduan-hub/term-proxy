@@ -84,8 +84,8 @@ export function SettingsPanel({ settings, onSaveSettings }: SettingsPanelProps) 
       </CardHeader>
       <CardContent className="pt-4">
         <form className="grid gap-4" onSubmit={handleSubmit}>
-          <div className="grid gap-3 lg:grid-cols-2">
-            <div className="grid gap-2">
+          <div className="grid gap-4">
+            <div className="grid max-w-[18rem] gap-2">
               <div className="text-sm font-medium text-muted-foreground">
                 {t("settings.theme")}
               </div>
@@ -93,7 +93,7 @@ export function SettingsPanel({ settings, onSaveSettings }: SettingsPanelProps) 
                 value={selectedTheme}
                 onValueChange={(value) => handleThemeChange(value as AppSettings["theme"])}
               >
-                <TabsList aria-label={t("settings.theme")} className="grid w-full grid-cols-3">
+                <TabsList aria-label={t("settings.theme")} className="grid grid-cols-3">
                   {themeOptions.map((option) => (
                     <TabsTrigger key={option.value} value={option.value} className="min-w-0 px-2">
                       {t(option.labelKey)}
@@ -102,7 +102,7 @@ export function SettingsPanel({ settings, onSaveSettings }: SettingsPanelProps) 
                 </TabsList>
               </Tabs>
             </div>
-            <div className="grid gap-2">
+            <div className="grid max-w-[32rem] gap-2">
               <div className="text-sm font-medium text-muted-foreground">
                 {t("settings.language")}
               </div>
@@ -114,7 +114,7 @@ export function SettingsPanel({ settings, onSaveSettings }: SettingsPanelProps) 
               >
                 <TabsList
                   aria-label={t("settings.language")}
-                  className="grid w-full grid-cols-2 sm:grid-cols-5"
+                  className="grid grid-cols-2 sm:grid-cols-5"
                 >
                   {languageOptions.map((option) => (
                     <TabsTrigger key={option.value} value={option.value} className="min-w-0 px-2">
