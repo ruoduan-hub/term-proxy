@@ -64,7 +64,6 @@ fn scheme_name(scheme: ProxyScheme) -> &'static str {
 }
 
 fn proxy_url(proxy: &ProxyConfig) -> String {
-    // MVP 只根据协议、host 和端口生成代理 URL，不把可选凭证字段写入 shell。
     format!(
         "{}://{}:{}",
         scheme_name(proxy.scheme),
@@ -100,8 +99,6 @@ mod tests {
             scheme,
             host: "127.0.0.1".to_string(),
             port: 1087,
-            username: Some("ignored".to_string()),
-            password: Some("ignored".to_string()),
             enabled,
             created_at: "2026-06-26T00:00:00Z".to_string(),
             updated_at: "2026-06-26T00:00:00Z".to_string(),
@@ -128,7 +125,6 @@ mod tests {
         assert!(script.contains("export no_proxy=\"localhost,127.0.0.1\""));
         assert!(!script.contains("HTTP_PROXY"));
         assert!(!script.contains("HTTPS_PROXY"));
-        assert!(!script.contains("ignored"));
     }
 
     #[test]
@@ -148,7 +144,6 @@ mod tests {
         assert!(script.contains("$env:ALL_PROXY = \"socks5://127.0.0.1:1087\""));
         assert!(script.contains("$env:no_proxy = \"localhost,127.0.0.1\""));
         assert!(!script.contains("$env:https_proxy"));
-        assert!(!script.contains("ignored"));
     }
 
     #[test]

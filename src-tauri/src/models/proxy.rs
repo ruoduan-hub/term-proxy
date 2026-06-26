@@ -36,8 +36,6 @@ pub struct ProxyConfig {
     pub scheme: ProxyScheme,
     pub host: String,
     pub port: u16,
-    pub username: Option<String>,
-    pub password: Option<String>,
     pub enabled: bool,
     pub created_at: String,
     pub updated_at: String,
@@ -96,5 +94,30 @@ impl Default for ProxyStore {
             proxies: Vec::new(),
             settings: AppSettings::default(),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn proxy_config_serialization_omits_credentials() {
+        let proxy = ProxyConfig {
+            id: "http-a".to_string(),
+            name: "Local HTTP".to_string(),
+            kind: ProxyKind::HttpProxy,
+            scheme: ProxyScheme::Http,
+            host: "127.0.0.1".to_string(),
+            port: 1087,
+            enabled: false,
+            created_at: "2026-06-26T00:00:00Z".to_string(),
+            updated_at: "2026-06-26T00:00:00Z".to_string(),
+        };
+
+        let json = serde_json::to_string(&proxy).expect("proxy should serialize");
+
+        assert!(!json.contains("username"));
+        assert!(!json.contains("password"));
     }
 }

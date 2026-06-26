@@ -51,8 +51,6 @@ mod tests {
             scheme: ProxyScheme::Http,
             host: "127.0.0.1".to_string(),
             port: 1087,
-            username: None,
-            password: None,
             enabled,
             created_at: "2026-06-26T00:00:00Z".to_string(),
             updated_at: "2026-06-26T00:00:00Z".to_string(),

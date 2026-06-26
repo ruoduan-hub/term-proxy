@@ -11,8 +11,6 @@ export type ProxyConfig = {
   scheme: ProxyScheme;
   host: string;
   port: number;
-  username?: string;
-  password?: string;
   enabled: boolean;
   createdAt: string;
   updatedAt: string;
