@@ -2,7 +2,8 @@
   "app": {
     "title": "Term Proxy",
     "subtitle": "终端代理管理器",
-    "statusNotIntegrated": "未集成"
+    "statusNotIntegrated": "未集成",
+    "activeCount": "{{count}} 个启用"
   },
   "proxy": {
     "types": "代理类型",
@@ -10,6 +11,7 @@
     "enable": "启用",
     "enabled": "已启用",
     "enableNamed": "启用 {{name}}",
+    "summary": "{{kind}} 已保存 {{count}} 个",
     "emptyTitle": "还没有代理配置",
     "emptyDescription": "添加代理配置后即可统一管理终端环境变量。",
     "form": {

@@ -31,7 +31,7 @@ describe("SettingsPanel", () => {
       />,
     );
 
-    await user.selectOptions(screen.getByLabelText("Theme"), "dark");
+    await selectOption({ label: "Theme", option: "Dark", user });
     await user.click(screen.getByRole("button", { name: "Save settings" }));
 
     expect(onSaveSettings).toHaveBeenCalledWith({
@@ -52,7 +52,7 @@ describe("SettingsPanel", () => {
       />,
     );
 
-    await user.selectOptions(screen.getByLabelText("Language"), "zh-CN");
+    await selectOption({ label: "Language", option: "Simplified Chinese", user });
     await user.click(screen.getByRole("button", { name: "Save settings" }));
 
     expect(onSaveSettings).toHaveBeenCalledWith({
@@ -123,3 +123,16 @@ describe("SettingsPanel", () => {
     });
   });
 });
+
+async function selectOption({
+  label,
+  option,
+  user,
+}: {
+  label: string;
+  option: string;
+  user: ReturnType<typeof userEvent.setup>;
+}) {
+  await user.click(screen.getByRole("combobox", { name: label }));
+  await user.click(await screen.findByRole("option", { name: option }));
+}

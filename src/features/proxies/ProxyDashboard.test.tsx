@@ -54,8 +54,8 @@ describe("ProxyDashboard", () => {
 
     await user.click(screen.getByRole("button", { name: "Add proxy" }));
     await user.type(screen.getByLabelText("Name"), "Local SOCKS");
-    await user.selectOptions(screen.getByLabelText("Type"), "ALL_PROXY");
-    await user.selectOptions(screen.getByLabelText("Scheme"), "socks5");
+    await selectOption({ label: "Type", option: "ALL_PROXY", user });
+    await selectOption({ label: "Scheme", option: "socks5", user });
     await user.type(screen.getByLabelText("Host"), "127.0.0.1");
     await user.clear(screen.getByLabelText("Port"));
     await user.type(screen.getByLabelText("Port"), "1080");
@@ -70,3 +70,16 @@ describe("ProxyDashboard", () => {
     });
   });
 });
+
+async function selectOption({
+  label,
+  option,
+  user,
+}: {
+  label: string;
+  option: string;
+  user: ReturnType<typeof userEvent.setup>;
+}) {
+  await user.click(screen.getByRole("combobox", { name: label }));
+  await user.click(await screen.findByRole("option", { name: option }));
+}

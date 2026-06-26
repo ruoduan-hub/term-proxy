@@ -2,7 +2,8 @@
   "app": {
     "title": "Term Proxy",
     "subtitle": "ターミナルプロキシ管理",
-    "statusNotIntegrated": "未連携"
+    "statusNotIntegrated": "未連携",
+    "activeCount": "{{count}} 件有効"
   },
   "proxy": {
     "types": "プロキシ種別",
@@ -10,6 +11,7 @@
     "enable": "有効化",
     "enabled": "有効",
     "enableNamed": "{{name}} を有効化",
+    "summary": "{{kind}} に {{count}} 件保存済み",
     "emptyTitle": "プロキシ設定はまだありません",
     "emptyDescription": "設定を追加すると、ターミナル環境変数を管理できます。",
     "form": {

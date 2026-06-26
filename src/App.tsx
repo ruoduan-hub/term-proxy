@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { CircleAlert, Terminal } from "lucide-react";
 
 import { ImportNotice } from "./features/import/ImportNotice";
 import { ProxyDashboard } from "./features/proxies/ProxyDashboard";
@@ -47,6 +48,7 @@ export function App() {
   const [store, setStore] = useState<ProxyStore>(defaultProxyStore);
   const [hasLoadedStore, setHasLoadedStore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const activeProxyCount = store.proxies.filter((proxy) => proxy.enabled).length;
 
   useEffect(() => {
     if (hasLoadedStore) {
@@ -143,36 +145,51 @@ export function App() {
   }
 
   return (
-    <main className="min-h-dvh bg-gradient-to-b from-background to-muted px-5 py-6 text-foreground md:px-8 md:py-8">
-      <header className="mx-auto mb-6 flex max-w-6xl flex-col items-start justify-between gap-4 md:flex-row md:items-center">
-        <div>
-          <p className="mb-1.5 text-sm text-muted-foreground">{t("app.subtitle")}</p>
-          <h1 className="text-2xl font-semibold leading-tight">{t("app.title")}</h1>
-        </div>
-        <Badge variant="outline" className="text-muted-foreground">
-          {t("app.statusNotIntegrated")}
-        </Badge>
-      </header>
-
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="grid gap-5">
-          {error ? (
-            <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-              {error}
+    <main className="min-h-dvh bg-background px-4 py-4 text-foreground sm:px-6 lg:px-8">
+      <div className="mx-auto flex min-h-[calc(100dvh-2rem)] max-w-7xl flex-col">
+        <header className="mb-4 flex flex-col gap-4 rounded-2xl border border-border/70 bg-card/88 px-4 py-3.5 shadow-[0_24px_80px_-66px_rgba(15,23,42,0.52),inset_0_1px_0_rgba(255,255,255,0.72)] sm:flex-row sm:items-center sm:justify-between dark:shadow-[0_24px_90px_-66px_rgba(0,0,0,0.92),inset_0_1px_0_rgba(255,255,255,0.05)]">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-foreground text-background shadow-[0_14px_32px_-24px_rgba(15,23,42,0.65)] dark:bg-foreground dark:text-background">
+              <Terminal aria-hidden="true" className="size-5" strokeWidth={1.7} />
             </div>
-          ) : null}
-          <ProxyDashboard
-            proxies={store.proxies}
-            onAddProxy={handleAddProxy}
-            onEnableProxy={handleEnableProxy}
+            <div className="min-w-0">
+              <h1 className="truncate text-xl font-semibold leading-tight tracking-[-0.02em]">
+                {t("app.title")}
+              </h1>
+              <p className="truncate text-sm text-muted-foreground">{t("app.subtitle")}</p>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="outline">{t("app.statusNotIntegrated")}</Badge>
+            <Badge variant="secondary">{t("app.activeCount", { count: activeProxyCount })}</Badge>
+          </div>
+        </header>
+
+        <div className="grid flex-1 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="grid content-start gap-4">
+            {error ? (
+              <div className="flex items-start gap-3 rounded-2xl border border-destructive/25 bg-destructive/8 px-4 py-3 text-sm text-destructive">
+                <CircleAlert
+                  aria-hidden="true"
+                  className="mt-0.5 size-4 shrink-0"
+                  strokeWidth={1.8}
+                />
+                <span>{error}</span>
+              </div>
+            ) : null}
+            <ProxyDashboard
+              proxies={store.proxies}
+              onAddProxy={handleAddProxy}
+              onEnableProxy={handleEnableProxy}
+            />
+            <ImportNotice />
+          </div>
+          <SettingsPanel
+            settings={store.settings}
+            onSaveSettings={handleSaveSettings}
+            onToggleShellIntegration={handleToggleShellIntegration}
           />
-          <ImportNotice />
         </div>
-        <SettingsPanel
-          settings={store.settings}
-          onSaveSettings={handleSaveSettings}
-          onToggleShellIntegration={handleToggleShellIntegration}
-        />
       </div>
     </main>
   );

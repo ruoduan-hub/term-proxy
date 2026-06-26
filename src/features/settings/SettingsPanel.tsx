@@ -2,10 +2,20 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { AppSettings, ShellKind } from "@/shared/types/proxy";
-import { cn } from "@/shared/lib/utils";
 import { useTheme } from "@/shared/theme/ThemeProvider";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
+import { Input } from "@/shared/ui/input";
+import { Label } from "@/shared/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/ui/select";
+import { Separator } from "@/shared/ui/separator";
+import { Switch } from "@/shared/ui/switch";
 
 type SettingsPanelProps = {
   settings: AppSettings;
@@ -59,112 +69,95 @@ export function SettingsPanel({
   }
 
   return (
-    <Card as="aside" aria-labelledby="settings-heading">
-      <CardHeader>
+    <Card as="aside" aria-labelledby="settings-heading" className="overflow-hidden">
+      <CardHeader className="border-b border-border/65 bg-muted/38">
         <CardTitle id="settings-heading">{t("settings.title")}</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-5">
         <form className="grid gap-4" onSubmit={handleSubmit}>
-          <dl className="grid gap-4">
+          <div className="grid gap-4">
             <div className="grid gap-1">
-              <dt>
-                <label className="text-sm text-muted-foreground" htmlFor="settings-theme">
-                  {t("settings.theme")}
-                </label>
-              </dt>
-              <dd>
-                <select
-                  id="settings-theme"
-                  value={selectedTheme}
-                  className="h-9 w-full rounded-md border bg-background px-3 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40"
-                  onChange={(event) =>
-                    handleThemeChange(event.currentTarget.value as AppSettings["theme"])
-                  }
-                >
-                  <option value="system">{t("settings.themeOptions.system")}</option>
-                  <option value="light">{t("settings.themeOptions.light")}</option>
-                  <option value="dark">{t("settings.themeOptions.dark")}</option>
-                </select>
-              </dd>
+              <Label htmlFor="settings-theme">{t("settings.theme")}</Label>
+              <Select
+                value={selectedTheme}
+                onValueChange={(value) => handleThemeChange(value as AppSettings["theme"])}
+              >
+                <SelectTrigger id="settings-theme">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="system">{t("settings.themeOptions.system")}</SelectItem>
+                  <SelectItem value="light">{t("settings.themeOptions.light")}</SelectItem>
+                  <SelectItem value="dark">{t("settings.themeOptions.dark")}</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="grid gap-1">
-              <dt>
-                <label className="text-sm text-muted-foreground" htmlFor="settings-language">
-                  {t("settings.language")}
-                </label>
-              </dt>
-              <dd>
-                <select
-                  id="settings-language"
-                  value={selectedLanguage}
-                  className="h-9 w-full rounded-md border bg-background px-3 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40"
-                  onChange={(event) =>
-                    setSelectedLanguage(event.currentTarget.value as AppSettings["language"])
-                  }
-                >
-                  <option value="system">{t("settings.languageOptions.system")}</option>
-                  <option value="zh-CN">{t("settings.languageOptions.zhCN")}</option>
-                  <option value="en">{t("settings.languageOptions.en")}</option>
-                  <option value="ja">{t("settings.languageOptions.ja")}</option>
-                  <option value="zh-TW">{t("settings.languageOptions.zhTW")}</option>
-                </select>
-              </dd>
+              <Label htmlFor="settings-language">{t("settings.language")}</Label>
+              <Select
+                value={selectedLanguage}
+                onValueChange={(value) =>
+                  setSelectedLanguage(value as AppSettings["language"])
+                }
+              >
+                <SelectTrigger id="settings-language">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="system">{t("settings.languageOptions.system")}</SelectItem>
+                  <SelectItem value="zh-CN">{t("settings.languageOptions.zhCN")}</SelectItem>
+                  <SelectItem value="en">{t("settings.languageOptions.en")}</SelectItem>
+                  <SelectItem value="ja">{t("settings.languageOptions.ja")}</SelectItem>
+                  <SelectItem value="zh-TW">{t("settings.languageOptions.zhTW")}</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-sm text-muted-foreground">{t("settings.autoLaunch")}</dt>
-              <dd className="text-sm font-medium">
+            <div className="flex min-h-10 items-center justify-between gap-4 rounded-xl bg-muted/36 px-3 py-2">
+              <span className="text-sm text-muted-foreground">{t("settings.autoLaunch")}</span>
+              <span className="text-sm font-medium">
                 {settings.autoLaunch ? t("settings.on") : t("settings.off")}
-              </dd>
+              </span>
             </div>
             <div className="grid gap-1">
-              <dt>
-                <label className="text-sm text-muted-foreground" htmlFor="settings-no-proxy">
-                  {t("settings.noProxy")}
-                </label>
-              </dt>
-              <dd>
-                <input
-                  id="settings-no-proxy"
-                  value={noProxy}
-                  className="h-9 w-full rounded-md border bg-background px-3 font-mono text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40"
-                  onChange={(event) => setNoProxy(event.currentTarget.value)}
-                />
-              </dd>
+              <Label htmlFor="settings-no-proxy">{t("settings.noProxy")}</Label>
+              <Input
+                id="settings-no-proxy"
+                value={noProxy}
+                className="font-mono"
+                onChange={(event) => setNoProxy(event.currentTarget.value)}
+              />
             </div>
-            <div className="grid gap-3 border-t pt-4">
-              <dt className="text-sm text-muted-foreground">{t("settings.shellIntegration")}</dt>
-              <dd className="grid gap-2">
+            <Separator />
+            <div className="grid gap-3">
+              <div className="text-sm font-medium text-muted-foreground">
+                {t("settings.shellIntegration")}
+              </div>
+              <div className="grid gap-2">
                 {shellOptions.map(({ kind, label }) => {
                   const enabled = settings.shellIntegration[kind];
 
                   return (
-                    <button
+                    <div
                       key={kind}
-                      type="button"
-                      role="switch"
-                      aria-label={label}
-                      aria-checked={enabled}
-                      className="flex min-h-10 items-center justify-between gap-3 rounded-md border bg-background px-3 py-2 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40"
-                      onClick={() => void onToggleShellIntegration(kind, !enabled)}
+                      className="flex min-h-11 items-center justify-between gap-3 rounded-xl border border-border/70 bg-background/62 px-3 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.58)] dark:bg-secondary/22 dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]"
                     >
-                      <span className="font-mono text-sm font-medium">{label}</span>
-                      <span
-                        aria-hidden="true"
-                        className={cn(
-                          "rounded-full px-2 py-0.5 text-xs font-medium",
-                          enabled
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-secondary text-muted-foreground",
-                        )}
-                      >
-                        {enabled ? t("settings.on") : t("settings.off")}
-                      </span>
-                    </button>
+                      <Label className="font-mono text-sm" htmlFor={`shell-${kind}`}>
+                        {label}
+                      </Label>
+                      <Switch
+                        id={`shell-${kind}`}
+                        aria-label={label}
+                        checked={enabled}
+                        onCheckedChange={(checked) =>
+                          void onToggleShellIntegration(kind, checked)
+                        }
+                      />
+                    </div>
                   );
                 })}
-              </dd>
+              </div>
             </div>
-          </dl>
+          </div>
           <div>
             <Button type="submit" size="sm">
               {t("settings.save")}

@@ -6,12 +6,12 @@ export function ImportNotice() {
   const { t } = useTranslation();
 
   return (
-    <Card as="section" aria-labelledby="import-heading">
-      <CardHeader>
+    <Card as="section" aria-labelledby="import-heading" className="bg-card/72">
+      <CardHeader className="pb-3">
         <CardTitle id="import-heading">{t("import.title")}</CardTitle>
       </CardHeader>
       <CardContent>
-        <CardDescription>{t("import.description")}</CardDescription>
+        <CardDescription className="max-w-[64ch]">{t("import.description")}</CardDescription>
       </CardContent>
     </Card>
   );

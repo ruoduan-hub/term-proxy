@@ -2,7 +2,8 @@
   "app": {
     "title": "Term Proxy",
     "subtitle": "Terminal proxy manager",
-    "statusNotIntegrated": "Not integrated"
+    "statusNotIntegrated": "Not integrated",
+    "activeCount": "{{count}} active"
   },
   "proxy": {
     "types": "Proxy types",
@@ -10,6 +11,7 @@
     "enable": "Enable",
     "enabled": "Enabled",
     "enableNamed": "Enable {{name}}",
+    "summary": "{{count}} saved for {{kind}}",
     "emptyTitle": "No proxies yet",
     "emptyDescription": "Add a proxy configuration to start managing terminal environment variables.",
     "form": {
