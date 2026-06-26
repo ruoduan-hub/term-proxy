@@ -16,6 +16,25 @@ export type ProxyConfig = {
   updatedAt: string;
 };
 
+export type ShellIntegrationSettings = {
+  zsh: boolean;
+  bash: boolean;
+  powershell: boolean;
+};
+
+export type AppSettings = {
+  theme: "light" | "dark" | "system";
+  language: "zh-CN" | "en" | "ja" | "zh-TW" | "system";
+  autoLaunch: boolean;
+  noProxy: string;
+  shellIntegration: ShellIntegrationSettings;
+};
+
+export type ProxyStore = {
+  proxies: ProxyConfig[];
+  settings: AppSettings;
+};
+
 export type AppInfo = {
   name: string;
   version: string;

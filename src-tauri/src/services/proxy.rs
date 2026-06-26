@@ -1,9 +1,20 @@
 use crate::models::proxy::ProxyConfig;
+use std::{error::Error, fmt};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ProxyServiceError {
     NotFound,
 }
+
+impl fmt::Display for ProxyServiceError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::NotFound => write!(formatter, "proxy config not found"),
+        }
+    }
+}
+
+impl Error for ProxyServiceError {}
 
 pub fn enable_proxy(
     configs: Vec<ProxyConfig>,
