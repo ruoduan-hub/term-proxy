@@ -6,6 +6,7 @@
   },
   "proxy": {
     "types": "代理类型",
+    "add": "新增代理",
     "emptyTitle": "还没有代理配置",
     "emptyDescription": "添加代理配置后即可统一管理终端环境变量。",
     "kind": {
@@ -23,6 +24,7 @@
     "theme": "主题",
     "language": "语言",
     "autoLaunch": "开机自启",
-    "noProxy": "全局 no_proxy"
+    "noProxy": "全局 no_proxy",
+    "shellIntegration": "Shell 集成"
   }
 }

@@ -6,6 +6,7 @@
   },
   "proxy": {
     "types": "プロキシ種別",
+    "add": "プロキシを追加",
     "emptyTitle": "プロキシ設定はまだありません",
     "emptyDescription": "設定を追加すると、ターミナル環境変数を管理できます。",
     "kind": {
@@ -23,6 +24,7 @@
     "theme": "テーマ",
     "language": "言語",
     "autoLaunch": "起動時に開く",
-    "noProxy": "グローバル no_proxy"
+    "noProxy": "グローバル no_proxy",
+    "shellIntegration": "Shell 連携"
   }
 }

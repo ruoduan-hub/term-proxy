@@ -12,5 +12,7 @@ describe("App", () => {
     expect(screen.getByText("Proxy types")).toBeInTheDocument();
     expect(screen.getByText("Import existing proxy")).toBeInTheDocument();
     expect(screen.getByText("Settings")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Add proxy" })).toBeInTheDocument();
+    expect(screen.getByText("Shell integration")).toBeInTheDocument();
   });
 });

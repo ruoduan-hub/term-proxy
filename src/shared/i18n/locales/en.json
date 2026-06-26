@@ -6,6 +6,7 @@
   },
   "proxy": {
     "types": "Proxy types",
+    "add": "Add proxy",
     "emptyTitle": "No proxies yet",
     "emptyDescription": "Add a proxy configuration to start managing terminal environment variables.",
     "kind": {
@@ -23,6 +24,7 @@
     "theme": "Theme",
     "language": "Language",
     "autoLaunch": "Launch at startup",
-    "noProxy": "Global no_proxy"
+    "noProxy": "Global no_proxy",
+    "shellIntegration": "Shell integration"
   }
 }

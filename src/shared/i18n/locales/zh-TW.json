@@ -6,6 +6,7 @@
   },
   "proxy": {
     "types": "代理類型",
+    "add": "新增代理",
     "emptyTitle": "尚無代理設定",
     "emptyDescription": "新增代理設定後即可統一管理終端環境變數。",
     "kind": {
@@ -23,6 +24,7 @@
     "theme": "主題",
     "language": "語言",
     "autoLaunch": "開機自動啟動",
-    "noProxy": "全域 no_proxy"
+    "noProxy": "全域 no_proxy",
+    "shellIntegration": "Shell 整合"
   }
 }
