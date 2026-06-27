@@ -84,6 +84,11 @@ export function ProxyDashboard({
       return;
     }
 
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
     try {
       setIsSubmittingAdd(true);
       await onAddProxy({
@@ -107,11 +112,17 @@ export function ProxyDashboard({
     event.preventDefault();
 
     const data = new FormData(event.currentTarget);
+    const form = event.currentTarget;
     const editingProxy = proxies.find((proxy) => proxy.id === id);
     const host = editingProxy ? editHostValue(editingProxy).trim() : "";
 
     if (!isValidIpv4Address(host)) {
       setEditHostErrorId(id);
+      return;
+    }
+
+    if (!form.checkValidity()) {
+      form.reportValidity();
       return;
     }
 

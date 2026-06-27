@@ -249,6 +249,40 @@ describe("ProxyDashboard", () => {
     expect(onAddProxy).not.toHaveBeenCalled();
   });
 
+  it.each([
+    ["empty name", "", "1087"],
+    ["empty port", "Local HTTP", ""],
+    ["out-of-range port", "Local HTTP", "70000"],
+  ])("does not submit the add form with a valid host and %s", async (_label, name, port) => {
+    const user = userEvent.setup();
+    const onAddProxy = vi.fn();
+
+    render(
+      <ProxyDashboard
+        proxies={[]}
+        onAddProxy={onAddProxy}
+        onEnableProxy={vi.fn()}
+        onDisableProxy={vi.fn()}
+        onUpdateProxy={vi.fn()}
+        onDeleteProxy={vi.fn()}
+        onCopyProxyCommand={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Add proxy" }));
+    if (name) {
+      await user.type(screen.getByLabelText("Name"), name);
+    }
+    await user.type(screen.getByLabelText("Host"), "127.0.0.1");
+    await user.clear(screen.getByLabelText("Port"));
+    if (port) {
+      await user.type(screen.getByLabelText("Port"), port);
+    }
+    await user.click(screen.getByRole("button", { name: "Save proxy" }));
+
+    expect(onAddProxy).not.toHaveBeenCalled();
+  });
+
   it("disables the add form save button while submitting", async () => {
     const user = userEvent.setup();
     let resolveSubmit: () => void = () => {};
@@ -359,6 +393,42 @@ describe("ProxyDashboard", () => {
 
     expect(screen.getByLabelText("Host")).toHaveValue("999.1.1.1");
     expect(screen.getByText("Enter a valid IPv4 address.")).toBeInTheDocument();
+    expect(onUpdateProxy).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["empty name", "", "1088"],
+    ["empty port", "Backup HTTP", ""],
+    ["out-of-range port", "Backup HTTP", "70000"],
+  ])("does not submit the edit form with a valid host and %s", async (_label, name, port) => {
+    const user = userEvent.setup();
+    const onUpdateProxy = vi.fn();
+
+    render(
+      <ProxyDashboard
+        proxies={[proxy({ id: "http-b", name: "Backup HTTP", host: "10.0.0.2" })]}
+        onAddProxy={vi.fn()}
+        onEnableProxy={vi.fn()}
+        onDisableProxy={vi.fn()}
+        onUpdateProxy={onUpdateProxy}
+        onDeleteProxy={vi.fn()}
+        onCopyProxyCommand={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Edit Backup HTTP" }));
+    await user.clear(screen.getByLabelText("Name"));
+    if (name) {
+      await user.type(screen.getByLabelText("Name"), name);
+    }
+    await user.clear(screen.getByLabelText("Host"));
+    await user.type(screen.getByLabelText("Host"), "10.0.0.3");
+    await user.clear(screen.getByLabelText("Port"));
+    if (port) {
+      await user.type(screen.getByLabelText("Port"), port);
+    }
+    await user.click(screen.getByRole("button", { name: "Save proxy" }));
+
     expect(onUpdateProxy).not.toHaveBeenCalled();
   });
 
