@@ -1,6 +1,6 @@
 {
   "name": "term-proxy",
-  "version": "1.2.3",
+  "version": "1.2.5",
   "private": true,
   "license": "MIT",
   "type": "module",
@@ -12,6 +12,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "tsc",
+    "app:v": "node scripts/update-version.mjs",
     "tauri": "tauri",
     "tauri:icon": "tauri icon",
     "tauri:dev": "tauri dev",
@@ -51,6 +52,7 @@
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.6.0",
     "autoprefixer": "^10.4.20",
+    "inquirer": "^14.0.2",
     "jsdom": "^25.0.1",
     "postcss": "^8.4.49",
     "tailwindcss": "^4.3.1",
