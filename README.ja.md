@@ -26,7 +26,8 @@ export http_proxy=http://127.0.0.1:1087
 export https_proxy=http://127.0.0.1:1087
 ```
 
-を、保存、切り替え、無効化できるコンパクトな UI に置き換えます。
+を、保存、切り替え、無効化できるコンパクトな UI に置き換えます。アプリ上の
+`HTTP_PROXY` は、`http_proxy` と `https_proxy` を同時に書き込む 1 つの設定です。
 
 <p align="center">
   <img src="./intro/screenshots.png" alt="Term Proxy アプリのスクリーンショット" width="860">
@@ -52,15 +53,17 @@ xattr -dr com.apple.quarantine "/Applications/Term Proxy.app"
 
 開発中は、ローカルデバッグ、社内ネットワーク、CLI ツール、一時的なプロキシなどを切り替える場面がよくあります。`.zshrc`、`.bashrc`、PowerShell profile を手で編集する方法は単純ですが、忘れやすく、状態も追いづらくなります。
 
-Term Proxy は、この作業を見える形にします。プロキシを一度登録しておけば、種類ごとに有効な設定を選ぶだけで、新しく開いたターミナルに反映されます。
+Term Proxy は、この作業を見える形にします。プロキシを一度登録しておけば、有効な
+`HTTP_PROXY` と必要に応じた `ALL_PROXY` を選ぶだけで、新しく開いたターミナルに反映されます。
 
 統合方法は控えめです。Term Proxy は shell profile を乗っ取りません。サポート対象の profile には小さな管理済みローダーブロックだけを追加し、実際のプロキシ値は `~/.term-proxy` 配下の管理ファイルに書き込みます。
 
 ## 機能
 
-- `http_proxy`、`https_proxy`、`ALL_PROXY` を管理。
+- `HTTP_PROXY`、`ALL_PROXY`、グローバル `no_proxy` を管理。
+- 1 つの `HTTP_PROXY` 設定から `http_proxy` と `https_proxy` を同時に書き込み。
 - 種類ごとに複数のプロキシ設定を保存。
-- 同じ種類では同時に 1 つだけ有効化。
+- 同じ種類では同時に 1 つだけ有効化し、`HTTP_PROXY` と `ALL_PROXY` は同時に利用可能。
 - UI からホストとポートを設定。ユーザー名とパスワードは扱いません。
 - グローバル `no_proxy` を設定画面で管理。
 - サポート対象 shell の統合を自動で設定。

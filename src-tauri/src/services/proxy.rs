@@ -1,5 +1,45 @@
-use crate::models::proxy::ProxyConfig;
+use crate::models::proxy::{ProxyConfig, ProxyKind};
 use std::{error::Error, fmt};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ProxyGroup {
+    HttpProxy,
+    AllProxy,
+}
+
+pub fn proxy_group(kind: ProxyKind) -> ProxyGroup {
+    match kind {
+        ProxyKind::HttpProxy | ProxyKind::HttpsProxy => ProxyGroup::HttpProxy,
+        ProxyKind::AllProxy => ProxyGroup::AllProxy,
+    }
+}
+
+pub fn normalize_proxy_configs(configs: Vec<ProxyConfig>) -> Vec<ProxyConfig> {
+    let mut normalized: Vec<ProxyConfig> = Vec::new();
+
+    for mut config in configs {
+        if proxy_group(config.kind) == ProxyGroup::HttpProxy {
+            config.kind = ProxyKind::HttpProxy;
+        }
+
+        let duplicate_index = normalized.iter().position(|item| {
+            proxy_group(item.kind) == proxy_group(config.kind)
+                && item.scheme == config.scheme
+                && item.host == config.host
+                && item.port == config.port
+        });
+
+        match duplicate_index {
+            Some(index) if config.enabled && !normalized[index].enabled => {
+                normalized[index] = config;
+            }
+            Some(_) => {}
+            None => normalized.push(config),
+        }
+    }
+
+    normalized
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ProxyServiceError {
@@ -29,7 +69,7 @@ pub fn enable_proxy(
     Ok(configs
         .into_iter()
         .map(|mut item| {
-            if item.kind == target_kind {
+            if proxy_group(item.kind) == proxy_group(target_kind) {
                 item.enabled = item.id == target_id;
             }
 
@@ -79,12 +119,24 @@ mod tests {
         }
     }
 
+    trait ProxyTestExt {
+        fn with_host(self, host: &str) -> Self;
+    }
+
+    impl ProxyTestExt for ProxyConfig {
+        fn with_host(mut self, host: &str) -> Self {
+            self.host = host.to_string();
+            self
+        }
+    }
+
     #[test]
-    fn enabling_proxy_disables_only_same_kind() {
+    fn enabling_proxy_disables_only_same_logical_group() {
         let configs = vec![
             proxy("http-a", ProxyKind::HttpProxy, true),
             proxy("http-b", ProxyKind::HttpProxy, false),
             proxy("https-a", ProxyKind::HttpsProxy, true),
+            proxy("all-a", ProxyKind::AllProxy, true),
         ];
 
         let next = enable_proxy(configs, "http-b").expect("proxy should exist");
@@ -103,10 +155,72 @@ mod tests {
                 .enabled
         );
         assert!(
-            next.iter()
+            !next
+                .iter()
                 .find(|item| item.id == "https-a")
                 .unwrap()
                 .enabled
+        );
+        assert!(next.iter().find(|item| item.id == "all-a").unwrap().enabled);
+    }
+
+    #[test]
+    fn enabling_http_group_proxy_disables_http_and_https_siblings_only() {
+        let configs = vec![
+            proxy("http-a", ProxyKind::HttpProxy, true),
+            proxy("https-a", ProxyKind::HttpsProxy, true),
+            proxy("http-b", ProxyKind::HttpProxy, false),
+            proxy("all-a", ProxyKind::AllProxy, true),
+        ];
+
+        let next = enable_proxy(configs, "http-b").expect("proxy should exist");
+
+        assert!(
+            !next
+                .iter()
+                .find(|item| item.id == "http-a")
+                .unwrap()
+                .enabled
+        );
+        assert!(
+            !next
+                .iter()
+                .find(|item| item.id == "https-a")
+                .unwrap()
+                .enabled
+        );
+        assert!(
+            next.iter()
+                .find(|item| item.id == "http-b")
+                .unwrap()
+                .enabled
+        );
+        assert!(next.iter().find(|item| item.id == "all-a").unwrap().enabled);
+    }
+
+    #[test]
+    fn normalize_proxy_configs_deduplicates_http_group_and_canonicalizes_kind() {
+        let configs = vec![
+            proxy("http-a", ProxyKind::HttpProxy, false),
+            proxy("https-a", ProxyKind::HttpsProxy, true),
+            proxy("http-b", ProxyKind::HttpProxy, false).with_host("10.0.0.2"),
+            proxy("all-a", ProxyKind::AllProxy, true),
+        ];
+
+        let next = normalize_proxy_configs(configs);
+
+        assert_eq!(next.len(), 3);
+        let local = next.iter().find(|item| item.host == "127.0.0.1").unwrap();
+        assert_eq!(local.id, "https-a");
+        assert_eq!(local.kind, ProxyKind::HttpProxy);
+        assert!(local.enabled);
+        assert_eq!(
+            next.iter().find(|item| item.id == "http-b").unwrap().kind,
+            ProxyKind::HttpProxy
+        );
+        assert_eq!(
+            next.iter().find(|item| item.id == "all-a").unwrap().kind,
+            ProxyKind::AllProxy
         );
     }
 

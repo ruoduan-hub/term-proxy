@@ -26,7 +26,8 @@ export http_proxy=http://127.0.0.1:1087
 export https_proxy=http://127.0.0.1:1087
 ```
 
-整理成一个清晰的桌面 UI。你可以保存多个代理，按类型切换启用状态，也可以随时关闭，不需要反复编辑命令行配置。
+整理成一个清晰的桌面 UI。应用里的 `HTTP_PROXY` 是一个统一设置，会同时写入 `http_proxy` 和
+`https_proxy`。你可以保存多个代理，按类型切换启用状态，也可以随时关闭，不需要反复编辑命令行配置。
 
 <p align="center">
   <img src="./intro/screenshots.png" alt="Term Proxy 应用截图" width="860">
@@ -58,9 +59,10 @@ Term Proxy 解决的是这个很具体的问题：把终端代理变成可见、
 
 ## 功能
 
-- 管理 `http_proxy`、`https_proxy`、`ALL_PROXY`。
+- 管理 `HTTP_PROXY`、`ALL_PROXY` 和全局 `no_proxy`。
+- 一个 `HTTP_PROXY` 设置会同时写入 `http_proxy` 和 `https_proxy`。
 - 每种代理类型可以保存多个配置。
-- 每种类型同一时间只允许启用一个代理。
+- 每种类型同一时间只允许启用一个代理，同时允许 `HTTP_PROXY` 和 `ALL_PROXY` 并行启用。
 - 通过 UI 配置主机和端口，不采集用户名和密码。
 - 在设置中统一管理全局 `no_proxy`。
 - 自动安装受支持 shell 的代理集成。

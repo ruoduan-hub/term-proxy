@@ -1,5 +1,7 @@
 export type ProxyKind = "http_proxy" | "https_proxy" | "ALL_PROXY";
 
+export type ProxyGroup = "HTTP_PROXY" | "ALL_PROXY";
+
 export type ProxyScheme = "http" | "https" | "socks4" | "socks5";
 
 export type ShellKind = "zsh" | "bash" | "powershell";

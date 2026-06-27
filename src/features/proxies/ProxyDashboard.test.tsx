@@ -41,6 +41,10 @@ describe("ProxyDashboard", () => {
       />,
     );
 
+    expect(screen.getByRole("tab", { name: "HTTP_PROXY" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "ALL_PROXY" })).toBeInTheDocument();
+    expect(screen.queryByRole("tab", { name: "http_proxy" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("tab", { name: "https_proxy" })).not.toBeInTheDocument();
     expect(screen.getByText("Local HTTP")).toBeInTheDocument();
     expect(screen.getByText("Backup HTTP")).toBeInTheDocument();
     expect(screen.getByText("http://10.0.0.2:1087")).toBeInTheDocument();
@@ -48,6 +52,34 @@ describe("ProxyDashboard", () => {
     await user.click(screen.getByRole("button", { name: "Enable Backup HTTP" }));
 
     expect(onEnableProxy).toHaveBeenCalledWith("http-b");
+  });
+
+  it("shows old https_proxy rows in the HTTP_PROXY group", () => {
+    render(
+      <ProxyDashboard
+        proxies={[
+          proxy({
+            id: "https-a",
+            name: "Legacy HTTPS",
+            kind: "https_proxy",
+            scheme: "https",
+          }),
+        ]}
+        onAddProxy={vi.fn()}
+        onEnableProxy={vi.fn()}
+        onDisableProxy={vi.fn()}
+        onUpdateProxy={vi.fn()}
+        onDeleteProxy={vi.fn()}
+        onCopyProxyUrl={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole("tab", { name: "HTTP_PROXY" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    expect(screen.getByText("Legacy HTTPS")).toBeInTheDocument();
+    expect(screen.getByText("https://127.0.0.1:1087")).toBeInTheDocument();
   });
 
   it("disables an enabled proxy row", async () => {
@@ -71,7 +103,43 @@ describe("ProxyDashboard", () => {
     expect(onDisableProxy).toHaveBeenCalledWith("http-a");
   });
 
-  it("submits a new proxy from the add form", async () => {
+  it("submits a new HTTP_PROXY proxy from the add form", async () => {
+    const user = userEvent.setup();
+    const onAddProxy = vi.fn();
+
+    render(
+      <ProxyDashboard
+        proxies={[]}
+        onAddProxy={onAddProxy}
+        onEnableProxy={vi.fn()}
+        onDisableProxy={vi.fn()}
+        onUpdateProxy={vi.fn()}
+        onDeleteProxy={vi.fn()}
+        onCopyProxyUrl={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Add proxy" }));
+
+    expect(screen.queryByLabelText("Type")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Scheme")).not.toBeInTheDocument();
+
+    await user.type(screen.getByLabelText("Name"), "Local HTTP");
+    await user.type(screen.getByLabelText("Host"), "127.0.0.1");
+    await user.clear(screen.getByLabelText("Port"));
+    await user.type(screen.getByLabelText("Port"), "1087");
+    await user.click(screen.getByRole("button", { name: "Save proxy" }));
+
+    expect(onAddProxy).toHaveBeenCalledWith({
+      name: "Local HTTP",
+      kind: "http_proxy",
+      scheme: "http",
+      host: "127.0.0.1",
+      port: 1087,
+    });
+  });
+
+  it("submits a new ALL_PROXY proxy from the add form", async () => {
     const user = userEvent.setup();
     const onAddProxy = vi.fn();
 
@@ -89,10 +157,6 @@ describe("ProxyDashboard", () => {
 
     await user.click(screen.getByRole("tab", { name: "ALL_PROXY" }));
     await user.click(screen.getByRole("button", { name: "Add proxy" }));
-
-    expect(screen.queryByLabelText("Type")).not.toBeInTheDocument();
-    expect(screen.queryByLabelText("Scheme")).not.toBeInTheDocument();
-
     await user.type(screen.getByLabelText("Name"), "Local SOCKS");
     await user.type(screen.getByLabelText("Host"), "127.0.0.1");
     await user.clear(screen.getByLabelText("Port"));

@@ -6,8 +6,8 @@ use std::{
 use tauri::{AppHandle, Manager};
 
 use crate::{
-    models::proxy::{ProxyConfig, ProxyImportCandidate, ProxyStore, ShellKind},
-    services::proxy::enable_proxy,
+    models::proxy::{ProxyConfig, ProxyImportCandidate, ProxyKind, ProxyStore, ShellKind},
+    services::proxy::{enable_proxy, normalize_proxy_configs, proxy_group, ProxyGroup},
     shell::import_scanner::scan_proxy_import_candidates,
     shell::profile::{install_profile_marker_file, profile_path_from_home_dir},
     storage::managed_files::{managed_proxy_directory_from_home_dir, write_managed_proxy_files},
@@ -19,14 +19,15 @@ const STORE_FILE_NAME: &str = "proxy-store.json";
 #[tauri::command]
 pub fn get_proxy_store(app: AppHandle) -> Result<ProxyStore, String> {
     let path = proxy_store_path(&app)?;
-    let mut store = load_proxy_store(&path).map_err(|error| error.to_string())?;
+    let mut store =
+        normalize_proxy_store(load_proxy_store(&path).map_err(|error| error.to_string())?);
     let home_dir = app
         .path()
         .home_dir()
         .map_err(|error| format!("failed to resolve home directory: {error}"))?;
 
     if let Ok(candidates) = scan_proxy_import_candidates(&home_dir) {
-        store = merge_import_candidates_into_store(store, &candidates);
+        store = normalize_proxy_store(merge_import_candidates_into_store(store, &candidates));
     }
 
     let store = install_shell_integrations_from_home_dir(
@@ -42,6 +43,7 @@ pub fn get_proxy_store(app: AppHandle) -> Result<ProxyStore, String> {
 #[tauri::command]
 pub fn save_proxy_store_command(app: AppHandle, store: ProxyStore) -> Result<ProxyStore, String> {
     let path = proxy_store_path(&app)?;
+    let store = normalize_proxy_store(store);
     save_proxy_store(&path, &store).map_err(|error| error.to_string())?;
     sync_managed_proxy_files(&app, &store)?;
     Ok(store)
@@ -50,7 +52,8 @@ pub fn save_proxy_store_command(app: AppHandle, store: ProxyStore) -> Result<Pro
 #[tauri::command]
 pub fn enable_proxy_config(app: AppHandle, id: String) -> Result<ProxyStore, String> {
     let path = proxy_store_path(&app)?;
-    let mut store = load_proxy_store(&path).map_err(|error| error.to_string())?;
+    let mut store =
+        normalize_proxy_store(load_proxy_store(&path).map_err(|error| error.to_string())?);
     store.proxies = enable_proxy(store.proxies, &id).map_err(|error| error.to_string())?;
     let home_dir = app
         .path()
@@ -149,7 +152,7 @@ fn merge_import_candidates_into_store(
 
     for candidate in candidates {
         let already_exists = store.proxies.iter().any(|proxy| {
-            proxy.kind == candidate.kind
+            proxy_group(proxy.kind) == proxy_group(candidate.kind)
                 && proxy.scheme == candidate.scheme
                 && proxy.host == candidate.host
                 && proxy.port == candidate.port
@@ -159,10 +162,11 @@ fn merge_import_candidates_into_store(
             continue;
         }
 
+        let kind = normalized_import_kind(candidate.kind);
         store.proxies.push(ProxyConfig {
             id: format!("imported:{}", candidate.id),
-            name: candidate.name.clone(),
-            kind: candidate.kind,
+            name: import_candidate_name(candidate),
+            kind,
             scheme: candidate.scheme,
             host: candidate.host.clone(),
             port: candidate.port,
@@ -173,6 +177,25 @@ fn merge_import_candidates_into_store(
     }
 
     store
+}
+
+fn normalize_proxy_store(mut store: ProxyStore) -> ProxyStore {
+    store.proxies = normalize_proxy_configs(store.proxies);
+    store
+}
+
+fn normalized_import_kind(kind: ProxyKind) -> ProxyKind {
+    match proxy_group(kind) {
+        ProxyGroup::HttpProxy => ProxyKind::HttpProxy,
+        ProxyGroup::AllProxy => ProxyKind::AllProxy,
+    }
+}
+
+fn import_candidate_name(candidate: &ProxyImportCandidate) -> String {
+    match proxy_group(candidate.kind) {
+        ProxyGroup::HttpProxy => format!("HTTP_PROXY {}:{}", candidate.host, candidate.port),
+        ProxyGroup::AllProxy => candidate.name.clone(),
+    }
 }
 
 fn current_timestamp() -> String {
@@ -264,7 +287,7 @@ mod tests {
         let candidates = vec![
             candidate(
                 "same",
-                ProxyKind::HttpProxy,
+                ProxyKind::HttpsProxy,
                 ProxyScheme::Http,
                 "127.0.0.1",
                 1087,
@@ -272,7 +295,7 @@ mod tests {
             candidate(
                 "new",
                 ProxyKind::HttpsProxy,
-                ProxyScheme::Https,
+                ProxyScheme::Http,
                 "10.0.0.2",
                 1099,
             ),
@@ -286,12 +309,43 @@ mod tests {
             .iter()
             .find(|proxy| proxy.id == "imported:new")
             .expect("new profile proxy should be imported");
-        assert_eq!(imported.name, "https_proxy 10.0.0.2:1099");
-        assert_eq!(imported.kind, ProxyKind::HttpsProxy);
-        assert_eq!(imported.scheme, ProxyScheme::Https);
+        assert_eq!(imported.name, "HTTP_PROXY 10.0.0.2:1099");
+        assert_eq!(imported.kind, ProxyKind::HttpProxy);
+        assert_eq!(imported.scheme, ProxyScheme::Http);
         assert_eq!(imported.host, "10.0.0.2");
         assert_eq!(imported.port, 1099);
         assert!(!imported.enabled);
+    }
+
+    #[test]
+    fn normalizes_loaded_store_proxy_configs() {
+        let mut store = ProxyStore::default();
+        store.proxies = vec![
+            proxy("http-a", ProxyKind::HttpProxy, ProxyScheme::Http),
+            proxy("https-a", ProxyKind::HttpsProxy, ProxyScheme::Http),
+            proxy("https-b", ProxyKind::HttpsProxy, ProxyScheme::Http).with_host("10.0.0.2"),
+        ];
+        store.proxies[1].enabled = true;
+
+        let next = normalize_proxy_store(store);
+
+        assert_eq!(next.proxies.len(), 2);
+        let local = next
+            .proxies
+            .iter()
+            .find(|proxy| proxy.host == "127.0.0.1")
+            .expect("duplicate endpoint should be retained once");
+        assert_eq!(local.id, "https-a");
+        assert_eq!(local.kind, ProxyKind::HttpProxy);
+        assert!(local.enabled);
+        assert_eq!(
+            next.proxies
+                .iter()
+                .find(|proxy| proxy.host == "10.0.0.2")
+                .unwrap()
+                .kind,
+            ProxyKind::HttpProxy
+        );
     }
 
     fn temp_home_dir(name: &str) -> PathBuf {
@@ -313,6 +367,17 @@ mod tests {
             enabled: false,
             created_at: "2026-06-26T00:00:00Z".to_string(),
             updated_at: "2026-06-26T00:00:00Z".to_string(),
+        }
+    }
+
+    trait ProxyTestExt {
+        fn with_host(self, host: &str) -> Self;
+    }
+
+    impl ProxyTestExt for ProxyConfig {
+        fn with_host(mut self, host: &str) -> Self {
+            self.host = host.to_string();
+            self
         }
     }
 

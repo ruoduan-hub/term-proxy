@@ -26,7 +26,8 @@ export http_proxy=http://127.0.0.1:1087
 export https_proxy=http://127.0.0.1:1087
 ```
 
-with a compact UI for saving, switching, and disabling proxy profiles.
+with a compact UI for saving, switching, and disabling proxy profiles. In the app, `HTTP_PROXY`
+is one setting that writes both `http_proxy` and `https_proxy`.
 
 <p align="center">
   <img src="./intro/screenshots.png" alt="Term Proxy app screenshot" width="860">
@@ -52,15 +53,18 @@ xattr -dr com.apple.quarantine "/Applications/Term Proxy.app"
 
 Developers often keep several local proxy ports for debugging, company networks, CLI tools, and temporary environments. Maintaining those values by hand in `.zshrc`, `.bashrc`, or PowerShell profiles is easy to forget and hard to audit.
 
-Term Proxy keeps that workflow visible. You add proxy entries once, pick the active entry for each proxy type, and the app writes a managed shell script for new terminal sessions.
+Term Proxy keeps that workflow visible. You add proxy entries once, pick the active `HTTP_PROXY`
+entry and optional `ALL_PROXY` entry, and the app writes a managed shell script for new terminal
+sessions.
 
 The integration is intentionally conservative. Term Proxy does not take over your shell profile. It only adds a small managed loader block, then keeps generated proxy values in its own files under `~/.term-proxy`.
 
 ## Features
 
-- Manage `http_proxy`, `https_proxy`, and `ALL_PROXY`.
+- Manage `HTTP_PROXY`, `ALL_PROXY`, and global `no_proxy`.
+- Write `http_proxy` and `https_proxy` together from one `HTTP_PROXY` setting.
 - Save multiple proxy entries for each type.
-- Keep only one active entry per proxy type at a time.
+- Keep only one active entry per type at a time, while allowing `HTTP_PROXY` and `ALL_PROXY` to run together.
 - Configure host and port from the desktop UI, without credentials.
 - Manage global `no_proxy` in settings.
 - Automatically install shell integration for supported shells.

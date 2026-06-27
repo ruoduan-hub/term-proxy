@@ -30,8 +30,7 @@
       "save": "プロキシを保存"
     },
     "kind": {
-      "http": "http_proxy",
-      "https": "https_proxy",
+      "http": "HTTP_PROXY",
       "all": "ALL_PROXY"
     }
   },

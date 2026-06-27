@@ -8,11 +8,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/sha
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
-import type { NewProxyConfig, ProxyConfig, ProxyKind, ProxyScheme } from "@/shared/types/proxy";
+import type {
+  NewProxyConfig,
+  ProxyConfig,
+  ProxyGroup,
+  ProxyKind,
+  ProxyScheme,
+} from "@/shared/types/proxy";
 
-const proxyKinds = [
-  { key: "http", value: "http_proxy" },
-  { key: "https", value: "https_proxy" },
+const proxyGroups = [
+  { key: "http", value: "HTTP_PROXY" },
   { key: "all", value: "ALL_PROXY" },
 ] as const;
 
@@ -49,13 +54,13 @@ export function ProxyDashboard({
   onCopyProxyUrl,
 }: ProxyDashboardProps) {
   const { t } = useTranslation();
-  const [selectedKind, setSelectedKind] = useState<ProxyKind>("http_proxy");
+  const [selectedGroup, setSelectedGroup] = useState<ProxyGroup>("HTTP_PROXY");
   const [isAdding, setIsAdding] = useState(false);
   const [isSubmittingAdd, setIsSubmittingAdd] = useState(false);
   const [submittingEditId, setSubmittingEditId] = useState<string | null>(null);
   const [editingProxyId, setEditingProxyId] = useState<string | null>(null);
 
-  const visibleProxies = proxies.filter((proxy) => proxy.kind === selectedKind);
+  const visibleProxies = proxies.filter((proxy) => proxyGroupForKind(proxy.kind) === selectedGroup);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -67,7 +72,7 @@ export function ProxyDashboard({
       setIsSubmittingAdd(true);
       await onAddProxy({
         name: normalizeProxyName(data.get("name")),
-        kind: selectedKind,
+        kind: kindForProxyGroup(selectedGroup),
         scheme: DEFAULT_PROXY_SCHEME,
         host: String(data.get("host") ?? "").trim(),
         port: Number(data.get("port")),
@@ -99,8 +104,8 @@ export function ProxyDashboard({
     }
   }
 
-  function handleKindChange(nextKind: string) {
-    setSelectedKind(nextKind as ProxyKind);
+  function handleGroupChange(nextGroup: string) {
+    setSelectedGroup(nextGroup as ProxyGroup);
     setEditingProxyId(null);
     setSubmittingEditId(null);
     setIsAdding(false);
@@ -118,7 +123,7 @@ export function ProxyDashboard({
           <CardTitle id="proxy-types-heading">{t("proxy.types")}</CardTitle>
           <CardDescription className="mt-1">
             {visibleProxies.length > 0
-              ? t("proxy.summary", { count: visibleProxies.length, kind: selectedKind })
+              ? t("proxy.summary", { count: visibleProxies.length, kind: selectedGroup })
               : t("proxy.emptyTitle")}
           </CardDescription>
         </div>
@@ -129,16 +134,16 @@ export function ProxyDashboard({
       </CardHeader>
 
       <CardContent className="pt-4">
-        <Tabs value={selectedKind} onValueChange={handleKindChange}>
+        <Tabs value={selectedGroup} onValueChange={handleGroupChange}>
           <TabsList aria-label={t("proxy.types")}>
-            {proxyKinds.map((kind) => (
-              <TabsTrigger key={kind.value} value={kind.value}>
-                {t(`proxy.kind.${kind.key}`)}
+            {proxyGroups.map((group) => (
+              <TabsTrigger key={group.value} value={group.value}>
+                {t(`proxy.kind.${group.key}`)}
               </TabsTrigger>
             ))}
           </TabsList>
 
-          <TabsContent value={selectedKind}>
+          <TabsContent value={selectedGroup}>
             {isAdding ? (
               <form
                 className="mb-4 grid gap-3 rounded-lg border border-border/70 bg-muted/34 p-3"
@@ -341,4 +346,12 @@ export function ProxyDashboard({
       </CardContent>
     </Card>
   );
+}
+
+function proxyGroupForKind(kind: ProxyKind): ProxyGroup {
+  return kind === "ALL_PROXY" ? "ALL_PROXY" : "HTTP_PROXY";
+}
+
+function kindForProxyGroup(group: ProxyGroup): ProxyKind {
+  return group === "ALL_PROXY" ? "ALL_PROXY" : "http_proxy";
 }

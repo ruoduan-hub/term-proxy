@@ -116,11 +116,11 @@ mod tests {
         assert_eq!(files.posix_path, directory.join("proxy.sh"));
         assert_eq!(files.powershell_path, directory.join("proxy.ps1"));
         assert!(posix.contains("export http_proxy=\"http://127.0.0.1:1087\""));
+        assert!(posix.contains("export https_proxy=\"http://127.0.0.1:1087\""));
         assert!(posix.contains("export ALL_PROXY=\"http://127.0.0.1:1087\""));
-        assert!(!posix.contains("export https_proxy="));
         assert!(powershell.contains("$env:http_proxy = \"http://127.0.0.1:1087\""));
+        assert!(powershell.contains("$env:https_proxy = \"http://127.0.0.1:1087\""));
         assert!(powershell.contains("$env:ALL_PROXY = \"http://127.0.0.1:1087\""));
-        assert!(!powershell.contains("$env:https_proxy"));
 
         let _ = fs::remove_dir_all(home_dir);
     }
