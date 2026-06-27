@@ -453,13 +453,14 @@ describe("ProxyDashboard", () => {
     expect(onDeleteProxy).toHaveBeenCalledWith("http-b");
   });
 
-  it("copies a proxy URL from a row", async () => {
+  it("passes the selected proxy to the copy command handler", async () => {
     const user = userEvent.setup();
     const onCopyProxyCommand = vi.fn();
+    const selectedProxy = proxy({ id: "http-b", name: "Backup HTTP", host: "10.0.0.2" });
 
     render(
       <ProxyDashboard
-        proxies={[proxy({ id: "http-b", name: "Backup HTTP", host: "10.0.0.2" })]}
+        proxies={[selectedProxy]}
         onAddProxy={vi.fn()}
         onEnableProxy={vi.fn()}
         onDisableProxy={vi.fn()}
@@ -469,10 +470,8 @@ describe("ProxyDashboard", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Copy Backup HTTP URL" }));
+    await user.click(screen.getByRole("button", { name: "Copy Backup HTTP command" }));
 
-    expect(onCopyProxyCommand).toHaveBeenCalledWith(
-      proxy({ id: "http-b", name: "Backup HTTP", host: "10.0.0.2" }),
-    );
+    expect(onCopyProxyCommand).toHaveBeenCalledWith(selectedProxy);
   });
 });

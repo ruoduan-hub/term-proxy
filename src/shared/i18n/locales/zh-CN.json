@@ -14,7 +14,7 @@
     "enabled": "已启用",
     "enableNamed": "启用 {{name}}",
     "disableNamed": "关闭 {{name}}",
-    "copyUrlNamed": "复制 {{name}} URL",
+    "copyCommandNamed": "复制 {{name}} 命令",
     "editNamed": "编辑 {{name}}",
     "deleteNamed": "删除 {{name}}",
     "cancelEditNamed": "取消编辑 {{name}}",
@@ -41,7 +41,7 @@
     "proxyDisabled": "代理已关闭",
     "proxyUpdated": "代理已更新",
     "proxyDeleted": "代理已删除",
-    "proxyUrlCopied": "代理 URL 已复制",
+    "proxyCommandCopied": "代理命令已复制",
     "settingsSaved": "设置已保存"
   },
   "settings": {

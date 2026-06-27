@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { ArrowLeft, CircleAlert, Settings2 } from "lucide-react";
 
 import { ProxyDashboard } from "./features/proxies/ProxyDashboard";
+import { formatProxyCopyCommand } from "./features/proxies/proxyCommand";
 import { SettingsPanel } from "./features/settings/SettingsPanel";
 import "./shared/i18n";
 import { Badge } from "@/shared/ui/badge";
@@ -13,6 +14,7 @@ import {
   copyText,
   disableProxyConfig,
   enableProxyConfig,
+  getAppInfo,
   getProxyStore,
   saveProxyStore,
   setAutoLaunch,
@@ -55,6 +57,7 @@ export function App() {
   const [hasLoadedStore, setHasLoadedStore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeView, setActiveView] = useState<AppView>("proxies");
+  const [platform, setPlatform] = useState<string | null>(null);
   const activeProxyCount = store.proxies.filter((proxy) => proxy.enabled).length;
 
   useEffect(() => {
@@ -66,6 +69,26 @@ export function App() {
   useEffect(() => {
     void i18n.changeLanguage(resolveLanguage(store.settings.language));
   }, [i18n, store.settings.language]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    void getAppInfo()
+      .then((appInfo) => {
+        if (isMounted) {
+          setPlatform(appInfo.platform);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setPlatform(null);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -191,11 +214,11 @@ export function App() {
     }
   }
 
-  async function handleCopyProxyUrl(url: string) {
+  async function handleCopyProxyCommand(proxy: ProxyConfig) {
     try {
-      await copyText(url);
+      await copyText(formatProxyCopyCommand(proxy, platform));
       setError(null);
-      toast.success(t("feedback.proxyUrlCopied"));
+      toast.success(t("feedback.proxyCommandCopied"));
     } catch (unknownError) {
       const message = errorMessageFromUnknown(unknownError);
       setError(message);
@@ -292,7 +315,7 @@ export function App() {
               onDisableProxy={handleDisableProxy}
               onUpdateProxy={handleUpdateProxy}
               onDeleteProxy={handleDeleteProxy}
-              onCopyProxyUrl={handleCopyProxyUrl}
+              onCopyProxyCommand={handleCopyProxyCommand}
             />
           </div>
         )}

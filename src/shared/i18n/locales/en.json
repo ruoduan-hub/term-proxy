@@ -14,7 +14,7 @@
     "enabled": "Enabled",
     "enableNamed": "Enable {{name}}",
     "disableNamed": "Disable {{name}}",
-    "copyUrlNamed": "Copy {{name}} URL",
+    "copyCommandNamed": "Copy {{name}} command",
     "editNamed": "Edit {{name}}",
     "deleteNamed": "Delete {{name}}",
     "cancelEditNamed": "Cancel editing {{name}}",
@@ -41,7 +41,7 @@
     "proxyDisabled": "Proxy disabled",
     "proxyUpdated": "Proxy updated",
     "proxyDeleted": "Proxy deleted",
-    "proxyUrlCopied": "Proxy URL copied",
+    "proxyCommandCopied": "Proxy command copied",
     "settingsSaved": "Settings saved"
   },
   "settings": {

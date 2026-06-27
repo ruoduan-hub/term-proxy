@@ -375,7 +375,7 @@ export function ProxyDashboard({
                             type="button"
                             variant="ghost"
                             size="icon"
-                            aria-label={t("proxy.copyUrlNamed", { name: proxy.name })}
+                            aria-label={t("proxy.copyCommandNamed", { name: proxy.name })}
                             onClick={() => onCopyProxyCommand(proxy)}
                           >
                             <Copy aria-hidden="true" />
