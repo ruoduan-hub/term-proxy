@@ -69,7 +69,7 @@ The integration is intentionally conservative. Term Proxy does not take over you
 - Manage global `no_proxy` in settings.
 - Automatically install shell integration for supported shells.
 - Read and merge existing proxy values from shell profiles.
-- Copy proxy URLs to the system clipboard.
+- Copy platform-specific terminal proxy commands to the system clipboard.
 - Support light theme, dark theme, and system theme.
 - Support English, Simplified Chinese, Japanese, and Traditional Chinese.
 - Support launch at startup through Tauri autostart.
