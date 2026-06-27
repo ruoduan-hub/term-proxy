@@ -39,9 +39,9 @@ Download the latest build from [GitHub Releases](https://github.com/ruoduan-hub/
 
 | Platform | Recommended package |
 | --- | --- |
-| macOS | `Term.Proxy_1.0.0_universal.dmg` |
-| Windows | `Term.Proxy_1.0.0_x64-setup.exe` or `Term.Proxy_1.0.0_x64_en-US.msi` |
-| Linux | `Term.Proxy_1.0.0_amd64.AppImage`, `.deb`, or `.rpm` |
+| macOS | `Term.Proxy_last_universal.dmg` |
+| Windows | `Term.Proxy_last_x64-setup.exe` or `Term.Proxy_last_x64_en-US.msi` |
+| Linux | `Term.Proxy_last_amd64.AppImage`, `.deb`, or `.rpm` |
 
 macOS builds are not code-signed yet. If macOS blocks the app on first launch, open it from Finder once through the context menu. If the app is still blocked, remove the quarantine attribute:
 

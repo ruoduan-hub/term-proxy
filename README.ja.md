@@ -39,9 +39,9 @@ export https_proxy=http://127.0.0.1:1087
 
 | プラットフォーム | 推奨パッケージ |
 | --- | --- |
-| macOS | `Term.Proxy_1.0.0_universal.dmg` |
-| Windows | `Term.Proxy_1.0.0_x64-setup.exe` または `Term.Proxy_1.0.0_x64_en-US.msi` |
-| Linux | `Term.Proxy_1.0.0_amd64.AppImage`、`.deb`、`.rpm` |
+| macOS | `Term.Proxy_last_universal.dmg` |
+| Windows | `Term.Proxy_last_x64-setup.exe` または `Term.Proxy_last_x64_en-US.msi` |
+| Linux | `Term.Proxy_last_amd64.AppImage`、`.deb`、`.rpm` |
 
 macOS ビルドはまだコード署名されていません。初回起動時にブロックされた場合は、Finder のコンテキストメニューから一度開いてください。それでもブロックされる場合は、quarantine 属性を削除します。
 
