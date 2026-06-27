@@ -157,6 +157,15 @@ export function ProxyDashboard({
     setEditHostErrorId(null);
   }
 
+  function handleToggleAdd() {
+    if (isAdding) {
+      setAddHost("");
+      setAddHostError(false);
+    }
+
+    setIsAdding(!isAdding);
+  }
+
   function handleAddHostChange(value: string) {
     setAddHost(sanitizeHostInput(value));
     setAddHostError(false);
@@ -191,7 +200,7 @@ export function ProxyDashboard({
               : t("proxy.emptyTitle")}
           </CardDescription>
         </div>
-        <Button type="button" size="sm" onClick={() => setIsAdding((value) => !value)}>
+        <Button type="button" size="sm" onClick={handleToggleAdd}>
           <Plus aria-hidden="true" />
           {t("proxy.add")}
         </Button>

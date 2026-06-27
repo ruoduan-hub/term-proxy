@@ -249,6 +249,35 @@ describe("ProxyDashboard", () => {
     expect(onAddProxy).not.toHaveBeenCalled();
   });
 
+  it("resets add form host state when closing the add form", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <ProxyDashboard
+        proxies={[]}
+        onAddProxy={vi.fn()}
+        onEnableProxy={vi.fn()}
+        onDisableProxy={vi.fn()}
+        onUpdateProxy={vi.fn()}
+        onDeleteProxy={vi.fn()}
+        onCopyProxyCommand={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Add proxy" }));
+    await user.type(screen.getByLabelText("Name"), "Local HTTP");
+    await user.type(screen.getByLabelText("Host"), "999.1.1.1");
+    await user.click(screen.getByRole("button", { name: "Save proxy" }));
+
+    expect(screen.getByText("Enter a valid IPv4 address.")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Add proxy" }));
+    await user.click(screen.getByRole("button", { name: "Add proxy" }));
+
+    expect(screen.getByLabelText("Host")).toHaveValue("");
+    expect(screen.queryByText("Enter a valid IPv4 address.")).not.toBeInTheDocument();
+  });
+
   it.each([
     ["empty name", "", "1087"],
     ["empty port", "Local HTTP", ""],

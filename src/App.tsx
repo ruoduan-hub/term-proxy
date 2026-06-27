@@ -3,7 +3,10 @@ import { useTranslation } from "react-i18next";
 import { ArrowLeft, CircleAlert, Settings2 } from "lucide-react";
 
 import { ProxyDashboard } from "./features/proxies/ProxyDashboard";
-import { formatProxyCopyCommand } from "./features/proxies/proxyCommand";
+import {
+  formatProxyCopyCommand,
+  INVALID_PROXY_HOST_IPV4_ERROR,
+} from "./features/proxies/proxyCommand";
 import { SettingsPanel } from "./features/settings/SettingsPanel";
 import "./shared/i18n";
 import { Badge } from "@/shared/ui/badge";
@@ -58,6 +61,7 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
   const [activeView, setActiveView] = useState<AppView>("proxies");
   const [platform, setPlatform] = useState<string | null>(null);
+  const [hasAppInfoFailed, setHasAppInfoFailed] = useState(false);
   const activeProxyCount = store.proxies.filter((proxy) => proxy.enabled).length;
 
   useEffect(() => {
@@ -77,11 +81,13 @@ export function App() {
       .then((appInfo) => {
         if (isMounted) {
           setPlatform(appInfo.platform);
+          setHasAppInfoFailed(false);
         }
       })
       .catch(() => {
         if (isMounted) {
           setPlatform(null);
+          setHasAppInfoFailed(true);
         }
       });
 
@@ -216,13 +222,34 @@ export function App() {
 
   async function handleCopyProxyCommand(proxy: ProxyConfig) {
     try {
-      await copyText(formatProxyCopyCommand(proxy, platform));
+      const copyPlatform = await resolveCopyPlatform();
+      await copyText(formatProxyCopyCommand(proxy, copyPlatform));
       setError(null);
       toast.success(t("feedback.proxyCommandCopied"));
     } catch (unknownError) {
-      const message = errorMessageFromUnknown(unknownError);
+      const message =
+        unknownError instanceof Error && unknownError.message === INVALID_PROXY_HOST_IPV4_ERROR
+          ? t("proxy.form.hostIpv4Error")
+          : errorMessageFromUnknown(unknownError);
       setError(message);
       toast.error(message);
+    }
+  }
+
+  async function resolveCopyPlatform() {
+    if (platform !== null || hasAppInfoFailed) {
+      return platform;
+    }
+
+    try {
+      const appInfo = await getAppInfo();
+      setPlatform(appInfo.platform);
+      setHasAppInfoFailed(false);
+      return appInfo.platform;
+    } catch {
+      setPlatform(null);
+      setHasAppInfoFailed(true);
+      return null;
     }
   }
 

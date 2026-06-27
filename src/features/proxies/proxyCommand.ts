@@ -3,6 +3,8 @@ import type { ProxyConfig, ProxyGroup, ProxyKind } from "@/shared/types/proxy";
 type ProxyUrlParts = Pick<ProxyConfig, "scheme" | "host" | "port">;
 type ProxyCopyParts = Pick<ProxyConfig, "kind" | "scheme" | "host" | "port">;
 
+export const INVALID_PROXY_HOST_IPV4_ERROR = "invalid_proxy_host_ipv4";
+
 export function sanitizeHostInput(value: string): string {
   return value.replace(/[^0-9.]/g, "");
 }
@@ -41,6 +43,10 @@ export function formatProxyCopyCommand(
   proxy: ProxyCopyParts,
   platform: string | null | undefined,
 ): string {
+  if (!isValidIpv4Address(proxy.host.trim())) {
+    throw new Error(INVALID_PROXY_HOST_IPV4_ERROR);
+  }
+
   const url = formatProxyUrl(proxy);
 
   if (isWindowsPlatform(platform)) {

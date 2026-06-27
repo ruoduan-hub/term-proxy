@@ -71,6 +71,15 @@ describe("proxyCommand", () => {
     );
   });
 
+  it("rejects non-IPv4 proxy hosts when formatting copy commands", () => {
+    expect(() => formatProxyCopyCommand(proxy({ host: "localhost" }), "macos")).toThrow(
+      "invalid_proxy_host_ipv4",
+    );
+    expect(() => formatProxyCopyCommand(proxy({ host: "proxy.local" }), "windows")).toThrow(
+      "invalid_proxy_host_ipv4",
+    );
+  });
+
   it("formats PowerShell copy commands", () => {
     expect(formatProxyCopyCommand(proxy(), "windows")).toBe(
       '$env:http_proxy="http://127.0.0.1:7890"; $env:https_proxy="http://127.0.0.1:7890"',

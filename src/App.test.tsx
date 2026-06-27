@@ -234,6 +234,68 @@ describe("App", () => {
     );
   });
 
+  it("resolves the platform before copying when store data loads first", async () => {
+    const user = userEvent.setup();
+    const api = await import("./shared/tauri/api");
+    let resolveAppInfo: (appInfo: { name: string; version: string; platform: string }) => void =
+      () => {};
+
+    vi.mocked(api.copyText).mockClear();
+    vi.mocked(api.getAppInfo).mockReturnValueOnce(
+      new Promise((resolve) => {
+        resolveAppInfo = resolve;
+      }),
+    );
+    vi.mocked(api.getAppInfo).mockResolvedValueOnce({
+      name: "Term Proxy",
+      version: "1.0.1",
+      platform: "windows",
+    });
+    vi.mocked(api.getProxyStore).mockResolvedValueOnce({
+      proxies: [
+        {
+          id: "http-a",
+          name: "Local HTTP",
+          kind: "http_proxy",
+          scheme: "http",
+          host: "127.0.0.1",
+          port: 1087,
+          enabled: false,
+          createdAt: "2026-06-26T00:00:00Z",
+          updatedAt: "2026-06-26T00:00:00Z",
+        },
+      ],
+      settings: {
+        theme: "system",
+        language: "system",
+        autoLaunch: false,
+        noProxy: "localhost,127.0.0.1",
+        shellIntegration: {
+          zsh: false,
+          bash: false,
+          powershell: false,
+        },
+      },
+    });
+
+    await renderApp();
+
+    await user.click(screen.getByRole("button", { name: "Copy Local HTTP command" }));
+
+    expect(api.copyText).toHaveBeenCalledTimes(1);
+    expect(api.copyText).toHaveBeenCalledWith(
+      '$env:http_proxy="http://127.0.0.1:1087"; $env:https_proxy="http://127.0.0.1:1087"',
+    );
+
+    await act(async () => {
+      resolveAppInfo({
+        name: "Term Proxy",
+        version: "1.0.1",
+        platform: "windows",
+      });
+    });
+  });
+
   it("saves edited proxy values through the Tauri API", async () => {
     const user = userEvent.setup();
     const api = await import("./shared/tauri/api");
