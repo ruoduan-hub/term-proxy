@@ -15,6 +15,12 @@ import type {
   ProxyKind,
   ProxyScheme,
 } from "@/shared/types/proxy";
+import {
+  formatProxyUrl,
+  isValidIpv4Address,
+  proxyGroupForKind,
+  sanitizeHostInput,
+} from "./proxyCommand";
 
 const proxyGroups = [
   { key: "http", value: "HTTP_PROXY" },
@@ -33,7 +39,7 @@ type ProxyDashboardProps = {
   onDisableProxy: (id: string) => void;
   onUpdateProxy: (id: string, proxy: EditableProxyConfig) => Promise<void> | void;
   onDeleteProxy: (id: string) => void;
-  onCopyProxyUrl: (url: string) => void;
+  onCopyProxyCommand: (proxy: ProxyConfig) => void;
 };
 
 type EditableProxyConfig = Pick<ProxyConfig, "name" | "host" | "port">;
@@ -51,7 +57,7 @@ export function ProxyDashboard({
   onDisableProxy,
   onUpdateProxy,
   onDeleteProxy,
-  onCopyProxyUrl,
+  onCopyProxyCommand,
 }: ProxyDashboardProps) {
   const { t } = useTranslation();
   const [selectedGroup, setSelectedGroup] = useState<ProxyGroup>("HTTP_PROXY");
@@ -59,6 +65,10 @@ export function ProxyDashboard({
   const [isSubmittingAdd, setIsSubmittingAdd] = useState(false);
   const [submittingEditId, setSubmittingEditId] = useState<string | null>(null);
   const [editingProxyId, setEditingProxyId] = useState<string | null>(null);
+  const [addHost, setAddHost] = useState("");
+  const [editHostById, setEditHostById] = useState<Record<string, string>>({});
+  const [addHostError, setAddHostError] = useState(false);
+  const [editHostErrorId, setEditHostErrorId] = useState<string | null>(null);
 
   const visibleProxies = proxies.filter((proxy) => proxyGroupForKind(proxy.kind) === selectedGroup);
 
@@ -67,6 +77,12 @@ export function ProxyDashboard({
 
     const data = new FormData(event.currentTarget);
     const form = event.currentTarget;
+    const host = addHost.trim();
+
+    if (!isValidIpv4Address(host)) {
+      setAddHostError(true);
+      return;
+    }
 
     try {
       setIsSubmittingAdd(true);
@@ -74,11 +90,13 @@ export function ProxyDashboard({
         name: normalizeProxyName(data.get("name")),
         kind: kindForProxyGroup(selectedGroup),
         scheme: DEFAULT_PROXY_SCHEME,
-        host: String(data.get("host") ?? "").trim(),
+        host,
         port: Number(data.get("port")),
       });
 
       form.reset();
+      setAddHost("");
+      setAddHostError(false);
       setIsAdding(false);
     } finally {
       setIsSubmittingAdd(false);
@@ -89,15 +107,27 @@ export function ProxyDashboard({
     event.preventDefault();
 
     const data = new FormData(event.currentTarget);
+    const editingProxy = proxies.find((proxy) => proxy.id === id);
+    const host = editingProxy ? editHostValue(editingProxy).trim() : "";
+
+    if (!isValidIpv4Address(host)) {
+      setEditHostErrorId(id);
+      return;
+    }
 
     try {
       setSubmittingEditId(id);
       await onUpdateProxy(id, {
         name: normalizeProxyName(data.get("name")),
-        host: String(data.get("host") ?? "").trim(),
+        host,
         port: Number(data.get("port")),
       });
 
+      setEditHostById((hosts) => {
+        const { [id]: _removed, ...remainingHosts } = hosts;
+        return remainingHosts;
+      });
+      setEditHostErrorId(null);
       setEditingProxyId(null);
     } finally {
       setSubmittingEditId(null);
@@ -110,10 +140,33 @@ export function ProxyDashboard({
     setSubmittingEditId(null);
     setIsAdding(false);
     setIsSubmittingAdd(false);
+    setAddHost("");
+    setEditHostById({});
+    setAddHostError(false);
+    setEditHostErrorId(null);
   }
 
-  function proxyUrl(proxy: ProxyConfig) {
-    return `${proxy.scheme}://${proxy.host}:${proxy.port}`;
+  function handleAddHostChange(value: string) {
+    setAddHost(sanitizeHostInput(value));
+    setAddHostError(false);
+  }
+
+  function editHostValue(proxy: ProxyConfig) {
+    return editHostById[proxy.id] ?? proxy.host;
+  }
+
+  function handleEditHostChange(id: string, value: string) {
+    setEditHostById((hosts) => ({
+      ...hosts,
+      [id]: sanitizeHostInput(value),
+    }));
+    setEditHostErrorId(null);
+  }
+
+  function handleCancelEdit() {
+    setEditingProxyId(null);
+    setEditHostById({});
+    setEditHostErrorId(null);
   }
 
   return (
@@ -146,6 +199,7 @@ export function ProxyDashboard({
           <TabsContent value={selectedGroup}>
             {isAdding ? (
               <form
+                noValidate
                 className="mb-4 grid gap-3 rounded-lg border border-border/70 bg-muted/34 p-3"
                 onSubmit={handleSubmit}
               >
@@ -165,11 +219,20 @@ export function ProxyDashboard({
                     <Input
                       id="proxy-host"
                       name="host"
+                      value={addHost}
+                      onChange={(event) => handleAddHostChange(event.currentTarget.value)}
                       inputMode="decimal"
                       pattern={IPV4_ADDRESS_PATTERN}
                       title={t("proxy.form.hostIpTitle")}
+                      aria-invalid={addHostError}
+                      aria-describedby={addHostError ? "proxy-host-error" : undefined}
                       required
                     />
+                    {addHostError ? (
+                      <p id="proxy-host-error" className="text-sm text-destructive">
+                        {t("proxy.form.hostIpv4Error")}
+                      </p>
+                    ) : null}
                   </div>
 
                   <div className="grid gap-2">
@@ -203,6 +266,7 @@ export function ProxyDashboard({
                   >
                     {editingProxyId === proxy.id ? (
                       <form
+                        noValidate
                         className="grid gap-3"
                         onSubmit={(event) => handleEditSubmit(event, proxy.id)}
                       >
@@ -225,12 +289,29 @@ export function ProxyDashboard({
                             <Input
                               id={`proxy-host-${proxy.id}`}
                               name="host"
-                              defaultValue={proxy.host}
+                              value={editHostValue(proxy)}
+                              onChange={(event) =>
+                                handleEditHostChange(proxy.id, event.currentTarget.value)
+                              }
                               inputMode="decimal"
                               pattern={IPV4_ADDRESS_PATTERN}
                               title={t("proxy.form.hostIpTitle")}
+                              aria-invalid={editHostErrorId === proxy.id}
+                              aria-describedby={
+                                editHostErrorId === proxy.id
+                                  ? `proxy-host-error-${proxy.id}`
+                                  : undefined
+                              }
                               required
                             />
+                            {editHostErrorId === proxy.id ? (
+                              <p
+                                id={`proxy-host-error-${proxy.id}`}
+                                className="text-sm text-destructive"
+                              >
+                                {t("proxy.form.hostIpv4Error")}
+                              </p>
+                            ) : null}
                           </div>
 
                           <div className="grid gap-2">
@@ -256,7 +337,7 @@ export function ProxyDashboard({
                             size="sm"
                             aria-label={t("proxy.cancelEditNamed", { name: proxy.name })}
                             disabled={submittingEditId === proxy.id}
-                            onClick={() => setEditingProxyId(null)}
+                            onClick={handleCancelEdit}
                           >
                             <X aria-hidden="true" />
                             {t("proxy.cancel")}
@@ -274,7 +355,7 @@ export function ProxyDashboard({
                             {proxy.enabled ? <Badge>{t("proxy.enabled")}</Badge> : null}
                           </div>
                           <p className="mt-1 truncate font-mono text-sm text-muted-foreground">
-                            {proxyUrl(proxy)}
+                            {formatProxyUrl(proxy)}
                           </p>
                         </div>
 
@@ -284,7 +365,7 @@ export function ProxyDashboard({
                             variant="ghost"
                             size="icon"
                             aria-label={t("proxy.copyUrlNamed", { name: proxy.name })}
-                            onClick={() => onCopyProxyUrl(proxyUrl(proxy))}
+                            onClick={() => onCopyProxyCommand(proxy)}
                           >
                             <Copy aria-hidden="true" />
                           </Button>
@@ -310,6 +391,8 @@ export function ProxyDashboard({
                             aria-label={t("proxy.editNamed", { name: proxy.name })}
                             onClick={() => {
                               setIsAdding(false);
+                              setEditHostById((hosts) => ({ ...hosts, [proxy.id]: proxy.host }));
+                              setEditHostErrorId(null);
                               setEditingProxyId(proxy.id);
                             }}
                           >
@@ -346,10 +429,6 @@ export function ProxyDashboard({
       </CardContent>
     </Card>
   );
-}
-
-function proxyGroupForKind(kind: ProxyKind): ProxyGroup {
-  return kind === "ALL_PROXY" ? "ALL_PROXY" : "HTTP_PROXY";
 }
 
 function kindForProxyGroup(group: ProxyGroup): ProxyKind {

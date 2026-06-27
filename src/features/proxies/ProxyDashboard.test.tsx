@@ -37,7 +37,7 @@ describe("ProxyDashboard", () => {
         onDisableProxy={vi.fn()}
         onUpdateProxy={vi.fn()}
         onDeleteProxy={vi.fn()}
-        onCopyProxyUrl={vi.fn()}
+        onCopyProxyCommand={vi.fn()}
       />,
     );
 
@@ -70,7 +70,7 @@ describe("ProxyDashboard", () => {
         onDisableProxy={vi.fn()}
         onUpdateProxy={vi.fn()}
         onDeleteProxy={vi.fn()}
-        onCopyProxyUrl={vi.fn()}
+        onCopyProxyCommand={vi.fn()}
       />,
     );
 
@@ -94,7 +94,7 @@ describe("ProxyDashboard", () => {
         onDisableProxy={onDisableProxy}
         onUpdateProxy={vi.fn()}
         onDeleteProxy={vi.fn()}
-        onCopyProxyUrl={vi.fn()}
+        onCopyProxyCommand={vi.fn()}
       />,
     );
 
@@ -115,7 +115,7 @@ describe("ProxyDashboard", () => {
         onDisableProxy={vi.fn()}
         onUpdateProxy={vi.fn()}
         onDeleteProxy={vi.fn()}
-        onCopyProxyUrl={vi.fn()}
+        onCopyProxyCommand={vi.fn()}
       />,
     );
 
@@ -151,7 +151,7 @@ describe("ProxyDashboard", () => {
         onDisableProxy={vi.fn()}
         onUpdateProxy={vi.fn()}
         onDeleteProxy={vi.fn()}
-        onCopyProxyUrl={vi.fn()}
+        onCopyProxyCommand={vi.fn()}
       />,
     );
 
@@ -184,7 +184,7 @@ describe("ProxyDashboard", () => {
         onDisableProxy={vi.fn()}
         onUpdateProxy={vi.fn()}
         onDeleteProxy={vi.fn()}
-        onCopyProxyUrl={vi.fn()}
+        onCopyProxyCommand={vi.fn()}
       />,
     );
 
@@ -200,6 +200,52 @@ describe("ProxyDashboard", () => {
     await user.type(host, "localhost");
     await user.click(screen.getByRole("button", { name: "Save proxy" }));
 
+    expect(onAddProxy).not.toHaveBeenCalled();
+  });
+
+  it("filters add form host input to digits and dots", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <ProxyDashboard
+        proxies={[]}
+        onAddProxy={vi.fn()}
+        onEnableProxy={vi.fn()}
+        onDisableProxy={vi.fn()}
+        onUpdateProxy={vi.fn()}
+        onDeleteProxy={vi.fn()}
+        onCopyProxyCommand={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Add proxy" }));
+    await user.type(screen.getByLabelText("Host"), "local host 10.0.0.2:8080");
+
+    expect(screen.getByLabelText("Host")).toHaveValue("10.0.0.28080");
+  });
+
+  it("shows an inline error and does not submit invalid add form IPv4 hosts", async () => {
+    const user = userEvent.setup();
+    const onAddProxy = vi.fn();
+
+    render(
+      <ProxyDashboard
+        proxies={[]}
+        onAddProxy={onAddProxy}
+        onEnableProxy={vi.fn()}
+        onDisableProxy={vi.fn()}
+        onUpdateProxy={vi.fn()}
+        onDeleteProxy={vi.fn()}
+        onCopyProxyCommand={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Add proxy" }));
+    await user.type(screen.getByLabelText("Name"), "Local HTTP");
+    await user.type(screen.getByLabelText("Host"), "999.1.1.1");
+    await user.click(screen.getByRole("button", { name: "Save proxy" }));
+
+    expect(screen.getByText("Enter a valid IPv4 address.")).toBeInTheDocument();
     expect(onAddProxy).not.toHaveBeenCalled();
   });
 
@@ -221,7 +267,7 @@ describe("ProxyDashboard", () => {
         onDisableProxy={vi.fn()}
         onUpdateProxy={vi.fn()}
         onDeleteProxy={vi.fn()}
-        onCopyProxyUrl={vi.fn()}
+        onCopyProxyCommand={vi.fn()}
       />,
     );
 
@@ -249,7 +295,7 @@ describe("ProxyDashboard", () => {
         onDisableProxy={vi.fn()}
         onUpdateProxy={onUpdateProxy}
         onDeleteProxy={vi.fn()}
-        onCopyProxyUrl={vi.fn()}
+        onCopyProxyCommand={vi.fn()}
       />,
     );
 
@@ -280,7 +326,7 @@ describe("ProxyDashboard", () => {
         onDisableProxy={vi.fn()}
         onUpdateProxy={vi.fn()}
         onDeleteProxy={vi.fn()}
-        onCopyProxyUrl={vi.fn()}
+        onCopyProxyCommand={vi.fn()}
       />,
     );
 
@@ -288,6 +334,32 @@ describe("ProxyDashboard", () => {
 
     expect(screen.getByLabelText("Name")).toHaveAttribute("maxLength", "30");
     expect(screen.getByLabelText("Host")).toHaveAttribute("pattern");
+  });
+
+  it("filters edit form host input and blocks invalid IPv4 hosts", async () => {
+    const user = userEvent.setup();
+    const onUpdateProxy = vi.fn();
+
+    render(
+      <ProxyDashboard
+        proxies={[proxy({ id: "http-b", name: "Backup HTTP", host: "10.0.0.2" })]}
+        onAddProxy={vi.fn()}
+        onEnableProxy={vi.fn()}
+        onDisableProxy={vi.fn()}
+        onUpdateProxy={onUpdateProxy}
+        onDeleteProxy={vi.fn()}
+        onCopyProxyCommand={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Edit Backup HTTP" }));
+    await user.clear(screen.getByLabelText("Host"));
+    await user.type(screen.getByLabelText("Host"), "http://999.1.1.1");
+    await user.click(screen.getByRole("button", { name: "Save proxy" }));
+
+    expect(screen.getByLabelText("Host")).toHaveValue("999.1.1.1");
+    expect(screen.getByText("Enter a valid IPv4 address.")).toBeInTheDocument();
+    expect(onUpdateProxy).not.toHaveBeenCalled();
   });
 
   it("deletes a proxy row", async () => {
@@ -302,7 +374,7 @@ describe("ProxyDashboard", () => {
         onDisableProxy={vi.fn()}
         onUpdateProxy={vi.fn()}
         onDeleteProxy={onDeleteProxy}
-        onCopyProxyUrl={vi.fn()}
+        onCopyProxyCommand={vi.fn()}
       />,
     );
 
@@ -313,7 +385,7 @@ describe("ProxyDashboard", () => {
 
   it("copies a proxy URL from a row", async () => {
     const user = userEvent.setup();
-    const onCopyProxyUrl = vi.fn();
+    const onCopyProxyCommand = vi.fn();
 
     render(
       <ProxyDashboard
@@ -323,12 +395,14 @@ describe("ProxyDashboard", () => {
         onDisableProxy={vi.fn()}
         onUpdateProxy={vi.fn()}
         onDeleteProxy={vi.fn()}
-        onCopyProxyUrl={onCopyProxyUrl}
+        onCopyProxyCommand={onCopyProxyCommand}
       />,
     );
 
     await user.click(screen.getByRole("button", { name: "Copy Backup HTTP URL" }));
 
-    expect(onCopyProxyUrl).toHaveBeenCalledWith("http://10.0.0.2:1087");
+    expect(onCopyProxyCommand).toHaveBeenCalledWith(
+      proxy({ id: "http-b", name: "Backup HTTP", host: "10.0.0.2" }),
+    );
   });
 });
