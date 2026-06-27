@@ -13,3 +13,18 @@ pnpm test src/features/proxies/proxyCommand.test.ts src/App.test.tsx src/feature
 Test Files  3 passed (3)
 Tests       45 passed (45)
 ```
+
+## Final Review Fix Report - 2026-06-27 - Copy Host Strictness
+
+- Updated `formatProxyCopyCommand` to validate the stored `proxy.host` string exactly, without trimming, before generating shell command text.
+- Added regression coverage for stored IPv4 hosts with trailing space and trailing newline.
+- Preserved valid IPv4 copy command output strings.
+
+Verification:
+
+```text
+pnpm test src/features/proxies/proxyCommand.test.ts src/App.test.tsx src/features/proxies/ProxyDashboard.test.tsx
+
+Test Files  3 passed (3)
+Tests       46 passed (46)
+```

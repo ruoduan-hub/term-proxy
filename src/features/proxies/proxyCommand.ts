@@ -43,7 +43,7 @@ export function formatProxyCopyCommand(
   proxy: ProxyCopyParts,
   platform: string | null | undefined,
 ): string {
-  if (!isValidIpv4Address(proxy.host.trim())) {
+  if (!isValidIpv4Address(proxy.host)) {
     throw new Error(INVALID_PROXY_HOST_IPV4_ERROR);
   }
 

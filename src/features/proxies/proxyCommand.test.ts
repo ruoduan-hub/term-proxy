@@ -80,6 +80,15 @@ describe("proxyCommand", () => {
     );
   });
 
+  it("rejects stored IPv4 hosts with trailing whitespace when formatting copy commands", () => {
+    expect(() => formatProxyCopyCommand(proxy({ host: "127.0.0.1 " }), "macos")).toThrow(
+      "invalid_proxy_host_ipv4",
+    );
+    expect(() => formatProxyCopyCommand(proxy({ host: "127.0.0.1\n" }), "windows")).toThrow(
+      "invalid_proxy_host_ipv4",
+    );
+  });
+
   it("formats PowerShell copy commands", () => {
     expect(formatProxyCopyCommand(proxy(), "windows")).toBe(
       '$env:http_proxy="http://127.0.0.1:7890"; $env:https_proxy="http://127.0.0.1:7890"',
